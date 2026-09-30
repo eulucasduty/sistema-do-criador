@@ -1,10 +1,16 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { DEMO } from "@/lib/demo";
 
 // Next 16: o antigo middleware agora se chama proxy.
 // Aqui só renova a sessão do Supabase e manda quem não está logado pro /login.
 // A checagem de verdade acontece de novo em cada página (getClaims no servidor).
 export async function proxy(request: NextRequest) {
+  // Modo demonstração (só no npm run dev): entra direto no painel com dados de exemplo
+  if (DEMO) {
+    if (request.nextUrl.pathname.startsWith("/login")) return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.next({ request });
+  }
   let resposta = NextResponse.next({ request });
 
   // Instalação pela metade (sem as variáveis do Supabase): a tela de login explica o que falta

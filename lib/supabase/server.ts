@@ -1,9 +1,15 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { clienteDemo, DEMO } from "@/lib/demo";
 
 // Cliente do Supabase pra Server Components, Server Actions e Route Handlers.
 // Usa a sessão do usuário logado: a RLS vale. Criar um por requisição.
 export async function createClient() {
+  if (DEMO) return clienteDemo() as Awaited<ReturnType<typeof clienteDaSessao>>;
+  return clienteDaSessao();
+}
+
+async function clienteDaSessao() {
   const cookieStore = await cookies();
 
   return createServerClient(

@@ -99,6 +99,10 @@ Quando sair versão nova: abra a sua cópia no GitHub e clique em **Sync fork �
 
 Prefere VPS? O `Dockerfile` está pronto. Use as mesmas 3 variáveis, mais `APP_URL` (o endereço https) e `RELOGIO=ligado` (o relógio roda dentro do servidor e dispensa o pg_cron). Uma réplica só.
 
+## Ver o painel sem instalar nada
+
+No seu computador, com o Node instalado: `npm install` e depois `npm run demo`. Abre em http://localhost:3100 com dados de exemplo (nada é salvo).
+
 ## Pra quem mexe no código
 
 Next.js 16 (App Router), Supabase (RLS em tudo), LangGraph + OpenRouter no agente, Gemini pra ver e ouvir vídeo, HyperFrames no editor. A pasta `editor/` é a oficina do editor de vídeo (roda no seu computador). O `CLAUDE.md` explica a estrutura pra você customizar com o Claude Code ou o Codex.

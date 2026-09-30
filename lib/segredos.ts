@@ -1,6 +1,7 @@
 import "server-only";
 import { createHmac } from "node:crypto";
 import { lerConfig } from "@/lib/config";
+import { DEMO } from "@/lib/demo";
 
 // As chaves do sistema, num lugar só. Pra instalar ser fácil, a Vercel só precisa das 3
 // variáveis do Supabase: o resto você cola no painel (fica na tabela configuracao, que só
@@ -11,6 +12,7 @@ export type ConfigIA = { openrouter_key?: string | null };
 
 /** Deriva um segredo estável da chave secreta do Supabase (não precisa guardar nem colar). */
 function derivado(rotulo: string): string | null {
+  if (DEMO) return `demo-${rotulo}`;
   const base = process.env.SUPABASE_SECRET_KEY;
   if (!base) return null;
   return createHmac("sha256", base).update(`sistema-do-criador:${rotulo}`).digest("hex").slice(0, 40);
