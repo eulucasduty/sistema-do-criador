@@ -45,3 +45,5 @@ next-env.d.ts
 
 # editor de vídeo: oficinas de edição (vídeo tratado, renders) ficam só no PC da estação
 /editor/oficina/
+# HyperFrames e GSAP que a estação instala (editor/estacao/ferramentas.mjs)
+/editor/ferramentas/

@@ -1,15 +1,18 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-// Configuração do sistema (tabela criador.configuracao), lida pelos processos do
+// Configuração do sistema (tabela configuracao), lida pelos processos do
 // servidor. Cache curto: o relógio lê toda volta e você muda pelo painel.
 
 type Chave =
+  | "ia"
+  | "editor"
   | "perfil"
   | "persona"
   | "ofertas"
   | "perfis_teste"
   | "instagram"
+  | "meta_app"
   | "facebook"
   | "pausa_por_eco_horas"
   | "followup_agente"
@@ -25,8 +28,8 @@ export type Perfil = {
   publico: string | null; // pra quem você fala
   tom: string | null; // como você fala (gírias, bordões, jeito)
   foto_url: string | null; // foto de perfil (vem do Instagram)
-  cor: "natural" | "quente" | "duty"; // look do vídeo no editor
-  legenda: "bangers" | "labs"; // estilo de legenda padrão
+  cor: "natural" | "quente" | "contraste"; // look do vídeo no editor
+  legenda: "bangers" | "limpa"; // estilo de legenda padrão
   cores: { fundo: string; texto: string; destaque: string }; // sua marca (carrossel no visual "minha marca")
 };
 export const PERFIL_PADRAO: Perfil = {
@@ -61,20 +64,24 @@ export type FollowupAgente = { horas: number; antes_da_oferta: string; depois_da
 /** Quem não respondeu a 1ª DM: resposta pública de novo no comentário ({arroba} = @ da pessoa). */
 export type LembreteComentario = { ativo: boolean; horas: number; por_minuto: number; textos: string[] };
 
+// Chaves e tokens ficam na tabela "segredo" (só o dono lê); o resto em "configuracao"
+const SEGREDOS: ReadonlySet<Chave> = new Set<Chave>(["ia", "meta_app", "instagram", "facebook"]);
+const tabelaDe = (chave: Chave) => (SEGREDOS.has(chave) ? "segredo" : "configuracao");
+
 const cache = new Map<Chave, { valor: unknown; ate: number }>();
 const TTL_MS = 30_000;
 
 export async function lerConfig<T>(chave: Chave, padrao: T): Promise<T> {
   const c = cache.get(chave);
   if (c && c.ate > Date.now()) return (c.valor ?? padrao) as T;
-  const { data } = await createAdminClient().from("configuracao").select("valor").eq("chave", chave).maybeSingle();
+  const { data } = await createAdminClient().from(tabelaDe(chave)).select("valor").eq("chave", chave).maybeSingle();
   const valor = data?.valor ?? null;
   cache.set(chave, { valor, ate: Date.now() + TTL_MS });
   return (valor ?? padrao) as T;
 }
 
 export async function salvarConfig(chave: Chave, valor: unknown): Promise<void> {
-  await createAdminClient().from("configuracao").upsert({ chave, valor }, { onConflict: "chave" });
+  await createAdminClient().from(tabelaDe(chave)).upsert({ chave, valor }, { onConflict: "chave" });
   cache.delete(chave);
 }
 

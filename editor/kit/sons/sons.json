@@ -1,19 +1,19 @@
 [
   {
-    "nome": "obturador-99hud",
-    "arquivo": "obturador-99hud.mp3",
+    "nome": "obturador-seco",
+    "arquivo": "obturador-seco.mp3",
     "funcao": "obturador",
     "principal": true,
-    "origem": "99hud",
+    "origem": "kit",
     "descricao": "clique curto de câmera: entra em toda emenda de tomada, junto com a onda de calor",
     "duracao": 0.19
   },
   {
-    "nome": "ding-99hud",
-    "arquivo": "ding-99hud.mp3",
+    "nome": "ding-claro",
+    "arquivo": "ding-claro.mp3",
     "funcao": "ding",
     "principal": true,
-    "origem": "99hud",
+    "origem": "kit",
     "descricao": "ding de dica ou momento de valor (a revelação, o número, o resultado)",
     "duracao": 0.5
   },
@@ -27,20 +27,20 @@
     "duracao": 1.1
   },
   {
-    "nome": "tick-99hud",
-    "arquivo": "tick-99hud.mp3",
+    "nome": "tick-curto",
+    "arquivo": "tick-curto.mp3",
     "funcao": "tecla",
     "principal": true,
-    "origem": "99hud",
+    "origem": "kit",
     "descricao": "tick curtinho: os ticks do contador subindo",
     "duracao": 0.05
   },
   {
-    "nome": "whoosh-99hud",
-    "arquivo": "whoosh-99hud.mp3",
+    "nome": "whoosh-rapido",
+    "arquivo": "whoosh-rapido.mp3",
     "funcao": "whoosh",
     "principal": true,
-    "origem": "99hud",
+    "origem": "kit",
     "descricao": "whoosh de transição, rápido (de vez em quando, não em toda cena)",
     "duracao": 0.291
   },
@@ -54,11 +54,11 @@
     "duracao": 2.345
   },
   {
-    "nome": "pop-99hud",
-    "arquivo": "pop-99hud.mp3",
+    "nome": "pop-curto",
+    "arquivo": "pop-curto.mp3",
     "funcao": "pop",
     "principal": true,
-    "origem": "99hud",
+    "origem": "kit",
     "descricao": "pop na entrada de card, item, comentário e mensagem",
     "duracao": 0.16
   },

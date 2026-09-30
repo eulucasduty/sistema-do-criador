@@ -1,10 +1,9 @@
 import Link from "next/link";
-import { randomBytes } from "node:crypto";
 import { lerSituacao } from "@/lib/passos";
-import { REPO_URL } from "@/lib/app";
 import { haQuanto } from "@/lib/formato";
 import { Copiar } from "./copiar";
-import { conectarInstagram, ligarRelogio, testarIA } from "./conexoes/acoes";
+import { PassoEstacao } from "./editor/passo-estacao";
+import { conectarInstagram, ligarRelogio, salvarChaveIA, salvarSegredoDoApp, testarIA } from "./conexoes/acoes";
 
 // Início: o passo a passo pra deixar tudo ligado, com o status de cada coisa ao vivo.
 // Quando tudo estiver pronto, os passos fecham e fica só o resumo.
@@ -65,8 +64,6 @@ const T = ({ children }: { children: React.ReactNode }) => <b className="text-te
 export default async function Inicio({ searchParams }: PageProps<"/">) {
   const q = await searchParams;
   const s = await lerSituacao();
-  const sugestao = () => randomBytes(20).toString("hex");
-  const envVercel = s.vercel ? "na Vercel: Settings → Environment Variables → Add → depois Deployments → ⋯ no último → Redeploy" : "no arquivo .env do servidor e reinicie";
 
   const estados: Record<string, Estado> = {
     ia: s.env.openrouter ? "ok" : "falta",
@@ -134,8 +131,8 @@ export default async function Inicio({ searchParams }: PageProps<"/">) {
           resumo={`Se você está vendo esta tela, o Supabase e a hospedagem estão funcionando. Endereço do sistema: ${s.url}`}
         >
           <p>
-            Já feito na instalação (está no README do repositório): projeto no Supabase com o SQL rodado e o schema <T>criador</T> exposto, e o
-            sistema publicado na Vercel com as variáveis do Supabase.
+            Já feito na instalação: o projeto no Supabase com o SQL rodado e o sistema publicado na Vercel com as 3 chaves do Supabase. Daqui pra
+            frente, tudo é colado aqui mesmo no painel.
           </p>
           {!s.env.appUrl && (
             <p className="text-morno">
@@ -154,20 +151,24 @@ export default async function Inicio({ searchParams }: PageProps<"/">) {
         >
           {q.ia === "ok" && <Aviso tipo="ok">Chave ok: {String(q.msg ?? "")}.</Aviso>}
           {q.ia === "erro" && <Aviso tipo="erro">{String(q.msg ?? "")}</Aviso>}
+          <p>A OpenRouter é uma loja de IAs: uma conta só, você paga só o que usar. É ela que assiste os vídeos e escreve pra você.</p>
           <Passos>
             <li>
-              Crie uma conta em <T>openrouter.ai</T> e coloque crédito (US$ 5 duram bastante: uma análise de reel custa centavos).
+              Entre em <T>openrouter.ai</T> e crie a conta (dá pra entrar com o Google).
             </li>
             <li>
-              Em <T>Keys → Create Key</T>, copie a chave (começa com <span className="font-mono">sk-or-</span>).
+              Clique na sua foto → <T>Credits</T> → <T>Add Credits</T> e coloque US$ 5 (duram bastante: analisar um reel custa centavos).
             </li>
             <li>
-              Coloque na variável <T>OPENROUTER_API_KEY</T>, {envVercel}.
+              Clique na sua foto → <T>Keys</T> → <T>Create Key</T> → dê um nome (ex.: sistema) → <T>Create</T>. Copie a chave (começa com{" "}
+              <span className="font-mono">sk-or-</span>) e cole aqui:
+              <form action={salvarChaveIA} className="mt-2 flex gap-2">
+                <input type="hidden" name="voltar" value="/" />
+                <input name="chave" type="password" placeholder="sk-or-…" className="campo font-mono" autoComplete="off" />
+                <button className="btn btn-sm btn-2 shrink-0">{s.env.openrouter ? "Trocar" : "Salvar"}</button>
+              </form>
             </li>
           </Passos>
-          <p className="text-xs">
-            O editor de vídeo NÃO usa essa chave: ele roda no Claude Code do seu PC, no seu plano do Claude.
-          </p>
           {s.env.openrouter && (
             <form action={testarIA}>
               <input type="hidden" name="voltar" value="/" />
@@ -207,6 +208,7 @@ export default async function Inicio({ searchParams }: PageProps<"/">) {
           }
         >
           {q.ig === "ok" && <Aviso tipo="ok">Instagram conectado e inscrito nos webhooks.</Aviso>}
+          {q.ig === "segredo" && <Aviso tipo="ok">Chave secreta do app salva.</Aviso>}
           {(q.ig === "erro" || q.ig === "parcial") && <Aviso tipo="erro">{q.ig === "parcial" ? "Conectou, mas: " : "Não conectou: "}{String(q.msg ?? "")}</Aviso>}
           <p>
             A Meta não deixa sistema nenhum mexer na sua conta sem um app seu. É de graça e fica no seu nome: ninguém mais tem acesso.
@@ -221,17 +223,17 @@ export default async function Inicio({ searchParams }: PageProps<"/">) {
               <T>Gerenciar mensagens e conteúdo no Instagram</T> → dê um nome (ex.: Sistema do Criador) → criar.
             </li>
             <li>
-              Crie as variáveis {envVercel}:
-              <span className="mt-1 block">
-                <T>IG_WEBHOOK_VERIFY_TOKEN</T> {s.env.verifyToken ? <span className="text-ok">✓ configurada</span> : <>= uma senha qualquer, por exemplo:</>}
-              </span>
-              {!s.env.verifyToken && <Codigo valor={sugestao()} segredo />}
-              <span className="mt-2 block">
-                <T>META_APP_SECRET</T> {s.env.appSecret ? <span className="text-ok">✓ configurada</span> : "= a “Chave secreta do app do Instagram” (aparece na tela de configuração da API, no app da Meta)"}
-              </span>
+              No app da Meta: <T>Casos de uso → Instagram → Personalizar → Configuração da API com login do Instagram</T>.
             </li>
             <li>
-              No app da Meta: <T>Casos de uso → Instagram → Personalizar → Configuração da API com login do Instagram</T>.
+              No topo dessa tela aparece a <T>Chave secreta do app do Instagram</T>: clique em <T>Mostrar</T>, copie e cole aqui (é o que prova que
+              os avisos vêm mesmo da Meta):
+              <form action={salvarSegredoDoApp} className="mt-2 flex gap-2">
+                <input type="hidden" name="voltar" value="/" />
+                <input name="segredo" type="password" placeholder="chave secreta do app (32 letras e números)" className="campo font-mono" autoComplete="off" />
+                <button className="btn btn-sm btn-2 shrink-0">{s.env.appSecret ? "Trocar" : "Salvar"}</button>
+              </form>
+              {s.env.appSecret && <span className="mt-1 block text-ok">✓ chave secreta salva</span>}
             </li>
             <li>
               Em <T>Gerar tokens de acesso</T>: <T>Adicionar conta</T> → entre com o seu Instagram → aceite as permissões → <T>Gerar token</T>. Copie
@@ -247,7 +249,8 @@ export default async function Inicio({ searchParams }: PageProps<"/">) {
               Em <T>Configurar webhooks</T>:
               <span className="mt-1 block">URL de callback:</span>
               <Codigo valor={`${s.url}/api/webhooks/instagram`} />
-              <span className="mt-1 block">Token de verificação: o mesmo valor que você pôs em IG_WEBHOOK_VERIFY_TOKEN.</span>
+              <span className="mt-1 block">Token de verificação:</span>
+              {s.tokenWebhook ? <Codigo valor={s.tokenWebhook} /> : <span className="block text-quente">falta a chave secreta do Supabase na hospedagem</span>}
               <span className="mt-1 block">
                 Clique em <T>Verificar e salvar</T> e depois ative os campos <T>comments</T>, <T>messages</T>, <T>messaging_postbacks</T> e{" "}
                 <T>message_reactions</T>.
@@ -277,27 +280,18 @@ export default async function Inicio({ searchParams }: PageProps<"/">) {
           resumo={
             s.relogioBatendo
               ? `Batendo (${s.relogio.modo === "servidor" ? "no servidor" : "pelo Supabase"}, último ${haQuanto(s.relogio.visto_em)})`
-              : "Liga as respostas do agente, os lembretes das automações e as rotinas. Um clique depois da variável."
+              : "Liga as respostas do agente, os lembretes das automações e as rotinas. É um clique."
           }
         >
           {q.relogio === "ok" && <Aviso tipo="ok">Relógio ligado: o Supabase chama o sistema a cada minuto.</Aviso>}
           {q.relogio === "erro" && <Aviso tipo="erro">{String(q.msg ?? "")}</Aviso>}
-          <Passos>
-            <li>
-              Crie a variável <T>CRON_SECRET</T> {s.env.cron ? <span className="text-ok">✓ configurada</span> : <>{envVercel}, com uma senha qualquer, por exemplo:</>}
-              {!s.env.cron && <Codigo valor={sugestao()} segredo />}
-            </li>
-            <li>
-              Clique em ligar. O Supabase passa a chamar <span className="font-mono">{s.url}/api/relogio</span> a cada minuto (extensões pg_cron e
-              pg_net, que o SQL da instalação já ligou).
-              <form action={ligarRelogio} className="mt-2">
-                <input type="hidden" name="voltar" value="/" />
-                <button className="btn btn-sm" disabled={!s.env.cron}>
-                  {s.relogioAgendado ? "Ligar de novo" : "Ligar o relógio"}
-                </button>
-              </form>
-            </li>
-          </Passos>
+          <p>
+            Clique no botão. O Supabase passa a chamar o sistema a cada minuto pra ele fazer o que precisa sozinho (responder, lembrar, renovar).
+          </p>
+          <form action={ligarRelogio}>
+            <input type="hidden" name="voltar" value="/" />
+            <button className="btn btn-sm">{s.relogioAgendado ? "Ligar de novo" : "Ligar o relógio"}</button>
+          </form>
           <p className="text-xs">
             Se der erro de extensão: no Supabase, Database → Extensions, ligue <T>pg_cron</T> e <T>pg_net</T> e clique de novo. Rodando num servidor
             próprio (Docker), use RELOGIO=ligado no lugar disso.
@@ -314,37 +308,10 @@ export default async function Inicio({ searchParams }: PageProps<"/">) {
               ? `Ligada em ${s.estacao.maquina ?? "seu PC"}${s.estacao.ocupada ? " · editando agora" : " · esperando pedidos"}`
               : s.estacao.visto_em
                 ? `Desligada (vista ${haQuanto(s.estacao.visto_em)}). Ligue quando for editar.`
-                : "O editor de vídeo roda no seu computador, com o Claude Code no seu plano do Claude: sem custo de API."
+                : "O editor de vídeo roda no seu computador, com a IA que você já assina (Claude ou ChatGPT) ou pela OpenRouter. Instala com um comando."
           }
         >
-          <p>
-            Você sobe o vídeo pelo painel (do celular, inclusive); a estação no seu PC pega o pedido, trata cor e áudio, transcreve, o Claude decide a
-            edição (legenda, motion, sons) e o vídeo pronto volta pro painel. Só precisa estar ligada enquanto edita.
-          </p>
-          <Passos>
-            <li>
-              Instale no PC (Windows ou Mac): <T>Node.js 22</T>, <T>ffmpeg</T> (no Mac, o <span className="font-mono">ffmpeg-full</span>),{" "}
-              <T>whisper.cpp</T> com o modelo large-v3-turbo, <T>Git</T>, <T>Google Chrome</T> e o <T>Claude Code</T> logado no seu plano do
-              Claude (Pro ou Max).
-            </li>
-            <li>
-              Baixe o sistema: <span className="font-mono">git clone {REPO_URL}</span> e rode <span className="font-mono">npm install</span> na pasta.
-            </li>
-            <li>
-              Crie o arquivo <T>.env.local</T> na pasta com <span className="font-mono">NEXT_PUBLIC_SUPABASE_URL</span> e{" "}
-              <span className="font-mono">SUPABASE_SECRET_KEY</span> (os mesmos da Vercel).
-            </li>
-            <li>
-              Ligue com <span className="font-mono">npm run estacao</span>. Esse passo fica verde em até 30 s.
-            </li>
-          </Passos>
-          <p>
-            O guia completo, com os comandos de instalação de cada programa:{" "}
-            <a href={`${REPO_URL}/blob/main/editor/INSTALAR.md`} target="_blank" rel="noreferrer" className="text-marca underline">
-              editor/INSTALAR.md
-            </a>
-            .
-          </p>
+          <PassoEstacao batida={s.estacao} endereco={s.url} />
         </Passo>
 
         <Passo

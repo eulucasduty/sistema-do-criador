@@ -4,7 +4,7 @@ import { lerPerfil } from "@/lib/config";
 import { estacaoLigada, type BatidaEstacao } from "@/lib/editor";
 import { roteiroEmTexto, type Roteiro } from "@/lib/esteira/criacao";
 import { EstacaoDesligada } from "../estacao";
-import { LOOKS_VIDEO } from "../opcoes";
+import { estiloValido, lookValido } from "../opcoes";
 import { FormularioEdicao } from "./formulario";
 
 export const dynamic = "force-dynamic";
@@ -60,8 +60,8 @@ export default async function PaginaNovaEdicao({ searchParams }: PageProps<"/edi
         inicial={{
           titulo: roteiro?.titulo ?? "",
           roteiro: roteiro ? roteiroEmTexto(roteiro) : "",
-          legenda: perfil.legenda === "labs" ? "labs" : "bangers",
-          cor: LOOKS_VIDEO.some((l) => l.valor === perfil.cor) ? perfil.cor : "natural",
+          legenda: estiloValido(perfil.legenda),
+          cor: lookValido(perfil.cor) ?? "natural",
         }}
       />
     </div>

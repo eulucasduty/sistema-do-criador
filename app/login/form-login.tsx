@@ -16,7 +16,7 @@ export function FormLogin({ criar = false }: { criar?: boolean }) {
     const email = String(formData.get("email") ?? "").trim();
     const senha = String(formData.get("senha") ?? "");
     if (criar) {
-      const r = await criarConta({ email, senha, nome: String(formData.get("nome") ?? "") });
+      const r = await criarConta({ email, senha, nome: String(formData.get("nome") ?? ""), chave: String(formData.get("chave") ?? "") });
       if (r.erro) {
         setErro(r.erro);
         setEnviando(false);
@@ -56,6 +56,15 @@ export function FormLogin({ criar = false }: { criar?: boolean }) {
           className="campo mt-1 py-2.5"
         />
       </label>
+      {criar && (
+        <label className="block">
+          <span className="rotulo">Secret key do Supabase</span>
+          <input name="chave" type="password" required autoComplete="off" placeholder="sb_secret_…" className="campo mt-1 py-2.5 font-mono" />
+          <span className="mt-1 block text-xs text-apagado">
+            Prova que o sistema é seu (a mesma que você pôs na Vercel). Fica só aqui: ninguém que ache o seu endereço consegue virar dono.
+          </span>
+        </label>
+      )}
       {erro && <p className="text-sm text-quente">{erro}</p>}
       <button type="submit" disabled={enviando} className="btn mt-2 w-full">
         {enviando ? (criar ? "Criando…" : "Entrando…") : criar ? "Criar minha conta" : "Entrar"}

@@ -1,13 +1,14 @@
-// Uma edição do começo ao fim, na máquina local: oficina → Claude → conferência → render.
-// Quem chama é a estação (scripts/estacao-edicao.mjs), que cuida do banco e do storage.
+// Uma edição do começo ao fim, na máquina local: oficina → IA (Claude, ChatGPT ou OpenRouter)
+// → conferência → render. Quem chama é a estação (scripts/estacao-edicao.mjs), que cuida do banco
+// e do storage.
 
 import { spawn, spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { rodarClaude } from "./claude.mjs";
-import { FERRAMENTAS, gravarPerfil, lookValido, perfilLimpo, prepararOficina, prepararPasta, rodar, sondar } from "./preparar.mjs";
-
-const HF = "npx --yes hyperframes@0.8.92";
+import { ambienteDaIA } from "./ambiente.mjs";
+import { comandoHyperframes, garantirFerramentas } from "./ferramentas.mjs";
+import { prepararMotor } from "./motor.mjs";
+import { FERRAMENTAS, gravarPerfil, legendaValida, lookValido, perfilLimpo, prepararOficina, prepararPasta, rodar, sondar } from "./preparar.mjs";
 
 /** "Você é o editor de vídeo do criador @ana." + nicho, público e tom, quando o perfil tem. */
 function quemE(perfil) {
@@ -18,7 +19,9 @@ function quemE(perfil) {
   return linhas;
 }
 
-export function promptEdicao({ versao = 1, ajuste, perfil } = {}) {
+/** O pedido pra IA. O Codex já recebe o manual como AGENTS.md; os outros leem kit/EDITOR.md. */
+export function promptEdicao({ versao = 1, ajuste, perfil, motor = "claude" } = {}) {
+  const manual = motor === "codex" ? "Siga o manual das suas instruções (AGENTS.md: as notas deste ambiente + o kit/EDITOR.md)." : "Leia kit/EDITOR.md (o manual, com o padrão de edição).";
   if (versao > 1 && ajuste)
     return [
       ...quemE(perfil),
@@ -27,23 +30,66 @@ export function promptEdicao({ versao = 1, ajuste, perfil } = {}) {
       "",
       `«${ajuste.trim()}»`,
       "",
-      "Leia kit/EDITOR.md (o manual com o padrão de edição). Mude o plano só no que foi pedido e mantenha o resto.",
+      `${manual} Mude o plano só no que foi pedido e mantenha o resto.`,
       "Rode o montador e o lint (0 erros) e confira nos snapshots os trechos que mudaram. Não renderize.",
       "Termine com um resumo curto pro criador (2 a 4 linhas, português simples) do que mudou.",
     ].join("\n");
   return [
     ...quemE(perfil),
     "Esta pasta é a oficina de uma edição nova.",
-    "Leia kit/EDITOR.md (o manual, com o padrão de edição) e dados/perfil.json, e siga o fluxo de trabalho até o fim:",
+    `${manual} Leia dados/perfil.json e siga o fluxo de trabalho até o fim:`,
     "pedido e materiais, emendas, assets reais (logos e prints), plano.json, montador, lint com 0 erros",
     "e conferência nos snapshots. Não renderize (a estação renderiza depois).",
     "Termine com o resumo curto pro criador (3 a 6 linhas, português simples).",
   ].join("\n");
 }
 
+/**
+ * Motor "codex" (sem internet nos comandos): se ele pediu logos em dados/buscar.json, a estação
+ * busca (com o kit/logo.mjs, que só aceita nome de marca e domínio) e chama ele de novo, na mesma
+ * conversa, com o resultado. Devolve o resultado final da IA (o uso das duas rodadas somado).
+ */
+export async function rodadaDasLogos(pasta, motor, cerebro, { aviso, aoPasso }) {
+  const arquivo = path.join(pasta, "dados", "buscar.json");
+  if (!fs.existsSync(arquivo)) return cerebro;
+  let pedidas = [];
+  try {
+    pedidas = (JSON.parse(fs.readFileSync(arquivo, "utf8")).logos ?? []).filter((l) => l && typeof l.marca === "string").slice(0, 8);
+  } catch {}
+  fs.renameSync(arquivo, path.join(pasta, "dados", "buscar-feito.json"));
+  aviso(`buscando ${pedidas.length} logo(s) pro ${motor.nome.replace(/^o /, "")}`);
+  const achadas = [];
+  for (const l of pedidas) {
+    const args = [path.join(pasta, "kit", "logo.mjs"), l.marca, ...(typeof l.site === "string" && l.site ? ["--site", l.site] : [])];
+    const r = spawnSync(process.execPath, args, { cwd: pasta, encoding: "utf8", windowsHide: true, timeout: 4 * 60_000, env: ambienteDaIA() });
+    const linha = `${r.stdout ?? ""}${r.stderr ?? ""}`.trim().split(/\r?\n/).filter(Boolean).pop() ?? "sem resposta";
+    achadas.push(`- ${l.marca}: ${r.status === 0 ? linha.replace(/^logo: /, "") : `não achei (${linha.slice(0, 160)})`}`);
+  }
+  const continuar = [
+    "A estação buscou as logos que você pediu:",
+    ...achadas,
+    "",
+    "Olhe as logos antes de usar (as .png com view_image; as .svg você confere no snapshot). Agora continue de onde parou e vá até o fim: plano.json, montador,",
+    "lint com 0 erros e conferência nos snapshots. Não renderize. Termine com o resumo curto pro criador (3 a 6 linhas).",
+  ].join("\n");
+  let segunda;
+  try {
+    segunda = await motor.rodar(pasta, continuar, { aoPasso, retomar: cerebro.sessao });
+  } catch (e) {
+    if (!cerebro.sessao || /limite|logado/.test(e.message)) throw e;
+    // A conversa não deu pra retomar: começa outra, com o mesmo pedido e as logos prontas
+    segunda = await motor.rodar(pasta, `${continuar}\n\n(Se ainda não existir plano.json, comece pelo fluxo de trabalho do manual.)`, { aoPasso });
+  }
+  return {
+    ...segunda,
+    passos: [...cerebro.passos, ...segunda.passos],
+    uso: { ...segunda.uso, turnos: (cerebro.uso.turnos ?? 0) + (segunda.uso.turnos ?? 0), duracao_s: (cerebro.uso.duracao_s ?? 0) + (segunda.uso.duracao_s ?? 0), rodadas: 2 },
+  };
+}
+
 /** Lint do HyperFrames: quantos erros (avisos de organização são esperados neste kit). */
 export function conferir(pasta) {
-  const r = spawnSync(`${HF} lint`, { cwd: pasta, shell: true, encoding: "utf8", windowsHide: true, timeout: 300_000 });
+  const r = spawnSync(`${comandoHyperframes()} lint`, { cwd: pasta, shell: true, encoding: "utf8", windowsHide: true, timeout: 300_000 });
   const saida = `${r.stdout ?? ""}${r.stderr ?? ""}`;
   const m = saida.match(/(\d+) error\(s\)/);
   return { erros: m ? Number(m[1]) : r.status === 0 ? 0 : 1, saida };
@@ -66,7 +112,7 @@ function renderizarBruto(pasta, { aviso = () => {}, qualidade = "standard", minu
   fs.mkdirSync(path.dirname(saida), { recursive: true });
   fs.rmSync(saida, { force: true });
   return new Promise((resolve, reject) => {
-    const p = spawn(`${HF} render --quality ${qualidade} --output renders/final-bruto.mp4`, { cwd: pasta, shell: true, windowsHide: true });
+    const p = spawn(`${comandoHyperframes()} render --quality ${qualidade} --output renders/final-bruto.mp4`, { cwd: pasta, shell: true, windowsHide: true });
     let log = "";
     let ultimo = -10;
     const ler = (d) => {
@@ -113,15 +159,18 @@ export async function versaoWeb(arquivo, limiteMB = 48) {
 /**
  * Edição completa numa pasta local.
  *  - versão 1: bruto + materiais → oficina nova
- *  - ajuste: copia a oficina da versão anterior (base) e o Claude muda só o pedido
- * perfil: o perfil do criador (criador.configuracao "perfil"): @, foto, nicho, público, tom e os
+ *  - ajuste: copia a oficina da versão anterior (base) e a IA muda só o pedido
+ * perfil: o perfil do criador (configuracao "perfil"): @, foto, nicho, público, tom e os
  * padrões de look (cor) e de legenda, que valem quando o pedido não diz.
+ * motor: quem edita, já conferido (motor.mjs → prepararMotor). Sem ele: o Claude no plano.
  */
-export async function editar({ pasta, base, bruto, materiais, pedido, perfil, versao = 1, ajuste, aviso = () => {}, aoPasso = () => {}, aoPreparar = async () => {} }) {
+export async function editar({ pasta, base, bruto, materiais, pedido, perfil, versao = 1, ajuste, motor = null, aviso = () => {}, aoPasso = () => {}, aoPreparar = async () => {} }) {
+  const ia = motor ?? (await prepararMotor({ motor: "claude" }));
+  await garantirFerramentas({ aviso }); // HyperFrames e GSAP locais (só baixa na primeira vez)
   const p = perfilLimpo(perfil);
   const opcoes = { ...(pedido?.opcoes ?? {}) };
   opcoes.cor = lookValido(opcoes.cor, p.cor);
-  opcoes.legenda = ["bangers", "labs"].includes(opcoes.legenda) ? opcoes.legenda : p.legenda;
+  opcoes.legenda = legendaValida(opcoes.legenda, p.legenda);
   if (versao > 1 && base) {
     if (!fs.existsSync(path.join(base, "plano.json"))) throw new Error("a oficina da versão anterior não está neste PC (o ajuste precisa dela)");
     aviso(`copiando a oficina da versão ${versao - 1}`);
@@ -134,14 +183,15 @@ export async function editar({ pasta, base, bruto, materiais, pedido, perfil, ve
   await gravarPerfil(pasta, perfil, { aviso }); // dados/perfil.json + assets/perfil.jpg (o CTA usa)
   await aoPreparar(pasta); // a estação põe aqui os sons da biblioteca do criador (dados/sons.json)
 
-  aviso("o Claude está montando a edição");
-  const cerebro = await rodarClaude(pasta, promptEdicao({ versao, ajuste, perfil: p }), { aoPasso });
-  if (!fs.existsSync(path.join(pasta, "index.html"))) throw new Error("o Claude terminou sem montar o vídeo (sem index.html)");
+  aviso(`${ia.nome} está montando a edição`);
+  let cerebro = await ia.rodar(pasta, promptEdicao({ versao, ajuste, perfil: p, motor: ia.id }), { aoPasso });
+  if (ia.id === "codex") cerebro = await rodadaDasLogos(pasta, ia, cerebro, { aviso, aoPasso });
+  if (!fs.existsSync(path.join(pasta, "index.html"))) throw new Error(`${ia.nome} terminou sem montar o vídeo (sem index.html)`);
 
   let lint = conferir(pasta);
   if (lint.erros > 0) {
-    aviso(`o lint achou ${lint.erros} erro(s); o Claude vai corrigir`);
-    const conserto = await rodarClaude(pasta, `O lint do HyperFrames achou erros nesta oficina. Corrija no plano.json (ou na cena livre) e rode node kit/montar.mjs e o lint de novo até dar 0 erros. Não renderize. Responda numa linha o que corrigiu.\n\nSaída do lint:\n${lint.saida.slice(-4000)}`, { aoPasso, minutos: 20 });
+    aviso(`o lint achou ${lint.erros} erro(s); ${ia.nome} vai corrigir`);
+    const conserto = await ia.rodar(pasta, `O lint do HyperFrames achou erros nesta oficina. Corrija no plano.json (ou na cena livre) e rode node kit/montar.mjs e node kit/hf.mjs lint de novo até dar 0 erros. Não renderize. Responda numa linha o que corrigiu.\n\nSaída do lint:\n${lint.saida.slice(-4000)}`, { aoPasso, minutos: 20 });
     cerebro.uso.conserto = conserto.uso;
     lint = conferir(pasta);
     if (lint.erros > 0) throw new Error(`o vídeo ficou com ${lint.erros} erro(s) no lint: ${lint.saida.slice(-600)}`);

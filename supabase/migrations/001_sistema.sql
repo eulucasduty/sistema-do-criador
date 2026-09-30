@@ -1,23 +1,27 @@
 -- Sistema do Criador · 001 · tudo
 --
 -- Cole este arquivo inteiro no SQL Editor do seu projeto Supabase e clique em Run.
--- Depois: Project Settings → Data API → Exposed schemas → adicione "criador" e salve.
+-- (Use um projeto NOVO, só pro sistema: as tabelas ficam no schema public.)
 --
--- Tudo mora no schema "criador" (o "public" fica livre pra você). O helper de acesso fica
--- em "criador_privado", que nunca é exposto. Só quem está na tabela equipe vê os dados;
--- o primeiro usuário criado vira o dono sozinho.
+-- O helper de acesso fica em "criador_privado", que nunca é exposto. Só quem está na
+-- tabela equipe vê os dados; o primeiro usuário criado vira o dono sozinho.
 
-create schema if not exists criador;
+-- Projeto que já tem outro sistema com tabelas de mesmo nome: para aqui, sem estragar nada
+do $$
+begin
+  if exists (select 1 from information_schema.tables where table_schema = 'public' and table_name = 'configuracao')
+     and not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'configuracao' and column_name = 'chave') then
+    raise exception 'este projeto já tem uma tabela "configuracao" de outro sistema: crie um projeto novo no Supabase só pro Sistema do Criador';
+  end if;
+end
+$$;
+
 create schema if not exists criador_privado;
-
-grant usage on schema criador to authenticated, service_role;
 revoke all on schema criador_privado from public;
 grant usage on schema criador_privado to authenticated, service_role;
-alter default privileges in schema criador grant all on tables to authenticated, service_role;
-alter default privileges in schema criador grant all on sequences to authenticated, service_role;
 
 -- atualizado_em automático em toda tabela que tem a coluna
-create or replace function criador.tocar_atualizado_em()
+create or replace function public.tocar_atualizado_em()
 returns trigger
 language plpgsql
 set search_path = ''
@@ -29,14 +33,14 @@ end
 $$;
 
 -- ── Quem usa o sistema ──────────────────────────────────────────
-create table if not exists criador.equipe (
+create table if not exists public.equipe (
   id          uuid primary key default gen_random_uuid(),
   usuario_id  uuid not null unique references auth.users (id) on delete cascade,
   nome        text not null,
   papel       text not null default 'dono' check (papel in ('dono', 'equipe')),
   criado_em   timestamptz not null default now()
 );
-alter table criador.equipe enable row level security;
+alter table public.equipe enable row level security;
 
 -- O portão: TODA policy do sistema chama esta função (dentro de select: avalia uma vez por consulta)
 create or replace function criador_privado.eh_da_equipe()
@@ -46,45 +50,35 @@ stable
 security definer
 set search_path = ''
 as $$
-  select exists (select 1 from criador.equipe e where e.usuario_id = (select auth.uid()));
+  select exists (select 1 from public.equipe e where e.usuario_id = (select auth.uid()));
 $$;
 revoke all on function criador_privado.eh_da_equipe() from public, anon;
 grant execute on function criador_privado.eh_da_equipe() to authenticated, service_role;
 
-drop policy if exists equipe_ve_a_si on criador.equipe;
-create policy equipe_ve_a_si on criador.equipe
+drop policy if exists equipe_ve_a_si on public.equipe;
+create policy equipe_ve_a_si on public.equipe
   for select to authenticated using (usuario_id = (select auth.uid()));
 
--- O primeiro usuário que se cadastra vira o dono (os seguintes não entram sozinhos)
-create or replace function criador_privado.primeiro_usuario_vira_dono()
-returns trigger
-language plpgsql
+-- Só o dono (a conta criada na tela de primeiro acesso, que exige a chave secreta do
+-- Supabase). Quem se cadastrar por fora não entra na equipe e não vê nada.
+create or replace function criador_privado.eh_dono()
+returns boolean
+language sql
+stable
 security definer
 set search_path = ''
 as $$
-begin
-  if not exists (select 1 from criador.equipe) then
-    insert into criador.equipe (usuario_id, nome, papel)
-    values (new.id, coalesce(nullif(new.raw_user_meta_data ->> 'nome', ''), split_part(coalesce(new.email, 'dono'), '@', 1)), 'dono');
-  end if;
-  return new;
-end
+  select exists (select 1 from public.equipe e where e.usuario_id = (select auth.uid()) and e.papel = 'dono');
 $$;
-revoke all on function criador_privado.primeiro_usuario_vira_dono() from public, anon, authenticated;
-drop trigger if exists criador_primeiro_usuario on auth.users;
-create trigger criador_primeiro_usuario after insert on auth.users
-  for each row execute function criador_privado.primeiro_usuario_vira_dono();
+revoke all on function criador_privado.eh_dono() from public, anon;
+grant execute on function criador_privado.eh_dono() to authenticated, service_role;
 
--- Quem já tinha conta no projeto antes desta migração: o mais antigo vira o dono
-insert into criador.equipe (usuario_id, nome, papel)
-select u.id, split_part(coalesce(u.email, 'dono'), '@', 1), 'dono'
-from auth.users u
-where not exists (select 1 from criador.equipe)
-order by u.created_at
-limit 1;
+-- Versões antigas deste arquivo promoviam o primeiro cadastro a dono: não mais
+drop trigger if exists criador_primeiro_usuario on auth.users;
+drop function if exists criador_privado.primeiro_usuario_vira_dono();
 
 -- ── Configuração (chave → valor) ────────────────────────────────
-create table if not exists criador.configuracao (
+create table if not exists public.configuracao (
   id            uuid primary key default gen_random_uuid(),
   chave         text not null unique,
   valor         jsonb not null,
@@ -92,14 +86,21 @@ create table if not exists criador.configuracao (
   atualizado_em timestamptz not null default now()
 );
 
+-- Chaves e tokens (Instagram, Facebook, OpenRouter, app da Meta): tabela à parte, só o dono
+create table if not exists public.segredo (
+  chave         text primary key,
+  valor         jsonb not null,
+  atualizado_em timestamptz not null default now()
+);
+
 -- Travas entre chamadas do relógio (só o servidor usa)
-create table if not exists criador.trava (
+create table if not exists public.trava (
   nome  text primary key,
   ate   timestamptz not null default '1970-01-01'
 );
 
 -- ── Leads (quem falou com você no Instagram) ────────────────────
-create table if not exists criador.contato (
+create table if not exists public.contato (
   id                  uuid primary key default gen_random_uuid(),
   codigo              text not null unique default upper(substr(md5(gen_random_uuid()::text), 1, 6)),
   nome                text,
@@ -116,12 +117,12 @@ create table if not exists criador.contato (
   criado_em           timestamptz not null default now(),
   atualizado_em       timestamptz not null default now()
 );
-create index if not exists contato_tags_idx on criador.contato using gin (tags);
-create index if not exists contato_instagram_usuario_idx on criador.contato (instagram_usuario);
-create index if not exists contato_ultima_idx on criador.contato (ultima_mensagem_em desc nulls last);
+create index if not exists contato_tags_idx on public.contato using gin (tags);
+create index if not exists contato_instagram_usuario_idx on public.contato (instagram_usuario);
+create index if not exists contato_ultima_idx on public.contato (ultima_mensagem_em desc nulls last);
 
 -- ── Agente de IA (opcional; começa desligado) ───────────────────
-create table if not exists criador.agente (
+create table if not exists public.agente (
   id                uuid primary key default gen_random_uuid(),
   nome              text not null,
   ativo             boolean not null default false,
@@ -137,9 +138,9 @@ create table if not exists criador.agente (
   atualizado_em     timestamptz not null default now()
 );
 
-create table if not exists criador.agente_versao (
+create table if not exists public.agente_versao (
   id           uuid primary key default gen_random_uuid(),
-  agente_id    uuid not null references criador.agente (id) on delete cascade,
+  agente_id    uuid not null references public.agente (id) on delete cascade,
   prompt       text not null,
   modelo       text not null,
   temperatura  numeric(3, 2) not null,
@@ -147,9 +148,9 @@ create table if not exists criador.agente_versao (
   criado_por   uuid references auth.users (id) on delete set null,
   criado_em    timestamptz not null default now()
 );
-create index if not exists agente_versao_agente_idx on criador.agente_versao (agente_id, criado_em desc);
+create index if not exists agente_versao_agente_idx on public.agente_versao (agente_id, criado_em desc);
 
-create table if not exists criador.conhecimento (
+create table if not exists public.conhecimento (
   id            uuid primary key default gen_random_uuid(),
   titulo        text not null,
   conteudo      text not null,
@@ -159,10 +160,10 @@ create table if not exists criador.conhecimento (
 );
 
 -- ── Conversas e mensagens (direct) ──────────────────────────────
-create table if not exists criador.conversa (
+create table if not exists public.conversa (
   id                   uuid primary key default gen_random_uuid(),
-  contato_id           uuid not null unique references criador.contato (id) on delete cascade,
-  agente_id            uuid references criador.agente (id) on delete set null,
+  contato_id           uuid not null unique references public.contato (id) on delete cascade,
+  agente_id            uuid references public.agente (id) on delete set null,
   status               text not null default 'aberta' check (status in ('aberta', 'com_voce', 'encerrada')),
   mensagens_do_agente  integer not null default 0,
   janela_ate           timestamptz,    -- fim da janela de 24 h da Meta
@@ -175,14 +176,14 @@ create table if not exists criador.conversa (
   criado_em            timestamptz not null default now(),
   atualizado_em        timestamptz not null default now()
 );
-create index if not exists conversa_responder_idx on criador.conversa (responder_apos) where responder_apos is not null;
-create index if not exists conversa_agente_idx on criador.conversa (agente_id);
-create index if not exists conversa_ultima_idx on criador.conversa (ultima_mensagem_em desc nulls last);
+create index if not exists conversa_responder_idx on public.conversa (responder_apos) where responder_apos is not null;
+create index if not exists conversa_agente_idx on public.conversa (agente_id);
+create index if not exists conversa_ultima_idx on public.conversa (ultima_mensagem_em desc nulls last);
 
-create table if not exists criador.mensagem (
+create table if not exists public.mensagem (
   id           uuid primary key default gen_random_uuid(),
-  conversa_id  uuid not null references criador.conversa (id) on delete cascade,
-  contato_id   uuid not null references criador.contato (id) on delete cascade,
+  conversa_id  uuid not null references public.conversa (id) on delete cascade,
+  contato_id   uuid not null references public.contato (id) on delete cascade,
   direcao      text not null check (direcao in ('entrada', 'saida')),
   autor        text not null check (autor in ('contato', 'agente', 'criador', 'sistema')),
   tipo         text not null default 'texto'
@@ -198,14 +199,14 @@ create table if not exists criador.mensagem (
   enviada_em   timestamptz not null default now(),
   criado_em    timestamptz not null default now()
 );
-create index if not exists mensagem_conversa_idx on criador.mensagem (conversa_id, enviada_em);
-create index if not exists mensagem_contato_idx on criador.mensagem (contato_id, enviada_em);
+create index if not exists mensagem_conversa_idx on public.mensagem (conversa_id, enviada_em);
+create index if not exists mensagem_contato_idx on public.mensagem (contato_id, enviada_em);
 
-create table if not exists criador.agente_turno (
+create table if not exists public.agente_turno (
   id              uuid primary key default gen_random_uuid(),
-  agente_id       uuid references criador.agente (id) on delete set null,
-  conversa_id     uuid references criador.conversa (id) on delete cascade,
-  contato_id      uuid references criador.contato (id) on delete cascade,
+  agente_id       uuid references public.agente (id) on delete set null,
+  conversa_id     uuid references public.conversa (id) on delete cascade,
+  contato_id      uuid references public.contato (id) on delete cascade,
   simulacao       boolean not null default false,
   entrada         text,
   resposta        text[],
@@ -220,26 +221,26 @@ create table if not exists criador.agente_turno (
   duracao_ms      integer,
   criado_em       timestamptz not null default now()
 );
-create index if not exists agente_turno_conversa_idx on criador.agente_turno (conversa_id, criado_em desc);
-create index if not exists agente_turno_contato_idx on criador.agente_turno (contato_id);
-create index if not exists agente_turno_agente_idx on criador.agente_turno (agente_id);
-create index if not exists agente_turno_criado_idx on criador.agente_turno (criado_em desc);
+create index if not exists agente_turno_conversa_idx on public.agente_turno (conversa_id, criado_em desc);
+create index if not exists agente_turno_contato_idx on public.agente_turno (contato_id);
+create index if not exists agente_turno_agente_idx on public.agente_turno (agente_id);
+create index if not exists agente_turno_criado_idx on public.agente_turno (criado_em desc);
 
 -- O que precisa de você (aparece no Início e em Leads)
-create table if not exists criador.alerta (
+create table if not exists public.alerta (
   id            uuid primary key default gen_random_uuid(),
-  contato_id    uuid references criador.contato (id) on delete cascade,
+  contato_id    uuid references public.contato (id) on delete cascade,
   tipo          text not null check (tipo in ('precisa_de_voce', 'quer_comprar', 'perguntou_se_e_ia', 'nao_contatar', 'erro')),
   motivo        text,
   resolvido     boolean not null default false,
   resolvido_em  timestamptz,
   criado_em     timestamptz not null default now()
 );
-create index if not exists alerta_abertos_idx on criador.alerta (criado_em desc) where not resolvido;
-create index if not exists alerta_contato_idx on criador.alerta (contato_id);
+create index if not exists alerta_abertos_idx on public.alerta (criado_em desc) where not resolvido;
+create index if not exists alerta_contato_idx on public.alerta (contato_id);
 
 -- Eventos do webhook da Meta (ficam 30 dias pra investigar)
-create table if not exists criador.evento_recebido (
+create table if not exists public.evento_recebido (
   id             uuid primary key default gen_random_uuid(),
   evento_id      text not null unique,
   tipo           text not null,
@@ -248,10 +249,10 @@ create table if not exists criador.evento_recebido (
   erro           text,
   recebido_em    timestamptz not null default now()
 );
-create index if not exists evento_recebido_em_idx on criador.evento_recebido (recebido_em desc);
+create index if not exists evento_recebido_em_idx on public.evento_recebido (recebido_em desc);
 
 -- ── Automações do Instagram (o "ManyChat" grátis) ───────────────
-create table if not exists criador.ig_automacao (
+create table if not exists public.ig_automacao (
   id                  uuid primary key default gen_random_uuid(),
   nome                text not null,
   ativa               boolean not null default false,
@@ -275,12 +276,12 @@ create table if not exists criador.ig_automacao (
   atualizado_em       timestamptz not null default now()
 );
 
-create table if not exists criador.ig_comentario (
+create table if not exists public.ig_comentario (
   id                uuid primary key default gen_random_uuid(),
   comentario_id     text not null unique,
   midia_id          text,
-  automacao_id      uuid references criador.ig_automacao (id) on delete set null,
-  contato_id        uuid references criador.contato (id) on delete cascade,
+  automacao_id      uuid references public.ig_automacao (id) on delete set null,
+  contato_id        uuid references public.contato (id) on delete cascade,
   igsid             text,
   usuario           text,
   texto             text,
@@ -289,14 +290,14 @@ create table if not exists criador.ig_comentario (
   erro              text,
   criado_em         timestamptz not null default now()
 );
-create index if not exists ig_comentario_automacao_idx on criador.ig_comentario (automacao_id, criado_em desc);
-create index if not exists ig_comentario_contato_idx on criador.ig_comentario (contato_id);
-create index if not exists ig_comentario_midia_idx on criador.ig_comentario (midia_id);
+create index if not exists ig_comentario_automacao_idx on public.ig_comentario (automacao_id, criado_em desc);
+create index if not exists ig_comentario_contato_idx on public.ig_comentario (contato_id);
+create index if not exists ig_comentario_midia_idx on public.ig_comentario (midia_id);
 
-create table if not exists criador.ig_fluxo (
+create table if not exists public.ig_fluxo (
   id                   uuid primary key default gen_random_uuid(),
-  contato_id           uuid not null references criador.contato (id) on delete cascade,
-  automacao_id         uuid not null references criador.ig_automacao (id) on delete cascade,
+  contato_id           uuid not null references public.contato (id) on delete cascade,
+  automacao_id         uuid not null references public.ig_automacao (id) on delete cascade,
   etapa                text not null check (etapa in ('abertura', 'com_agente', 'aguardando_seguir', 'entregue')),
   comentario_id        text,
   comentario_texto     text,
@@ -309,22 +310,22 @@ create table if not exists criador.ig_fluxo (
   atualizado_em        timestamptz not null default now(),
   unique (contato_id, automacao_id)
 );
-create index if not exists ig_fluxo_automacao_idx on criador.ig_fluxo (automacao_id);
-create index if not exists ig_fluxo_etapa_idx on criador.ig_fluxo (etapa, criado_em);
+create index if not exists ig_fluxo_automacao_idx on public.ig_fluxo (automacao_id);
+create index if not exists ig_fluxo_etapa_idx on public.ig_fluxo (etapa, criado_em);
 
 -- Clique no link com código (/r/<código>): quem clicou em quê
-create table if not exists criador.clique (
+create table if not exists public.clique (
   id             uuid primary key default gen_random_uuid(),
-  contato_id     uuid references criador.contato (id) on delete cascade,
-  automacao_id   uuid references criador.ig_automacao (id) on delete set null,
+  contato_id     uuid references public.contato (id) on delete cascade,
+  automacao_id   uuid references public.ig_automacao (id) on delete set null,
   destino        text,
   criado_em      timestamptz not null default now()
 );
-create index if not exists clique_contato_idx on criador.clique (contato_id);
-create index if not exists clique_automacao_idx on criador.clique (automacao_id);
+create index if not exists clique_contato_idx on public.clique (contato_id);
+create index if not exists clique_automacao_idx on public.clique (automacao_id);
 
 -- ── Esteira: referências, roteiros e carrosséis ─────────────────
-create table if not exists criador.referencia (
+create table if not exists public.referencia (
   id                uuid primary key default gen_random_uuid(),
   origem            text not null default 'upload' check (origem in ('link', 'upload')),
   tipo              text not null default 'reel' check (tipo in ('reel', 'carrossel', 'post', 'outro')),
@@ -349,10 +350,10 @@ create table if not exists criador.referencia (
   criado_em         timestamptz not null default now(),
   atualizado_em     timestamptz not null default now()
 );
-create index if not exists referencia_etapa_idx on criador.referencia (etapa, criado_em desc);
+create index if not exists referencia_etapa_idx on public.referencia (etapa, criado_em desc);
 
 -- Os seus reels (a persona sai deles)
-create table if not exists criador.meu_reel (
+create table if not exists public.meu_reel (
   id            uuid primary key default gen_random_uuid(),
   midia_id      text not null unique,
   permalink     text,
@@ -366,14 +367,14 @@ create table if not exists criador.meu_reel (
 );
 
 -- ── Editor de vídeo ─────────────────────────────────────────────
-create table if not exists criador.edicao (
+create table if not exists public.edicao (
   id            uuid primary key default gen_random_uuid(),
   titulo        text not null,
   status        text not null default 'subindo'
                 check (status in ('subindo', 'na_fila', 'preparando', 'editando', 'renderizando', 'enviando', 'pronto', 'erro', 'cancelada')),
   etapa         text,
   versao        integer not null default 1,
-  origem_id     uuid references criador.edicao (id) on delete set null,
+  origem_id     uuid references public.edicao (id) on delete set null,
   roteiro       text,
   ajuste        text,
   opcoes        jsonb not null default '{}',
@@ -382,7 +383,7 @@ create table if not exists criador.edicao (
   resumo        text,
   log           jsonb not null default '[]',
   erro          text,
-  uso           jsonb,     -- turnos, tempo e tokens do Claude (roda no seu plano, sem custo de API)
+  uso           jsonb,     -- quem editou, turnos, tempo e tokens da IA (e o custo, na OpenRouter)
   estacao       text,
   criado_por    uuid,
   criado_em     timestamptz not null default now(),
@@ -390,11 +391,11 @@ create table if not exists criador.edicao (
   iniciado_em   timestamptz,
   concluido_em  timestamptz
 );
-create index if not exists edicao_status_idx on criador.edicao (status, criado_em);
+create index if not exists edicao_status_idx on public.edicao (status, criado_em);
 
-create table if not exists criador.edicao_material (
+create table if not exists public.edicao_material (
   id         uuid primary key default gen_random_uuid(),
-  edicao_id  uuid not null references criador.edicao (id) on delete cascade,
+  edicao_id  uuid not null references public.edicao (id) on delete cascade,
   ordem      integer not null default 0,
   tipo       text not null check (tipo in ('imagem', 'video', 'link')),
   descricao  text not null default '',
@@ -402,16 +403,16 @@ create table if not exists criador.edicao_material (
   url        text,
   criado_em  timestamptz not null default now()
 );
-create index if not exists edicao_material_edicao_idx on criador.edicao_material (edicao_id, ordem);
+create index if not exists edicao_material_edicao_idx on public.edicao_material (edicao_id, ordem);
 
 -- "Meus sons": cada som tem uma FUNÇÃO no padrão de edição; o principal de cada função entra sozinho
-create table if not exists criador.edicao_som (
+create table if not exists public.edicao_som (
   id            uuid primary key default gen_random_uuid(),
   nome          text not null unique check (nome ~ '^[a-z0-9][a-z0-9-]{1,39}$'),
   funcao        text check (funcao in ('obturador', 'ding', 'teclado', 'tecla', 'whoosh', 'riser', 'pop', 'click', 'impacto', 'notificacao')),
   principal     boolean not null default false,
   descricao     text not null default '',
-  origem        text not null default 'criador' check (origem in ('criador', 'kit', '99hud')),
+  origem        text not null default 'criador' check (origem in ('criador', 'kit')),
   arquivo       text not null,
   tipo          text,
   tamanho       integer,
@@ -420,34 +421,41 @@ create table if not exists criador.edicao_som (
   criado_em     timestamptz not null default now(),
   atualizado_em timestamptz not null default now()
 );
-create unique index if not exists edicao_som_principal_idx on criador.edicao_som (funcao) where principal and ativo;
+create unique index if not exists edicao_som_principal_idx on public.edicao_som (funcao) where principal and ativo;
 
 -- ── Segurança: RLS em tudo, uma regra só ────────────────────────
+-- Só nas tabelas do sistema: o schema public pode ter outras coisas suas
 do $$
 declare
   t text;
+  tabelas text[] := array['equipe', 'configuracao', 'segredo', 'trava', 'contato', 'agente', 'agente_versao', 'conhecimento', 'conversa',
+    'mensagem', 'agente_turno', 'alerta', 'evento_recebido', 'ig_automacao', 'ig_comentario', 'ig_fluxo', 'clique',
+    'referencia', 'meu_reel', 'edicao', 'edicao_material', 'edicao_som'];
 begin
-  for t in select tablename from pg_tables where schemaname = 'criador' loop
-    execute format('alter table criador.%I enable row level security', t);
-    if t not in ('equipe', 'trava') then
-      execute format('drop policy if exists equipe_tudo on criador.%I', t);
+  foreach t in array tabelas loop
+    execute format('alter table public.%I enable row level security', t);
+    execute format('grant all on public.%I to authenticated, service_role', t);
+    execute format('revoke all on public.%I from anon', t);
+    if t = 'segredo' then
+      execute 'drop policy if exists dono_tudo on public.segredo';
+      execute 'create policy dono_tudo on public.segredo for all to authenticated '
+              'using ((select criador_privado.eh_dono())) with check ((select criador_privado.eh_dono()))';
+    elsif t not in ('equipe', 'trava') then
+      execute format('drop policy if exists equipe_tudo on public.%I', t);
       execute format(
-        'create policy equipe_tudo on criador.%I for all to authenticated '
+        'create policy equipe_tudo on public.%I for all to authenticated '
         'using ((select criador_privado.eh_da_equipe())) '
         'with check ((select criador_privado.eh_da_equipe()))', t);
     end if;
   end loop;
   for t in select c.table_name from information_schema.columns c
-           where c.table_schema = 'criador' and c.column_name = 'atualizado_em' loop
-    execute format('drop trigger if exists tocar_atualizado_em on criador.%I', t);
-    execute format('create trigger tocar_atualizado_em before update on criador.%I '
-                   'for each row execute function criador.tocar_atualizado_em()', t);
+           where c.table_schema = 'public' and c.column_name = 'atualizado_em' and c.table_name = any(tabelas) loop
+    execute format('drop trigger if exists tocar_atualizado_em on public.%I', t);
+    execute format('create trigger tocar_atualizado_em before update on public.%I '
+                   'for each row execute function public.tocar_atualizado_em()', t);
   end loop;
 end
 $$;
-
-grant all on all tables in schema criador to authenticated, service_role;
-grant all on all sequences in schema criador to authenticated, service_role;
 
 -- ── Arquivos (Storage) ──────────────────────────────────────────
 -- edicao e esteira: privados (o sistema gera links assinados). perfil: a sua foto, pública.
@@ -457,6 +465,14 @@ values
   ('esteira', 'esteira', false, 52428800),
   ('perfil', 'perfil', true, 5242880)
 on conflict (id) do nothing;
+
+-- A estação de edição (no seu PC) entra no sistema com o SEU login, sem a chave secreta. Por isso
+-- quem é da equipe pode ler, subir, trocar e apagar arquivos do bucket "edicao" (vídeo bruto em
+-- partes, materiais, sons e o vídeo pronto). Os outros buckets continuam só pelo servidor.
+drop policy if exists criador_edicao_equipe on storage.objects;
+create policy criador_edicao_equipe on storage.objects for all to authenticated
+  using (bucket_id = 'edicao' and (select criador_privado.eh_da_equipe()))
+  with check (bucket_id = 'edicao' and (select criador_privado.eh_da_equipe()));
 
 -- ── O relógio (pg_cron + pg_net): o Supabase chama /api/relogio a cada minuto ──
 do $$
@@ -475,7 +491,7 @@ end
 $$;
 
 -- O botão "Ligar o relógio" do passo a passo chama isto (só o servidor pode)
-create or replace function criador.ligar_relogio(p_url text, p_segredo text)
+create or replace function public.ligar_relogio(p_url text, p_segredo text)
 returns text
 language plpgsql
 security definer
@@ -500,7 +516,7 @@ begin
 end
 $$;
 
-create or replace function criador.desligar_relogio()
+create or replace function public.desligar_relogio()
 returns text
 language plpgsql
 security definer
@@ -514,7 +530,7 @@ exception when undefined_table or invalid_schema_name then
 end
 $$;
 
-create or replace function criador.relogio_agendado()
+create or replace function public.relogio_agendado()
 returns boolean
 language plpgsql
 stable
@@ -528,28 +544,27 @@ exception when undefined_table or invalid_schema_name then
 end
 $$;
 
-revoke all on function criador.ligar_relogio(text, text) from public, anon, authenticated;
-revoke all on function criador.desligar_relogio() from public, anon, authenticated;
-revoke all on function criador.relogio_agendado() from public, anon, authenticated;
-grant execute on function criador.ligar_relogio(text, text) to service_role;
-grant execute on function criador.desligar_relogio() to service_role;
-grant execute on function criador.relogio_agendado() to service_role;
+revoke all on function public.ligar_relogio(text, text) from public, anon, authenticated;
+revoke all on function public.desligar_relogio() from public, anon, authenticated;
+revoke all on function public.relogio_agendado() from public, anon, authenticated;
+grant execute on function public.ligar_relogio(text, text) to service_role;
+grant execute on function public.desligar_relogio() to service_role;
+grant execute on function public.relogio_agendado() to service_role;
 
 -- ── Dados iniciais ──────────────────────────────────────────────
-insert into criador.agente (nome)
+insert into public.agente (nome)
 select 'Agente do Instagram'
-where not exists (select 1 from criador.agente);
+where not exists (select 1 from public.agente);
 
-insert into criador.configuracao (chave, valor, descricao) values
+insert into public.configuracao (chave, valor, descricao) values
   ('perfil', '{}', 'Quem é você: nome, @, nicho, público, jeito de falar, look do vídeo, cores da marca'),
   ('persona', '{}', 'O guia da sua voz, tirado dos seus reels (Esteira → Minha persona)'),
   ('ofertas', '[]', 'Os links que o agente pode oferecer no fim da conversa'),
-  ('instagram', '{}', 'Conta do Instagram: token (renovado sozinho), id e @; o token nunca aparece na tela'),
-  ('facebook', '{}', 'Página do Facebook ligada ao seu Instagram (pra Esteira buscar reels públicos pela API oficial)'),
   ('perfis_teste', '[]', 'Com o agente desligado, ele responde só estes @ (pra testar)'),
   ('pausa_por_eco_horas', '48', 'Você respondeu pelo app do Instagram: o agente sai da conversa por estas horas'),
   ('followup_agente', '{"horas": 23, "antes_da_oferta": "{nome}?", "depois_da_oferta": "conseguiu abrir o link?"}', 'O toque de quem sumiu no meio da conversa com o agente'),
   ('lembrete_comentario', '{"ativo": true, "horas": 12, "por_minuto": 5, "textos": ["{arroba} chegou lá? te mandei na dm 👀", "{arroba} te mandei o material na dm, confere lá 👀", "{arroba} olha a dm 👀 se não aparecer, dá uma olhada nas solicitações de mensagem"]}', 'Quem não respondeu a 1ª DM: lembrete público no comentário'),
   ('estacao_edicao', '{"visto_em": null, "maquina": null, "ocupada": false}', 'Batida da estação de edição de vídeo (o seu PC)'),
+  ('editor', '{"motor": "claude", "modelo": null}', 'Quem edita os seus vídeos: claude (plano Claude), codex (plano do ChatGPT) ou openrouter (paga por vídeo)'),
   ('relogio', '{}', 'Batida do relógio (o que o sistema faz sozinho)')
 on conflict (chave) do nothing;

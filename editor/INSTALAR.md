@@ -1,199 +1,192 @@
 # Como instalar a estação de edição no seu computador
 
 A **estação** é o programa que edita os vídeos que você manda pelo painel. Ela roda no seu
-computador (Windows ou Mac): trata a cor e o som, transcreve a fala, chama o Claude Code pra
-montar a edição e renderiza o vídeo final. O Claude usa a **sua assinatura do Claude**: a edição
-não gera cobrança de API.
+computador (Windows ou Mac): trata a cor e o som, transcreve a fala, chama a IA pra montar a
+edição e renderiza o vídeo final. Enquanto ela estiver aberta, o painel mostra "estação ligada"
+e os pedidos saem sozinhos. Fechou a janela ou desligou o computador, os pedidos esperam na fila.
 
-Enquanto a estação estiver ligada, o painel mostra "estação ligada" e os pedidos saem sozinhos.
-Desligou o computador ou fechou a janela, os pedidos ficam esperando na fila.
+## Quem edita: escolha uma das três
 
----
-
-## Do que você precisa
-
-- Um computador com **Windows 10/11** ou **macOS** (Apple Silicon ou Intel), com uns **10 GB
-  livres** (programas + modelo de transcrição + vídeos). 16 GB de memória ajudam: o render é pesado.
-- Uma **assinatura do Claude que inclua o Claude Code** (Pro ou Max). O editor usa o modelo Opus
-  por padrão. Se o seu plano não tiver Opus ou bater no limite, use o Sonnet (veja
-  `EDITOR_MODELO` lá embaixo).
-- Os dados do seu projeto no **Supabase** (o mesmo do painel).
-- Internet (pra baixar os vídeos do painel e devolver o vídeo pronto).
-
-Os programas que a estação usa (o passo a passo de cada um vem logo abaixo):
-
-| programa | pra quê |
-|---|---|
-| Node.js 22 ou mais novo | roda a estação |
-| ffmpeg (versão completa) | cor, HDR do iPhone, som, cortes, folhas de quadros |
-| whisper.cpp + modelo `ggml-large-v3-turbo-q5_0.bin` | transcrição da fala (roda no seu PC, grátis) |
-| Claude Code, logado na sua conta | o editor que monta o vídeo |
-| Google Chrome | prints de sites que aparecem no vídeo |
-
-> **Como abrir o terminal**
-> - **Windows:** menu Iniciar → digite **Terminal** (ou **PowerShell**) → abrir.
-> - **Mac:** Spotlight (⌘ + espaço) → digite **Terminal** → abrir.
->
-> Os comandos abaixo são pra copiar, colar no terminal e apertar Enter. Depois de instalar
-> um programa, **feche e abra o terminal de novo** pra ele aparecer.
-
----
-
-## 1. Node.js
-
-- **Windows:** `winget install OpenJS.NodeJS.LTS`
-- **Mac:** primeiro o Homebrew, se ainda não tiver (é o instalador de programas do Mac):
-  `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
-  (no fim ele mostra 2 ou 3 comandos pra colar; cole). Depois: `brew install node`
-
-Confira: `node --version` tem que mostrar **v22** ou maior.
-
-## 2. ffmpeg (versão completa)
-
-- **Windows:** `winget install Gyan.FFmpeg`
-- **Mac:** `brew install ffmpeg-full`
-  (o `ffmpeg` comum do Homebrew **não serve**: vem sem as partes de HDR e de texto que a estação
-  usa. A estação acha o `ffmpeg-full` sozinha.)
-
-## 3. whisper.cpp e o modelo de transcrição
-
-**O programa**
-
-- **Windows:** abra https://github.com/ggml-org/whisper.cpp/releases, procure a versão mais nova
-  que tenha o arquivo **`whisper-bin-x64.zip`**, baixe e extraia numa pasta chamada `whisper-cpp`
-  dentro da sua pasta de usuário. Tem que ficar assim:
-  `C:\Users\<seu usuário>\whisper-cpp\Release\whisper-cli.exe`
-- **Mac:** `brew install whisper.cpp`
-
-**O modelo** (`ggml-large-v3-turbo-q5_0.bin`, uns 575 MB; é ele que entende o português):
-
-- **Windows (PowerShell):**
-  ```
-  New-Item -ItemType Directory -Force "$HOME\whisper-cpp\models"
-  curl.exe -L -o "$HOME\whisper-cpp\models\ggml-large-v3-turbo-q5_0.bin" https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo-q5_0.bin
-  ```
-- **Mac:**
-  ```
-  mkdir -p ~/whisper-cpp/models
-  curl -L -o ~/whisper-cpp/models/ggml-large-v3-turbo-q5_0.bin https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo-q5_0.bin
-  ```
-
-Se preferir baixar pelo navegador, o link é o mesmo; salve o arquivo em `whisper-cpp/models`
-dentro da sua pasta de usuário.
-
-## 4. Claude Code (logado no seu plano)
-
-- **Windows (PowerShell):** `irm https://claude.ai/install.ps1 | iex`
-- **Mac:** `curl -fsSL https://claude.ai/install.sh | bash`
-
-Depois, no terminal, digite `claude`, faça login com **a sua conta do Claude** (a da assinatura)
-e saia com `/exit`. Não precisa de chave de API: a estação até apaga qualquer `ANTHROPIC_API_KEY`
-antes de chamar o Claude, justamente pra usar o plano e nunca cobrar por uso.
-
-## 5. Google Chrome
-
-Instale o Chrome normal (google.com/chrome), se ainda não tiver. É com ele que o editor tira
-print de sites.
-
-O render usa um Chrome próprio do HyperFrames, que ele baixa sozinho na primeira vez. Pra adiantar
-isso (opcional), rode na pasta do sistema: `npx --yes hyperframes@0.8.92 browser ensure`
-
----
-
-## 6. O sistema no seu computador
-
-1. Baixe o projeto (o mesmo repositório do painel) numa pasta do seu computador.
-2. Abra o terminal **nessa pasta**:
-   - **Windows:** no Explorador de Arquivos, entre na pasta, clique com o botão direito num espaço
-     vazio → **Abrir no Terminal**.
-   - **Mac:** no Terminal, digite `cd ` (com espaço), arraste a pasta pra janela e aperte Enter.
-3. Instale as dependências: `npm install`
-
-## 7. O arquivo `.env.local`
-
-Na pasta do projeto, crie um arquivo chamado exatamente **`.env.local`** (com o ponto na frente)
-com estas duas linhas:
-
-```
-NEXT_PUBLIC_SUPABASE_URL=https://SEU-PROJETO.supabase.co
-SUPABASE_SECRET_KEY=sb_secret_...
-```
-
-Onde achar no Supabase (painel do seu projeto):
-- **`NEXT_PUBLIC_SUPABASE_URL`**: Project Settings → Data API → **Project URL**.
-- **`SUPABASE_SECRET_KEY`**: Project Settings → API Keys → **Secret keys** (começa com `sb_secret_`).
-
-Se você já tem um `.env.local` do painel nessa pasta, é o mesmo arquivo: só confira que essas duas
-linhas estão lá.
-
-> A chave secreta dá acesso total ao seu banco. Não mande pra ninguém, não poste print dela e não
-> coloque em lugar público.
-
-**Opcionais** (só se precisar; uma por linha no mesmo `.env.local`, sem aspas):
-
-| variável | pra quê | padrão |
+| opção | pra quem | quanto custa |
 |---|---|---|
-| `EDITOR_SAIDA` | pasta onde a cópia do vídeo pronto fica no seu PC | `Vídeos/Sistema do Criador` |
-| `EDITOR_MODELO` | modelo do Claude na edição (`opus` ou `sonnet`) | `opus` |
-| `EDITOR_ESFORCO` | quanto o Claude pensa (`low`, `medium`, `high`) | `high` |
-| `FFMPEG_BIN` | caminho do ffmpeg, se a estação não achar (o ffprobe tem que estar na mesma pasta) | procura sozinha |
-| `WHISPER_BIN` | caminho do `whisper-cli` | `~/whisper-cpp/Release/whisper-cli.exe` (Windows), Homebrew (Mac) |
-| `WHISPER_MODEL` | caminho do modelo `ggml-large-v3-turbo-q5_0.bin` | `~/whisper-cpp/models/` |
-| `CLAUDE_BIN` | caminho do Claude Code | `~/.local/bin/claude`, depois o PATH |
-| `CHROME_BIN` | caminho do Chrome (ou Edge/Chromium) | procura sozinha |
+| **Claude** | você assina o **Claude Pro ou Max** | nada a mais: usa o seu plano |
+| **ChatGPT** | você assina o **ChatGPT Plus ou Pro** | nada a mais: usa o seu plano (pelo Codex, da OpenAI) |
+| **OpenRouter** | não tem nenhum dos dois | paga por vídeo, **uns R$ 10** (de R$ 5 a R$ 15, conforme o tamanho) |
 
-Exemplo no Windows: `WHISPER_BIN=D:\programas\whisper\whisper-cli.exe`
+O instalador pergunta qual você quer. Depois dá pra trocar quando quiser no painel:
+**Editor de vídeo → Quem edita os seus vídeos** (a estação pega a troca sozinha, sem reiniciar).
+
+Na OpenRouter, a estação usa a mesma chave que você colou no painel (Início, passo 2) e o modelo
+Claude Sonnet. Você coloca crédito em [openrouter.ai/settings/credits](https://openrouter.ai/settings/credits)
+(US$ 10 dão pra uns 5 vídeos) e vê quanto cada vídeo custou na página dele no painel.
 
 ---
 
-## 8. Ligar a estação
+## Instalar (um comando só)
 
-Na pasta do projeto:
+Precisa de um computador com **Windows 10/11** ou **macOS**, uns **15 GB livres** e internet.
+A primeira instalação baixa uns 2 GB e leva de 10 a 30 minutos.
+
+### Windows
+
+1. Abra o menu Iniciar, digite **PowerShell** e abra (não precisa ser como administrador).
+2. Cole esta linha e aperte Enter:
+   ```
+   irm https://raw.githubusercontent.com/eulucasduty/sistema-do-criador/main/instalar/windows.ps1 | iex
+   ```
+
+### Mac
+
+1. Abra o **Terminal** (⌘ + espaço, digite Terminal, Enter).
+2. Cole esta linha e aperte Enter:
+   ```
+   curl -fsSL https://raw.githubusercontent.com/eulucasduty/sistema-do-criador/main/instalar/mac.sh | bash
+   ```
+
+### O que ele faz
+
+1. Instala o que faltar: **Node.js**, **ffmpeg completo**, **whisper.cpp** e o modelo de transcrição
+   (roda no seu PC, grátis). No Mac, instala antes o Homebrew (o instalador de programas do Mac).
+   No Windows, com o Claude ou a OpenRouter, instala também o **Git for Windows** (o Claude usa o
+   terminal dele).
+2. Baixa o sistema na pasta **SistemaDoCriador** (dentro da sua pasta de usuário). Não precisa de Git.
+3. Prepara o kit de edição (HyperFrames e o Chrome dele).
+4. Pergunta **quem edita** e instala essa IA:
+   - **Claude**: instala o Claude Code e abre o login no navegador. Entre com a conta da sua assinatura.
+   - **ChatGPT**: instala o Codex e abre o login no navegador. Entre com a conta do ChatGPT da sua
+     assinatura. No Windows, o Codex prepara o sandbox dele: se o Windows pedir permissão de
+     administrador, clique em **Sim** (sem isso a IA edita, mas não consegue tirar as fotos de
+     conferência do vídeo).
+   - **OpenRouter**: instala o Claude Code. Não tem login: a estação usa a chave do painel.
+5. Cria o atalho **Estação de edição** na Área de Trabalho (no Mac, na Mesa).
+6. Liga a estação.
+
+Pode aparecer pedido de permissão do Windows (clique em **Sim**) ou da senha do Mac: é normal.
+
+### Na primeira vez, a estação pergunta 3 coisas
 
 ```
-npm run estacao
+Endereço do seu sistema (ex.: https://meu-sistema.vercel.app): https://o-seu-sistema.vercel.app
+E-mail (o do login do painel): voce@email.com
+Senha: ********
 ```
 
-Se estiver tudo certo, aparece algo assim:
+- **Endereço**: o mesmo que você abre no navegador pra ver o painel (o passo da estação no Início
+  mostra ele pronto pra copiar).
+- **E-mail e senha**: os mesmos do login do painel.
 
-```
-Programas: ffmpeg … · whisper … · Claude …
-Estação de edição ligada em MEU-PC. Vídeos prontos também vão pra: …
-Esperando pedidos do painel (Ctrl+C pra parar)…
-```
+A estação entra no sistema **como você**, com as mesmas permissões do painel: não precisa de chave
+secreta nenhuma no computador. A senha **não fica guardada**: fica só a sessão (um código que se
+renova sozinho), num arquivo que só o seu usuário do computador abre
+(`.sistema-do-criador/sessao.json` na sua pasta de usuário).
 
-Em até 30 segundos o painel mostra a estação ligada. **Deixe essa janela aberta** enquanto quiser
-que as edições saiam. Pra desligar: clique na janela e aperte **Ctrl+C**.
+Em até 30 segundos o painel mostra a estação ligada. **Deixe a janela aberta** enquanto quiser que
+as edições saiam.
 
-Se faltar alguma coisa, a estação não liga e mostra a lista do que falta, com o comando pra
-instalar cada item. Instale, feche e abra o terminal, e rode `npm run estacao` de novo.
+### Depois
 
-Cada vídeo pronto sobe pro painel e também fica numa cópia no seu PC (`Vídeos/Sistema do Criador`,
-ou a pasta do `EDITOR_SAIDA`).
+- **Ligar a estação**: dois cliques no atalho **Estação de edição**.
+- **Desligar**: feche a janela (ou aperte Ctrl+C nela).
+- **Atualizar**: rode o mesmo comando da instalação de novo. Ele baixa a versão nova e mantém o seu
+  login, as edições anteriores (os ajustes precisam delas) e o que já estava instalado.
+- **Entrar com outra conta**: abra o terminal na pasta SistemaDoCriador e rode
+  `npm run estacao -- --sair` (na próxima vez a estação pergunta de novo).
+- **Conferir se a IA está pronta**: `npm run estacao -- --testar-motor` (na mesma pasta). O painel
+  também mostra isso em **Editor de vídeo → Quem edita os seus vídeos**.
 
-## Testar sem o painel (opcional)
-
-Pra ver o editor funcionando com um vídeo do seu computador, sem mandar pelo painel:
-
-```
-npm run editor:testar -- "caminho/do/video.mp4" --usuario @seuperfil --cor natural --legenda bangers
-```
-
-O resultado fica em `editor/oficina/teste-<data>/renders/final.mp4`.
+Cada vídeo pronto sobe pro painel e fica também numa cópia no seu PC (`Vídeos/Sistema do Criador`).
 
 ---
 
 ## Problemas comuns
 
-- **"Falta instalar no PC"**: siga a lista que aparece; cada linha diz o que instalar.
-- **"o ffmpeg deste PC veio sem zscale, drawtext…"** (Mac): instale o `ffmpeg-full`
-  (`brew install ffmpeg-full`). No Windows, reinstale com `winget install Gyan.FFmpeg`.
-- **O Claude pede login ou dá erro de autenticação**: rode `claude` no terminal, faça login de novo
-  e saia com `/exit`.
+- **"Deu erro" ou "Parei" no instalador**: rode o mesmo comando de novo; ele continua de onde parou.
+- **O painel diz que a estação "não consegue editar"**: a mensagem diz o que falta. Os casos comuns:
+  - *não está logado*: rode o instalador de novo (ele abre o login) ou, no terminal,
+    `claude auth login` (Claude) ou `codex login` (ChatGPT);
+  - *logado com chave de API*: saia (`claude auth logout` ou `codex logout`) e entre de novo com a
+    conta da assinatura (senão cobra por uso);
+  - *falta a chave da OpenRouter* ou *sem crédito*: cole a chave no painel (Início, passo 2) ou
+    coloque crédito na OpenRouter.
+
+  Os vídeos esperam na fila até resolver; não precisa mandar de novo.
+- **Bateu no limite do plano** (Claude ou ChatGPT): o pedido vai pra "Erro" com o horário em que o
+  limite volta. Espere e clique em **Tentar de novo**, ou troque quem edita no painel.
 - **O painel mostra a estação desligada**: a janela foi fechada, o computador dormiu ou caiu a
-  internet. Rode `npm run estacao` de novo; o pedido que estava no meio volta pra fila sozinho.
-- **Demora**: é normal levar vários minutos por vídeo, e o render é a parte mais pesada. Deixe o
+  internet. Abra o atalho de novo; o pedido que estava no meio volta pra fila sozinho.
+- **Demora**: é normal levar vários minutos por vídeo; o render é a parte mais pesada. Deixe o
   computador na tomada e configurado pra não dormir enquanto edita.
 - **A foto do perfil não aparece no fim do vídeo**: o link da foto do Instagram vence de tempos em
-  tempos. Atualize o perfil no painel (ou reconecte o Instagram). Sem foto, o vídeo sai com a
-  inicial do seu nome num círculo.
+  tempos. Atualize o perfil no painel. Sem foto, o vídeo sai com a inicial do seu nome.
+
+---
+
+## Apêndice: instalar na mão
+
+Pra quem prefere fazer cada passo. Os comandos são pra colar no terminal (PowerShell no Windows,
+Terminal no Mac). Depois de instalar um programa, feche e abra o terminal de novo.
+
+| programa | Windows | Mac |
+|---|---|---|
+| Node.js 22 ou mais novo | `winget install OpenJS.NodeJS.LTS` | `brew install node` |
+| ffmpeg completo | `winget install Gyan.FFmpeg` | `brew install ffmpeg-full` (o `ffmpeg` comum não serve) |
+| whisper.cpp | baixe o `whisper-bin-x64.zip` em github.com/ggml-org/whisper.cpp/releases (a versão mais nova que tiver esse arquivo) e extraia de forma que fique `C:\Users\<você>\whisper-cpp\Release\whisper-cli.exe` | `brew install whisper.cpp` |
+| modelo do whisper | `curl.exe -L --create-dirs -o "$HOME\whisper-cpp\models\ggml-large-v3-turbo-q5_0.bin" https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo-q5_0.bin` | `curl -L --create-dirs -o ~/whisper-cpp/models/ggml-large-v3-turbo-q5_0.bin https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo-q5_0.bin` |
+| Git for Windows (só Claude e OpenRouter) | `winget install Git.Git` | não precisa |
+
+A IA:
+
+- **Claude** ou **OpenRouter**: Claude Code. Windows: `irm https://claude.ai/install.ps1 | iex` ·
+  Mac: `curl -fsSL https://claude.ai/install.sh | bash`. No Claude, faça o login com
+  `claude auth login` (conta da assinatura). Na OpenRouter não precisa de login.
+- **ChatGPT**: Codex. `npm install -g @openai/codex`, depois `codex login` (conta do ChatGPT). No
+  Windows, pra preparar o sandbox (aceite o pedido de administrador):
+  `codex sandbox -P :workspace -c windows.sandbox=elevated -- cmd /c echo ok`
+
+O sistema: baixe o zip em github.com/eulucasduty/sistema-do-criador (botão **Code → Download
+ZIP**), extraia numa pasta e, nela, rode `npm install` e depois `npm run estacao`. Na primeira vez
+ela pergunta o endereço, o e-mail e a senha. Escolha quem edita no painel.
+
+### Modo avançado (chave secreta)
+
+Se você preferir, a estação também aceita a chave secreta do Supabase em vez do login: crie o
+arquivo `.env.local` na pasta do sistema com `NEXT_PUBLIC_SUPABASE_URL=...` e
+`SUPABASE_SECRET_KEY=sb_secret_...`. Com as duas, ela não pergunta nada. A chave dá acesso total ao
+seu banco: não mande pra ninguém.
+
+### Opcionais (no `.env.local`, uma por linha, sem aspas)
+
+| variável | pra quê | padrão |
+|---|---|---|
+| `EDITOR_SAIDA` | pasta onde a cópia do vídeo pronto fica no seu PC | `Vídeos/Sistema do Criador` |
+| `EDITOR_ESFORCO` | quanto a IA pensa (`low`, `medium`, `high`) | `high` (OpenRouter: `medium`) |
+| `OPENROUTER_API_KEY` | chave da OpenRouter só neste PC (vale por cima da do painel) | a do painel |
+| `FFMPEG_BIN` | caminho do ffmpeg (o ffprobe tem que estar na mesma pasta) | procura sozinha |
+| `WHISPER_BIN` / `WHISPER_MODEL` | caminho do `whisper-cli` e do modelo | procura sozinha |
+| `CLAUDE_BIN` / `CODEX_BIN` | caminho do Claude Code / do Codex | procura sozinha |
+| `CHROME_BIN` | caminho do Chrome (ou Edge/Chromium) | procura sozinha |
+
+O modelo de cada IA se escolhe no painel (Quem edita → Avançado). O padrão: Opus no Claude, o da
+sua conta no ChatGPT e `anthropic/claude-sonnet-5.5` na OpenRouter.
+
+### Testar sem o painel
+
+Pra ver o editor funcionando com um vídeo do seu computador, sem mandar pelo painel:
+
+```
+npm run editor:testar -- "caminho/do/video.mp4" --motor claude --usuario @seuperfil --cor natural --legenda bangers
+```
+
+(`--motor codex` ou `--motor openrouter` também valem; na OpenRouter, com `OPENROUTER_API_KEY` no
+`.env.local`.) O resultado fica em `editor/oficina/teste-<data>/renders/final.mp4`.
+
+### Segurança
+
+A IA só trabalha dentro da pasta da edição e só roda os comandos do kit. Ela nunca recebe chave
+nenhuma (nem a do Supabase, nem a sessão da estação) e print de página só sai dos links que você
+mandou no pedido.
+
+- **Claude e OpenRouter**: ler ou escrever arquivo fora da pasta da edição é bloqueado.
+- **ChatGPT (Codex)**: os comandos rodam num sandbox sem internet (quem busca a logo oficial é a
+  estação). Ele ainda consegue ler arquivos do seu usuário, mas não tem como mandar nada pra fora;
+  no Windows, a sessão da estação fica trancada só pro seu usuário (o sandbox não abre).

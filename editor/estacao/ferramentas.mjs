@@ -5,7 +5,8 @@
 //   FFMPEG_BIN     ffmpeg (o ffprobe é procurado na mesma pasta; ou FFPROBE_BIN)
 //   WHISPER_BIN    whisper-cli do whisper.cpp
 //   WHISPER_MODEL  modelo do whisper (o esperado é o ggml-large-v3-turbo-q5_0.bin)
-//   CLAUDE_BIN     Claude Code (logado no plano do criador)
+//   CLAUDE_BIN     Claude Code (motores "claude" e "openrouter")
+//   CODEX_BIN      Codex CLI da OpenAI (motor "codex", logado no ChatGPT)
 //   CHROME_BIN     Chrome/Chromium/Edge pros prints de página (kit/print.mjs)
 //   EDITOR_FONTE   fonte .ttf das folhas de quadros (texto do tempo em cada quadro)
 
@@ -13,10 +14,13 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const WIN = process.platform === "win32";
 const MAC = process.platform === "darwin";
 const CASA = os.homedir();
+/** A pasta do sistema (onde está o package.json). */
+export const RAIZ_SISTEMA = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const env = (...nomes) => nomes.map((n) => process.env[n]).find((v) => v && v.trim())?.trim();
 
 /** Procura um programa no PATH (no Windows, com .exe/.com). Devolve o caminho ou null. */
@@ -42,6 +46,7 @@ const ffmpeg =
   env("FFMPEG_BIN", "FFMPEG") ||
   (MAC ? primeiro(["/opt/homebrew/opt/ffmpeg-full/bin/ffmpeg", "/usr/local/opt/ffmpeg-full/bin/ffmpeg"]) : null) ||
   acharPrograma("ffmpeg") ||
+  (WIN ? primeiro([path.join(CASA, "ffmpeg", "bin", "ffmpeg.exe")]) : null) || // o instalador põe aqui quando não tem winget
   primeiro(MAC ? ["/opt/homebrew/bin/ffmpeg", "/usr/local/bin/ffmpeg"] : []) ||
   "ffmpeg";
 const irmao = (bin, nome) => (path.isAbsolute(bin) ? path.join(path.dirname(bin), nome + (WIN ? ".exe" : "")) : null);
@@ -75,6 +80,17 @@ const claude =
   acharPrograma("claude") ||
   "claude";
 
+// ── Codex CLI (instalador oficial, Homebrew ou npm global; o do npm é um .js que roda no node) ──
+const codex =
+  env("CODEX_BIN") ||
+  primeiro(
+    WIN
+      ? [process.env.LOCALAPPDATA && path.join(process.env.LOCALAPPDATA, "Programs", "OpenAI", "Codex", "bin", "codex.exe"), process.env.APPDATA && path.join(process.env.APPDATA, "npm", "node_modules", "@openai", "codex", "bin", "codex.js")]
+      : ["/opt/homebrew/bin/codex", "/usr/local/bin/codex", path.join(CASA, ".local", "bin", "codex"), path.join(CASA, ".npm-global", "bin", "codex")],
+  ) ||
+  acharPrograma("codex") ||
+  null;
+
 // ── Chrome (prints de página; o HyperFrames baixa o Chrome dele sozinho) ──
 const PF = process.env.ProgramFiles || "C:\\Program Files";
 const PF86 = process.env["ProgramFiles(x86)"] || "C:\\Program Files (x86)";
@@ -105,7 +121,67 @@ const fonte =
         : ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", "/usr/share/fonts/TTF/DejaVuSans-Bold.ttf"],
   );
 
-export const FERRAMENTAS = { ffmpeg, ffprobe, whisper, modelos, claude, chrome, fonte };
+export const FERRAMENTAS = { ffmpeg, ffprobe, whisper, modelos, claude, codex, chrome, fonte };
+
+/** [comando, ...args] de um programa que pode ser um .js (npm global) ou um executável. */
+export const comoRodar = (bin) => (/\.(c|m)?js$/i.test(bin) ? [process.execPath, bin] : [bin]);
+
+// ── HyperFrames (lint, snapshot e render) e GSAP, numa pasta do sistema ─────
+// Instalados uma vez em editor/ferramentas (fora do git). O motor "codex" roda os comandos num
+// sandbox sem internet que não enxerga o cache do npx: por isso não dá pra depender dele.
+export const HF_VERSAO = "0.8.92";
+const GSAP_VERSAO = "3.14.2";
+export const PASTA_FERRAMENTAS = path.join(RAIZ_SISTEMA, "editor", "ferramentas");
+const HF_BIN = path.join(PASTA_FERRAMENTAS, "node_modules", "hyperframes", "bin", "hyperframes.mjs");
+export const GSAP_LOCAL = path.join(PASTA_FERRAMENTAS, `gsap-${GSAP_VERSAO}.min.js`);
+
+/** O HyperFrames instalado (caminho do bin .mjs) ou null. */
+export function hyperframesLocal() {
+  try {
+    const pkg = JSON.parse(fs.readFileSync(path.join(PASTA_FERRAMENTAS, "node_modules", "hyperframes", "package.json"), "utf8"));
+    return pkg.version === HF_VERSAO && fs.existsSync(HF_BIN) ? HF_BIN : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Linha de comando do HyperFrames: o instalado (sem rede) ou, sem ele, o npx. */
+export function comandoHyperframes() {
+  const bin = hyperframesLocal();
+  return bin ? `"${process.execPath}" "${bin}"` : `npx --yes hyperframes@${HF_VERSAO}`;
+}
+
+/**
+ * Instala o HyperFrames e o GSAP em editor/ferramentas, se ainda não tiver (precisa de internet,
+ * uns 130 MB na primeira vez). Não trava a estação: sem isso, o kit usa o npx e o GSAP da CDN.
+ */
+let garantidas = null;
+export async function garantirFerramentas({ aviso = () => {} } = {}) {
+  if (garantidas?.hyperframes && garantidas.gsap && hyperframesLocal()) return garantidas;
+  fs.mkdirSync(PASTA_FERRAMENTAS, { recursive: true });
+  if (!hyperframesLocal()) {
+    aviso(`instalando o HyperFrames ${HF_VERSAO} (uma vez só)`);
+    fs.writeFileSync(path.join(PASTA_FERRAMENTAS, "package.json"), JSON.stringify({ private: true, dependencies: { hyperframes: HF_VERSAO } }, null, 2));
+    const r = spawnSync(`npm install --omit=dev --no-audit --no-fund --loglevel=error --prefix "${PASTA_FERRAMENTAS}"`, { shell: true, encoding: "utf8", windowsHide: true, timeout: 15 * 60_000 });
+    if (!hyperframesLocal()) aviso(`não deu pra instalar o HyperFrames (${String(r.stderr || r.stdout || "").trim().split("\n").pop()?.slice(0, 200)}): vou usar o npx`);
+  }
+  if (!fs.existsSync(GSAP_LOCAL)) {
+    try {
+      const r = await fetch(`https://cdn.jsdelivr.net/npm/gsap@${GSAP_VERSAO}/dist/gsap.min.js`, { signal: AbortSignal.timeout(60_000) });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const js = await r.text();
+      if (!js.includes("gsap")) throw new Error("arquivo estranho");
+      fs.writeFileSync(GSAP_LOCAL, js);
+    } catch (e) {
+      aviso(`não deu pra baixar o GSAP (${e.message}): o vídeo usa o da internet`);
+    }
+  }
+  // O Chrome do HyperFrames (snapshot e render): baixa uma vez
+  const bin = hyperframesLocal();
+  if (bin) spawnSync(process.execPath, [bin, "browser", "ensure"], { encoding: "utf8", windowsHide: true, timeout: 15 * 60_000, env: { ...process.env, HYPERFRAMES_NO_UPDATE_CHECK: "1" } });
+  garantidas = { hyperframes: hyperframesLocal(), gsap: fs.existsSync(GSAP_LOCAL) ? GSAP_LOCAL : null };
+  return garantidas;
+}
 
 /** `fontfile=…` pronto pro drawtext (caminho escapado pro filtro do ffmpeg), ou "" pra fonte padrão. */
 export function fonteDrawtext() {
@@ -133,6 +209,7 @@ export const COMO_INSTALAR = {
   ffmpeg: WIN ? "ffmpeg completo (winget install Gyan.FFmpeg) ou FFMPEG_BIN no .env.local" : "ffmpeg completo (brew install ffmpeg-full) ou FFMPEG_BIN no .env.local",
   whisper: WIN ? `whisper.cpp: whisper-cli.exe em ${path.join(CASA, "whisper-cpp", "Release")} ou WHISPER_BIN no .env.local` : "whisper.cpp (brew install whisper.cpp) ou WHISPER_BIN no .env.local",
   modelo: `modelo do whisper (${MODELO}) em ${path.join(CASA, "whisper-cpp", "models")} ou WHISPER_MODEL no .env.local`,
-  claude: WIN ? "Claude Code (irm https://claude.ai/install.ps1 | iex, depois claude pra fazer login) ou CLAUDE_BIN no .env.local" : "Claude Code (curl -fsSL https://claude.ai/install.sh | bash, depois claude pra fazer login) ou CLAUDE_BIN no .env.local",
+  claude: WIN ? "Claude Code (irm https://claude.ai/install.ps1 | iex) ou CLAUDE_BIN no .env.local" : "Claude Code (curl -fsSL https://claude.ai/install.sh | bash) ou CLAUDE_BIN no .env.local",
+  codex: "Codex (npm install -g @openai/codex) ou CODEX_BIN no .env.local",
   node: "Node.js 22 ou mais novo (nodejs.org)",
 };

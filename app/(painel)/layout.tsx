@@ -15,7 +15,7 @@ export default async function LayoutPainel({ children }: LayoutProps<"/">) {
   const { data: membro, error } = await supabase.from("equipe").select("nome, papel").eq("usuario_id", claims.sub).maybeSingle();
 
   if (error || !membro) {
-    const problema = error ? await conferirBanco() : null;
+    const problema = error ? (await conferirBanco())?.mensagem ?? null : null;
     return (
       <main className="flex min-h-screen items-center justify-center px-4 text-center">
         <div className="max-w-md">

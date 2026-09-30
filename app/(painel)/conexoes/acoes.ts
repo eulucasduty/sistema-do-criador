@@ -6,6 +6,8 @@ import { after } from "next/server";
 import { exigirEquipe } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { urlDoApp } from "@/lib/app";
+import { salvarConfig } from "@/lib/config";
+import { chaveOpenRouter, segredoDoRelogio } from "@/lib/segredos";
 
 // Conexões: Instagram, Facebook, relógio e o teste da chave da IA. As ações que usam a
 // chave secreta conferem login E equipe (Server Action é endpoint público).
@@ -79,8 +81,8 @@ export async function ligarRelogio(formData: FormData) {
   await exigirEquipe();
   let q: Record<string, string> = { relogio: "ok" };
   try {
-    const segredo = process.env.CRON_SECRET;
-    if (!segredo) throw new Error("falta a variável CRON_SECRET (veja o passo a passo)");
+    const segredo = segredoDoRelogio();
+    if (!segredo) throw new Error("falta a variável SUPABASE_SECRET_KEY na hospedagem");
     const url = urlDoApp();
     if (!url.startsWith("https://")) throw new Error(`o endereço do sistema precisa ser https (hoje é ${url}); preencha APP_URL`);
     const { error } = await createAdminClient().rpc("ligar_relogio", { p_url: url, p_segredo: segredo });
@@ -106,8 +108,8 @@ export async function testarIA(formData: FormData) {
   await exigirEquipe();
   let q: Record<string, string>;
   try {
-    const chave = process.env.OPENROUTER_API_KEY;
-    if (!chave) throw new Error("falta a variável OPENROUTER_API_KEY");
+    const chave = await chaveOpenRouter();
+    if (!chave) throw new Error("cole a chave da OpenRouter primeiro");
     const r = await fetch("https://openrouter.ai/api/v1/key", { headers: { Authorization: `Bearer ${chave}` }, signal: AbortSignal.timeout(15_000) });
     const j = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(`a OpenRouter recusou a chave (${r.status})`);
@@ -117,4 +119,37 @@ export async function testarIA(formData: FormData) {
     q = { ia: "erro", msg: (e as Error).message.slice(0, 200) };
   }
   voltar(destinoDe(formData), "ia", q);
+}
+
+/** Cola a chave da OpenRouter no painel (fica no banco, só o dono lê). Testa antes de guardar. */
+export async function salvarChaveIA(formData: FormData) {
+  await exigirEquipe();
+  const chave = String(formData.get("chave") ?? "").trim();
+  let q: Record<string, string>;
+  try {
+    if (!/^sk-or-[\w-]{20,}$/.test(chave)) throw new Error("a chave da OpenRouter começa com sk-or- (copie de novo em openrouter.ai → Keys)");
+    const r = await fetch("https://openrouter.ai/api/v1/key", { headers: { Authorization: `Bearer ${chave}` }, signal: AbortSignal.timeout(15_000) });
+    if (!r.ok) throw new Error(`a OpenRouter recusou essa chave (${r.status})`);
+    await salvarConfig("ia", { openrouter_key: chave });
+    q = { ia: "ok", msg: "chave salva e funcionando" };
+  } catch (e) {
+    q = { ia: "erro", msg: (e as Error).message.slice(0, 200) };
+  }
+  revalidatePath("/", "layout");
+  voltar(destinoDe(formData), "ia", q);
+}
+
+/** Cola a "Chave secreta do app do Instagram" (o sistema usa pra conferir que o aviso veio mesmo da Meta). */
+export async function salvarSegredoDoApp(formData: FormData) {
+  await exigirEquipe();
+  const segredo = String(formData.get("segredo") ?? "").trim();
+  let q: Record<string, string>;
+  if (!/^[0-9a-f]{32}$/i.test(segredo)) {
+    q = { ig: "erro", msg: "a chave secreta do app tem 32 letras e números (em Casos de uso → Instagram → Configuração da API, clique em Mostrar)" };
+  } else {
+    await salvarConfig("meta_app", { app_secret: segredo });
+    q = { ig: "segredo" };
+  }
+  revalidatePath("/", "layout");
+  voltar(destinoDe(formData), "instagram", q);
 }

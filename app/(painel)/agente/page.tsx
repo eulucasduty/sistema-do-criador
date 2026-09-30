@@ -132,7 +132,7 @@ export default async function PaginaAgente() {
   const autos = (automacoes ?? []) as Automacao[];
   const noModoAgente = autos.filter((a) => a.modo === "agente" && a.ativa);
   const pausa = pausaDe(agente.pausado_ate);
-  const iaOk = iaConfigurada();
+  const iaOk = await iaConfigurada();
   const reais = turnos24h ?? [];
   const conta = (r: string) => reais.filter((t) => t.resultado === r).length;
   const custo24h = reais.reduce((s, t) => s + Number(t.custo_usd ?? 0), 0);

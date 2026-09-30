@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { lerSituacao } from "@/lib/passos";
 import { dataCurta, haQuanto } from "@/lib/formato";
-import { conectarFacebookAcao, conectarInstagram, desligarRelogio, ligarRelogio, reinscreverInstagram, testarIA } from "./acoes";
+import { conectarFacebookAcao, conectarInstagram, desligarRelogio, ligarRelogio, reinscreverInstagram, salvarChaveIA, salvarSegredoDoApp, testarIA } from "./acoes";
 import { Copiar } from "../copiar";
 
 // Conexões: o estado de cada ligação do sistema e os formulários pra (re)conectar.
@@ -44,6 +44,7 @@ export default async function PaginaConexoes({ searchParams }: PageProps<"/conex
       <section id="instagram" className="card scroll-mt-6 p-4">
         <h2 className="font-display text-lg uppercase tracking-wide">Instagram</h2>
         {q.ig === "ok" && <Aviso tipo="ok">Instagram conectado e inscrito nos webhooks.</Aviso>}
+        {q.ig === "segredo" && <Aviso tipo="ok">Chave secreta do app salva.</Aviso>}
         {(q.ig === "erro" || q.ig === "parcial") && <Aviso tipo="erro">{q.ig === "parcial" ? "Conectou, mas: " : "Não conectou: "}{String(q.msg ?? "")}</Aviso>}
         <div className="mt-4 space-y-3 text-sm">
           <Linha ok={Boolean(ig.token) && !ig.erro}>
@@ -61,8 +62,11 @@ export default async function PaginaConexoes({ searchParams }: PageProps<"/conex
               <button className="text-xs text-marca underline">Inscrever nos webhooks de novo</button>
             </form>
           )}
-          <Linha ok={s.env.appSecret}>Chave secreta do app (META_APP_SECRET): {s.env.appSecret ? "configurada" : "falta"}</Linha>
-          <Linha ok={s.env.verifyToken}>Token de verificação do webhook (IG_WEBHOOK_VERIFY_TOKEN): {s.env.verifyToken ? "configurado" : "falta"}</Linha>
+          <Linha ok={s.env.appSecret}>Chave secreta do app da Meta: {s.env.appSecret ? "salva" : "falta"}</Linha>
+          <form action={salvarSegredoDoApp} className="flex gap-2 pl-4">
+            <input name="segredo" type="password" placeholder="chave secreta do app (32 letras e números)" className="campo font-mono" autoComplete="off" />
+            <button className="btn btn-sm btn-2 shrink-0">{s.env.appSecret ? "Trocar" : "Salvar"}</button>
+          </form>
           <Linha ok={Boolean(s.ultimoEventoIg)}>
             {s.ultimoEventoIg ? `Último evento da Meta: ${haQuanto(s.ultimoEventoIg.recebido_em)} (${s.ultimoEventoIg.tipo})` : "Nenhum evento da Meta chegou ainda"}
           </Linha>
@@ -70,6 +74,10 @@ export default async function PaginaConexoes({ searchParams }: PageProps<"/conex
             <div className="flex flex-wrap items-center gap-2">
               URL de callback: <span className="font-mono text-texto">{s.url}/api/webhooks/instagram</span>
               <Copiar texto={`${s.url}/api/webhooks/instagram`} className="text-xs text-marca underline" />
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              Token de verificação: <span className="font-mono text-texto">{s.tokenWebhook ?? "—"}</span>
+              {s.tokenWebhook && <Copiar texto={s.tokenWebhook} className="text-xs text-marca underline" />}
             </div>
             <div>Campos: <span className="font-mono">comments, messages, messaging_postbacks, message_reactions</span></div>
             <div className="flex flex-wrap items-center gap-2">
@@ -140,13 +148,12 @@ export default async function PaginaConexoes({ searchParams }: PageProps<"/conex
               ? `Última batida ${haQuanto(s.relogio.visto_em)} (${s.relogio.modo === "servidor" ? "no servidor" : "pelo Supabase"})`
               : "Nunca bateu"}
           </Linha>
-          <Linha ok={s.env.cron}>CRON_SECRET: {s.env.cron ? "configurada" : "falta"}</Linha>
           <Linha ok={s.relogioAgendado}>
             Agendamento no Supabase (pg_cron): {s.relogioAgendado === null ? "não deu pra conferir" : s.relogioAgendado ? "ligado" : "desligado"}
           </Linha>
           <div className="flex gap-2 pl-4">
             <form action={ligarRelogio}>
-              <button className="btn btn-sm btn-2" disabled={!s.env.cron}>{s.relogioAgendado ? "Ligar de novo" : "Ligar"}</button>
+              <button className="btn btn-sm btn-2">{s.relogioAgendado ? "Ligar de novo" : "Ligar"}</button>
             </form>
             {s.relogioAgendado && (
               <form action={desligarRelogio}>
@@ -163,7 +170,11 @@ export default async function PaginaConexoes({ searchParams }: PageProps<"/conex
         {q.ia === "ok" && <Aviso tipo="ok">Chave ok: {String(q.msg ?? "")}.</Aviso>}
         {q.ia === "erro" && <Aviso tipo="erro">{String(q.msg ?? "")}</Aviso>}
         <div className="mt-4 space-y-3 text-sm">
-          <Linha ok={s.env.openrouter}>OPENROUTER_API_KEY: {s.env.openrouter ? "configurada" : "falta"}</Linha>
+          <Linha ok={s.env.openrouter}>Chave da OpenRouter: {s.env.openrouter ? "salva" : "falta"}</Linha>
+          <form action={salvarChaveIA} className="flex gap-2 pl-4">
+            <input name="chave" type="password" placeholder="sk-or-…" className="campo font-mono" autoComplete="off" />
+            <button className="btn btn-sm btn-2 shrink-0">{s.env.openrouter ? "Trocar" : "Salvar"}</button>
+          </form>
           <p className="pl-4 text-suave">
             Ver e ouvir vídeo: <span className="font-mono">{process.env.AI_MODEL || "google/gemini-3.8-flash"}</span> · Escrever na sua voz:{" "}
             <span className="font-mono">{process.env.MODELO_CRIACAO || "anthropic/claude-sonnet-5"}</span> · o agente usa o modelo escolhido na tela dele.

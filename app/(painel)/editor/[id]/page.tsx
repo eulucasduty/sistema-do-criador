@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { haQuanto } from "@/lib/formato";
-import { FINAIS, STATUS_EDICAO, estacaoLigada, type BatidaEstacao } from "@/lib/editor";
+import { FINAIS, PASSO_DA_IA, STATUS_EDICAO, estacaoLigada, nomeDoMotor, type BatidaEstacao } from "@/lib/editor";
 import { BotaoGerar } from "../../esteira/botoes";
 import { apagarEdicao, cancelarEdicao, pedirAjuste, tentarDeNovo } from "../acoes";
 import { AutoAtualizar } from "../atualizar";
@@ -12,7 +12,7 @@ import { nomeDoEstilo, nomeDoLook } from "../opcoes";
 
 export const dynamic = "force-dynamic";
 
-type Uso = { modelo?: string; turnos?: number; duracao_s?: number; render_s?: number; equivalente_api_usd?: number | null };
+type Uso = { motor?: string; modelo?: string; turnos?: number; duracao_s?: number; render_s?: number; equivalente_api_usd?: number | null; custo_usd?: number | null; conserto?: { custo_usd?: number | null } };
 type Resultado = { caminho: string; tamanho?: number; duracao?: number; local?: string };
 type Linha = { t: string; msg: string };
 type Opcoes = { legenda?: string; cor?: string };
@@ -94,7 +94,7 @@ export default async function PaginaEdicao({ params, searchParams }: PageProps<"
               <EstacaoDesligada className="mt-1" />
             </div>
           )}
-          <p className="text-xs text-apagado">A edição leva uns minutos (o Claude monta, confere e depois renderiza). Pode sair da página.</p>
+          <p className="text-xs text-apagado">A edição leva uns minutos (a IA monta, confere e depois a estação renderiza). Pode sair da página.</p>
           <form action={cancelarEdicao}>
             <input type="hidden" name="id" value={e.id} />
             <button className="text-xs text-quente">cancelar</button>
@@ -145,8 +145,14 @@ export default async function PaginaEdicao({ params, searchParams }: PageProps<"
             )}
             {uso && (
               <p className="text-xs text-apagado">
-                Claude ({uso.modelo ?? "opus"}): {uso.turnos ?? "?"} passos em {minutos(uso.duracao_s)} · render {minutos(uso.render_s)}
-                {typeof uso.equivalente_api_usd === "number" ? ` · no plano (se fosse API, uns US$ ${uso.equivalente_api_usd.toFixed(2)})` : ""}
+                {nomeDoMotor(uso.motor)} ({uso.modelo ?? "opus"}): {uso.turnos ?? "?"} passos em {minutos(uso.duracao_s)} · render {minutos(uso.render_s)}
+                {uso.motor === "openrouter"
+                  ? typeof uso.custo_usd === "number"
+                    ? ` · custou uns US$ ${(uso.custo_usd + (uso.conserto?.custo_usd ?? 0)).toFixed(2)} na OpenRouter`
+                    : ""
+                  : typeof uso.equivalente_api_usd === "number"
+                    ? ` · no plano (se fosse API, uns US$ ${uso.equivalente_api_usd.toFixed(2)})`
+                    : " · no plano"}
               </p>
             )}
             <form action={pedirAjuste} className="card space-y-2 p-4">
@@ -222,7 +228,7 @@ export default async function PaginaEdicao({ params, searchParams }: PageProps<"
             {log.map((l, k) => (
               <li key={k} className="flex gap-3">
                 <span className="shrink-0 text-apagado">{horaSP(l.t)}</span>
-                <span className={l.msg.startsWith("o Claude ") ? "text-apagado" : "text-suave"}>{l.msg}</span>
+                <span className={PASSO_DA_IA.test(l.msg) ? "text-apagado" : "text-suave"}>{l.msg}</span>
               </li>
             ))}
           </ol>

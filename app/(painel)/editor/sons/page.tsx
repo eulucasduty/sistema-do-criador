@@ -8,15 +8,15 @@ import { SubirSom } from "./subir";
 export const dynamic = "force-dynamic";
 
 type Som = { id: string; nome: string; funcao: string | null; principal: boolean; descricao: string; origem: string; arquivo: string; volume: number; ativo: boolean };
-const ORIGEM: Record<string, string> = { criador: "seu", kit: "kit", "99hud": "kit" };
+const ORIGEM: Record<string, string> = { criador: "seu", kit: "kit" };
 
 // Os sons que vêm no kit do editor (editor/kit/sons): valem quando você não tem um principal na função
 const KIT: Record<string, string> = {
-  obturador: "obturador-99hud",
-  ding: "ding-99hud",
-  tecla: "tick-99hud",
-  whoosh: "whoosh-99hud",
-  pop: "pop-99hud",
+  obturador: "obturador-seco",
+  ding: "ding-claro",
+  tecla: "tick-curto",
+  whoosh: "whoosh-rapido",
+  pop: "pop-curto",
   teclado: "teclado-kit",
   riser: "riser-kit",
   click: "click-kit",

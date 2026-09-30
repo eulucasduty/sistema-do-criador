@@ -5,7 +5,7 @@ O sistema de produção de conteúdo pra criador do Instagram, rodando nas **sua
 - **Esteira de referências**: cole o link de um reel ou carrossel que bombou (ou suba o vídeo/os prints). A IA assiste, transcreve e explica por que funcionou.
 - **Roteiro na sua voz**: a IA assiste os seus últimos reels, monta a sua persona e escreve a sua versão do formato, sem copiar frase de ninguém.
 - **Cópia de carrossel**: a sua versão do carrossel da referência, com os slides prontos em PNG (no visual da referência ou da sua marca) e a legenda.
-- **Editor de vídeo com IA** (o principal): você sobe o vídeo cru + prints e gravações de tela; volta editado, com cor, legenda palavra por palavra, motion, efeitos sonoros e o seu CTA. Roda no seu PC com o Claude Code, no seu plano do Claude: **sem custo de API**.
+- **Editor de vídeo com IA** (o principal): você sobe o vídeo cru + prints e gravações de tela; volta editado, com cor, legenda palavra por palavra, motion, efeitos sonoros e o seu CTA. Roda no seu computador com a IA que você já assina (Claude ou ChatGPT) ou pela OpenRouter.
 - **Automações do Instagram** (o "ManyChat" grátis): comentou a palavra → resposta pública + material na DM, com portão de seguidor, sequência de mensagens com botão, lembretes e follow-ups.
 - **Agente de IA no direct** (opcional): conversa com quem respondeu a automação, tira dúvida e oferece o seu link.
 
@@ -13,96 +13,95 @@ Tudo fica no seu nome: o banco é seu, a hospedagem é sua, o app da Meta é seu
 
 ---
 
-## Do que você precisa
+## Do que você precisa (tudo grátis pra criar)
 
-| Conta | Pra quê | Custo |
-| --- | --- | --- |
-| [GitHub](https://github.com) | guardar a sua cópia do sistema | grátis |
-| [Supabase](https://supabase.com) | banco de dados e arquivos | grátis |
-| [Vercel](https://vercel.com) | deixar o sistema no ar | grátis (Hobby) |
-| [OpenRouter](https://openrouter.ai) | a IA da Esteira, dos roteiros e do agente | pago por uso (US$ 5 duram bastante) |
-| [Meta for Developers](https://developers.facebook.com) | o seu app pro Instagram | grátis |
-| [Claude](https://claude.ai) Pro ou Max | o editor de vídeo (no seu PC) | a sua assinatura |
+| Conta | Pra quê |
+| --- | --- |
+| [Supabase](https://supabase.com) | onde ficam os seus dados |
+| [GitHub](https://github.com) | a sua cópia do sistema |
+| [Vercel](https://vercel.com) | deixar o sistema no ar |
+| [OpenRouter](https://openrouter.ai) | a IA que assiste e escreve (você paga só o que usar; US$ 5 duram bastante) |
+| [Meta for Developers](https://developers.facebook.com) | o seu app pro Instagram |
+
+E pro editor de vídeo: um computador (Windows ou Mac) e uma assinatura do **Claude** (Pro/Max) **ou** do **ChatGPT** (Plus/Pro). Não tem nenhuma das duas? Dá pra usar a OpenRouter, pagando por vídeo.
 
 O Instagram precisa ser **conta profissional** (criador ou empresa).
 
 ---
 
-## Instalação (uns 40 minutos, uma vez só)
+## Instalação (uns 20 minutos)
 
-### 1. Supabase (o banco)
+### 1. Supabase
 
-1. Em [supabase.com](https://supabase.com), crie um projeto (região **South America (São Paulo)**). Guarde a senha do banco.
-2. No projeto, abra **SQL Editor → New query**, cole o conteúdo inteiro de [`supabase/migrations/001_sistema.sql`](supabase/migrations/001_sistema.sql) e clique em **Run**. Tem que terminar com "Success".
-3. Vá em **Project Settings → Data API → Exposed schemas**, adicione **`criador`** e salve.
-4. Vá em **Project Settings → API Keys** e anote três coisas:
-   - a **Project URL** (`https://xxxx.supabase.co`)
-   - a **Publishable key** (`sb_publishable_...`)
-   - a **Secret key** (`sb_secret_...`) → essa é segredo, não mostre pra ninguém
+1. Entre em [supabase.com](https://supabase.com) → **New project**. Nome: `sistema`. Crie uma senha qualquer (guarde). Região: **South America (São Paulo)**. Clique em **Create**.
+2. Espere uns 2 minutos o projeto ficar pronto.
+3. Vá em **Project Settings → API Keys** e deixe essa aba aberta: você vai copiar 3 coisas daqui no passo 3.
+   - **Project URL** (fica em Project Settings → Data API; começa com `https://` e termina com `.supabase.co`)
+   - **Publishable key** (`sb_publishable_...`)
+   - **Secret key** (`sb_secret_...`, clique em Reveal) → é segredo, não mostre pra ninguém
 
-### 2. A sua cópia no GitHub
+### 2. GitHub
 
-1. Entre no GitHub e clique em **Fork** no topo desta página → **Create fork**.
-2. Pronto: `github.com/<seu-usuario>/sistema-do-criador` é a sua cópia. Quando sair versão nova, é só clicar em **Sync fork** lá e a Vercel atualiza sozinha.
+1. Crie a conta em [github.com](https://github.com) (se não tiver).
+2. Nesta página, clique em **Fork** (no topo, à direita) → **Create fork**. Pronto: essa é a sua cópia.
 
-### 3. Vercel (colocar no ar)
+### 3. Vercel
 
-1. Em [vercel.com](https://vercel.com), entre com o GitHub → **Add New → Project** → escolha o seu `sistema-do-criador` → **Import**.
-2. Abra **Environment Variables** e adicione:
+1. Entre em [vercel.com](https://vercel.com) com o GitHub.
+2. **Add New → Project** → ache o `sistema-do-criador` → **Import**.
+3. Abra **Environment Variables** e adicione as 3 (nome à esquerda, valor à direita):
 
    | Nome | Valor |
    | --- | --- |
-   | `NEXT_PUBLIC_SUPABASE_URL` | a Project URL do Supabase |
+   | `NEXT_PUBLIC_SUPABASE_URL` | a Project URL |
    | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | a Publishable key |
    | `SUPABASE_SECRET_KEY` | a Secret key |
-   | `OPENROUTER_API_KEY` | a chave da OpenRouter (**Keys → Create Key**, começa com `sk-or-`) |
-   | `CRON_SECRET` | uma senha qualquer que você inventa (só letras e números, 30+ caracteres) |
-   | `IG_WEBHOOK_VERIFY_TOKEN` | outra senha qualquer que você inventa |
 
-3. Clique em **Deploy** e espere uns 3 minutos. No fim, abra o endereço que a Vercel te deu (`https://sistema-do-criador-xxxx.vercel.app`).
+4. Clique em **Deploy** e espere uns 3 minutos. No fim, clique na imagem do site pra abrir o seu sistema (`https://sistema-do-criador-xxxx.vercel.app`). Guarde esse endereço.
 
-### 4. A sua conta
+### 4. Abrir o sistema
 
-No primeiro acesso, o sistema pede pra criar a conta: **faça isso logo depois do deploy**. Quem cria primeiro vira o dono; depois disso ninguém mais consegue criar.
+1. Na primeira vez, o sistema pede pra criar as tabelas: clique em **Copiar o SQL**, abra o link do SQL Editor que ele mostra, cole e clique em **Run**. Volte e recarregue.
+2. Crie a sua conta: nome, e-mail, senha e a **Secret key** do Supabase (a mesma da Vercel). A chave prova que o sistema é seu: quem só achar o seu endereço não consegue virar dono.
 
-Opcional, pra fechar de vez: no Supabase, **Authentication → Sign In / Providers → Allow new users to sign up** → desligado.
+### 5. O resto é dentro do sistema
 
-### 5. O passo a passo dentro do sistema
+O **Início** te guia, com o status de cada passo ao vivo:
 
-Daqui pra frente o **Início** do sistema te guia, com o status de cada coisa ao vivo:
-
-1. Chave da IA (testar)
-2. Seu perfil (nicho, público, jeito de falar, look do vídeo)
+1. Chave da IA (colar a chave da OpenRouter)
+2. Seu perfil
 3. Instagram: o seu app na Meta (o passo mais longo, uns 20 min)
 4. O relógio (um clique)
-5. A estação de edição no seu PC → guia completo em [`editor/INSTALAR.md`](editor/INSTALAR.md)
+5. A estação de edição no seu computador (um comando)
 6. A sua primeira automação
-
-E os opcionais: Facebook (pra Esteira buscar reel só pelo link), sua persona e o agente de IA.
 
 ---
 
 ## Quanto custa pra rodar
 
-- **Supabase, Vercel e Meta**: grátis no uso de um criador. (O plano Hobby da Vercel é pra uso pessoal; se o seu uso crescer, tem o Pro, ou dá pra rodar em servidor próprio com o `Dockerfile`.)
+- **Supabase, Vercel, GitHub e Meta**: grátis no uso de um criador. (O plano grátis da Vercel é pra uso pessoal; se o seu uso crescer, tem o Pro, ou dá pra rodar em servidor próprio com o `Dockerfile`.)
 - **OpenRouter**: centavos por referência analisada e por roteiro; o agente do direct custa frações de centavo por resposta.
-- **Editor de vídeo**: zero de API. Usa o Claude Code no seu plano do Claude (Pro ou Max), no seu PC.
+- **Editor de vídeo**: zero de API se você usa a sua assinatura do Claude ou do ChatGPT. Pela OpenRouter, paga por vídeo.
+
+## Atualizar
+
+Quando sair versão nova: abra a sua cópia no GitHub e clique em **Sync fork → Update branch**. A Vercel atualiza sozinha. A estação do computador se atualiza rodando o instalador de novo.
 
 ## Problemas comuns
 
-- **"Falta um passo no banco" / schema não exposto**: faltou o passo 1.3 (Exposed schemas → `criador`).
-- **O webhook não verifica na Meta**: o token de verificação tem que ser idêntico à variável `IG_WEBHOOK_VERIFY_TOKEN`, e depois de mudar variável na Vercel é preciso fazer **Redeploy**.
+- **"Falta um passo da instalação"**: a tela diz qual variável falta. Depois de mudar variável na Vercel, vá em **Deployments → ⋯ → Redeploy**.
+- **O webhook não verifica na Meta**: copie de novo o token de verificação que o Início mostra (passo 4) e confira a URL de callback.
 - **Comentário de outra pessoa não chega**: o app da Meta ainda está em modo Desenvolvimento. Publique (modo Ao vivo).
 - **O relógio não liga**: no Supabase, **Database → Extensions**, ligue `pg_cron` e `pg_net` e clique em ligar de novo.
 - **Reel sem vídeo na Esteira**: conta pessoal e reel com música licenciada a Meta não libera. Suba o arquivo.
 
 ## Servidor próprio (opcional)
 
-Prefere VPS? O `Dockerfile` está pronto. Use as mesmas variáveis, mais `APP_URL` (o endereço https) e `RELOGIO=ligado` (o relógio roda dentro do servidor e dispensa o pg_cron). Uma réplica só.
+Prefere VPS? O `Dockerfile` está pronto. Use as mesmas 3 variáveis, mais `APP_URL` (o endereço https) e `RELOGIO=ligado` (o relógio roda dentro do servidor e dispensa o pg_cron). Uma réplica só.
 
 ## Pra quem mexe no código
 
-Next.js 16 (App Router), Supabase (schema `criador`, RLS em tudo), LangGraph + OpenRouter no agente, Gemini pra ver e ouvir vídeo, HyperFrames no editor. A pasta `editor/` é a oficina do editor de vídeo (roda no seu PC). O `CLAUDE.md` explica a estrutura pra você customizar com o Claude Code.
+Next.js 16 (App Router), Supabase (RLS em tudo), LangGraph + OpenRouter no agente, Gemini pra ver e ouvir vídeo, HyperFrames no editor. A pasta `editor/` é a oficina do editor de vídeo (roda no seu computador). O `CLAUDE.md` explica a estrutura pra você customizar com o Claude Code ou o Codex.
 
 ---
 

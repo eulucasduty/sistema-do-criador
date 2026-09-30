@@ -4,7 +4,7 @@
 // O prompt também manda; aqui é a rede pro caso óbvio, que não
 // pode depender do modelo acertar. Os padrões são estreitos de propósito: "ia" também
 // é verbo ("eu ia te perguntar") e "resposta automática" é assunto de negócio ("vc faz
-// resposta automática pra clínica?"). O caso sutil fica com o modelo (§4 do prompt).
+// resposta automática pra loja?"). O caso sutil fica com o modelo (§4 do prompt).
 //
 // Pedido de sair da lista → não contatar, sem resposta nenhuma do agente.
 //

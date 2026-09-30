@@ -3,15 +3,26 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { exigirEquipe } from "@/lib/supabase/server";
-import { partesDe, type ArquivoPedido, type EnvioParte, type PedidoEdicao } from "@/lib/editor";
+import { createClient, exigirEquipe } from "@/lib/supabase/server";
+import { configEditor, partesDe, type ArquivoPedido, type EnvioParte, type PedidoEdicao } from "@/lib/editor";
+import { estiloValido, lookValido } from "./opcoes";
+
+/** "Quem edita os seus vídeos": salva a escolha (a estação lê a cada pedido, sem reiniciar). */
+export async function salvarMotor(formData: FormData) {
+  const supabase = await createClient(); // sessão de quem está logado: a RLS só deixa a equipe
+  const valor = configEditor({ motor: formData.get("motor"), modelo: String(formData.get("modelo") ?? "").trim() || null });
+  const { error } = await supabase
+    .from("configuracao")
+    .upsert({ chave: "editor", valor, descricao: "Quem edita os seus vídeos: claude (plano Claude), codex (plano do ChatGPT) ou openrouter (paga por vídeo)" }, { onConflict: "chave" });
+  revalidatePath("/editor");
+  redirect(error ? `/editor?erro=${encodeURIComponent(`não salvou: ${error.message}`)}#motor` : "/editor?motor=salvo#motor");
+}
 
 // O vídeo e os materiais vão direto do navegador pro storage (bucket "edicao"), em partes de
 // até 45 MB (o limite do storage é 50 MB por arquivo): aqui só se cria o pedido e os links
 // assinados de envio. A estação (no PC do criador) junta as partes.
 
 const BUCKET = "edicao";
-const LOOKS = ["natural", "quente", "duty"];
 const limpo = (s: unknown, max = 500) => String(s ?? "").trim().slice(0, max);
 function conferirArquivo(a: ArquivoPedido | undefined, rotulo: string) {
   if (!a || !(a.tamanho > 0)) throw new Error(`${rotulo}: arquivo vazio`);
@@ -52,7 +63,7 @@ async function criar(p: PedidoEdicao): Promise<Criada> {
     .insert({
       titulo,
       roteiro: limpo(p.roteiro, 8000) || null,
-      opcoes: { legenda: p.legenda === "labs" ? "labs" : "bangers", ...(p.cor && LOOKS.includes(p.cor) ? { cor: p.cor } : {}) },
+      opcoes: { legenda: estiloValido(p.legenda), ...(lookValido(p.cor) ? { cor: lookValido(p.cor) } : {}) },
       status: "subindo",
       criado_por: usuarioId,
     })

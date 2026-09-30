@@ -1,6 +1,6 @@
 // Aplica supabase/migrations/*.sql em ordem, uma vez cada, uma transação por arquivo.
 // Uso: npm run migrar   (precisa de DATABASE_URL no .env.local: a conexão direta do Postgres do Supabase)
-// Guarda o que já foi aplicado em criador._migracao: rodar de novo só aplica os arquivos novos.
+// Guarda o que já foi aplicado em public._migracao: rodar de novo só aplica os arquivos novos.
 import fs from "node:fs";
 import path from "node:path";
 import pg from "pg";
@@ -22,16 +22,16 @@ const db = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: fal
 await db.connect();
 
 await db.query(`
-  create schema if not exists criador;
-  create table if not exists criador._migracao (
+  -- as tabelas ficam no schema public
+  create table if not exists public._migracao (
     id          uuid primary key default gen_random_uuid(),
     arquivo     text not null unique,
     aplicada_em timestamptz not null default now()
   );
-  alter table criador._migracao enable row level security;
+  alter table public._migracao enable row level security;
 `);
 
-const { rows } = await db.query("select arquivo from criador._migracao");
+const { rows } = await db.query("select arquivo from public._migracao");
 const aplicadas = new Set(rows.map((r) => r.arquivo));
 
 let novas = 0;
@@ -41,7 +41,7 @@ for (const arquivo of arquivos) {
   try {
     await db.query("begin");
     await db.query(sql);
-    await db.query("insert into criador._migracao (arquivo) values ($1)", [arquivo]);
+    await db.query("insert into public._migracao (arquivo) values ($1)", [arquivo]);
     await db.query("commit");
     console.log(`✓ ${arquivo}`);
     novas++;

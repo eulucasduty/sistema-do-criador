@@ -10,12 +10,12 @@ export const dynamic = "force-dynamic";
 const LOOKS = [
   { id: "natural", nome: "Natural", texto: "Só corrige (HDR do iPhone, nitidez leve). Bom pra quem já grava com luz boa." },
   { id: "quente", nome: "Quente", texto: "Um pouco mais de contraste e calor, pele saudável." },
-  { id: "duty", nome: "Contraste forte", texto: "Mais escuro e contrastado, com nitidez: o look de edição de criador." },
+  { id: "contraste", nome: "Contraste forte", texto: "Mais escuro e contrastado, com nitidez: o look de edição de criador." },
 ];
 
 const LEGENDAS = [
   { id: "bangers", nome: "Impacto", texto: "Palavra por palavra, letra grossa e grande (estilo karaokê)." },
-  { id: "labs", nome: "Limpa", texto: "Legenda em caixa, mais discreta, com destaque na palavra." },
+  { id: "limpa", nome: "Limpa", texto: "Legenda em caixa, mais discreta, com destaque na palavra." },
 ];
 
 export default async function PaginaPerfil({ searchParams }: PageProps<"/perfil">) {

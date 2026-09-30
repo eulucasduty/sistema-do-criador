@@ -1,5 +1,6 @@
 import "server-only";
 import { urlDoApp } from "@/lib/app";
+import { chaveOpenRouter } from "@/lib/segredos";
 
 // Chamadas diretas à OpenRouter pro que não é o agente em si: transcrever áudio,
 // descrever imagem, a Esteira (carrossel, roteiro, persona). O agente conversa pelo
@@ -8,8 +9,9 @@ import { urlDoApp } from "@/lib/app";
 export const OPENROUTER_URL = "https://openrouter.ai/api/v1";
 export const MODELO_PADRAO = process.env.AI_MODEL || "google/gemini-3.8-flash";
 
-export function iaConfigurada(): boolean {
-  return Boolean(process.env.OPENROUTER_API_KEY);
+/** Tem chave da OpenRouter (colada no painel ou na variável de ambiente)? */
+export async function iaConfigurada(): Promise<boolean> {
+  return Boolean(await chaveOpenRouter());
 }
 
 type Uso = { tokensEntrada: number; tokensSaida: number; custoUsd: number };
@@ -29,8 +31,8 @@ async function completar(opcoes: {
   json?: boolean;
   timeoutMs?: number;
 }): Promise<{ texto: string; uso: Uso }> {
-  const chave = process.env.OPENROUTER_API_KEY;
-  if (!chave) throw new Error("OPENROUTER_API_KEY ausente");
+  const chave = await chaveOpenRouter();
+  if (!chave) throw new Error("falta a chave da OpenRouter (Início → passo 2)");
   const r = await fetch(`${OPENROUTER_URL}/chat/completions`, {
     method: "POST",
     headers: {

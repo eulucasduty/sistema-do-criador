@@ -19,8 +19,8 @@ export async function salvarPerfil(formData: FormData) {
     nicho: texto(formData.get("nicho"), 200),
     publico: texto(formData.get("publico"), 400),
     tom: texto(formData.get("tom"), 1500),
-    cor: cor === "quente" || cor === "duty" ? cor : "natural",
-    legenda: formData.get("legenda") === "labs" ? "labs" : "bangers",
+    cor: cor === "quente" || cor === "contraste" ? cor : "natural",
+    legenda: formData.get("legenda") === "limpa" ? "limpa" : "bangers",
     cores: {
       fundo: hex(formData.get("cor_fundo"), antes.cores.fundo),
       texto: hex(formData.get("cor_texto"), antes.cores.texto),

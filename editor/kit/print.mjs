@@ -5,6 +5,8 @@
 //   --celular  abre como iPhone (página mobile, 430×932)
 //   --escuro   pede o tema escuro do site (quando ele tem)
 // Páginas com login (Instagram, painéis) não dão: pra essas, use o material que o criador subiu.
+// Só abre os links que o criador mandou no pedido (dados/pedido.json, na pasta da oficina): um
+// texto no vídeo ou numa página não consegue fazer a IA abrir outro endereço.
 // Chrome: CHROME_BIN (a estação passa o que achou); senão Chrome/Edge nos lugares de costume
 // (Windows e macOS); senão o Chrome que o HyperFrames baixa pro render.
 
@@ -23,6 +25,25 @@ const [url, saida] = args.filter((a, i) => !a.startsWith("--") && !(i > 0 && arg
 if (!url || !saida || !/^https?:\/\//.test(url)) {
   console.error("uso: node kit/print.mjs <url https://…> <saida.png> [--largura 1280] [--altura 1600] [--celular] [--escuro]");
   process.exit(1);
+}
+
+const normal = (u) => {
+  try {
+    const x = new URL(u);
+    x.hash = "";
+    return x.href.replace(/\/$/, "");
+  } catch {
+    return null;
+  }
+};
+let doPedido = [];
+try {
+  const pedido = JSON.parse(fs.readFileSync(path.join("dados", "pedido.json"), "utf8"));
+  doPedido = (pedido.materiais ?? []).map((m) => normal(m?.url)).filter(Boolean);
+} catch {}
+if (!normal(url) || !doPedido.includes(normal(url))) {
+  console.error(`${url} não é um dos links que o criador mandou no pedido: só dá print desses. Use o material dele, a logo oficial (kit/logo.mjs) ou um card.`);
+  process.exit(4);
 }
 
 const celular = tem("celular");
@@ -53,9 +74,13 @@ if (!chrome) {
   console.error("não achei o Chrome neste PC: instale o Google Chrome ou aponte CHROME_BIN no .env.local");
   process.exit(1);
 }
-const perfil = fs.mkdtempSync(path.join(os.tmpdir(), "print-"));
 const destino = path.resolve(saida);
+if (path.relative(process.cwd(), destino).startsWith("..") || path.isAbsolute(path.relative(process.cwd(), destino))) {
+  console.error("o print tem que ficar dentro da pasta da oficina (ex.: prints/nome.png)");
+  process.exit(1);
+}
 fs.mkdirSync(path.dirname(destino), { recursive: true });
+const perfil = fs.mkdtempSync(path.join(os.tmpdir(), "print-"));
 
 const flags = [
   "--headless=new",

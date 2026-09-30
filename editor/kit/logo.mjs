@@ -18,7 +18,17 @@ if (!marca) {
   console.error('uso: node kit/logo.mjs "Marca" [--site dominio.com] [--nome arquivo]');
   process.exit(1);
 }
-const site = opcao("site")?.replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+// Nome de marca e domínio simples: nada de caractere de shell (o media-use roda num terminal)
+// nem endereço comprido (o domínio vira um pedido de ícone na internet)
+if (!/^[\p{L}\p{N}][\p{L}\p{N} .+&'-]{0,39}$/u.test(marca.trim())) {
+  console.error('nome de marca estranho: use só o nome ("Notion", "Google Drive"), até 40 letras');
+  process.exit(1);
+}
+const site = opcao("site")?.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+if (site !== undefined && !/^(?=.{3,60}$)[a-z0-9]([a-z0-9-]{0,40}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,40}[a-z0-9])?){1,3}$/.test(site)) {
+  console.error("--site precisa ser só o domínio (ex.: notion.so)");
+  process.exit(1);
+}
 const nome = (opcao("nome") ?? marca)
   .normalize("NFD")
   .replace(/[̀-ͯ]/g, "")
@@ -33,8 +43,11 @@ function tamanho(b) {
   return 0;
 }
 function mediaUse(intencao) {
-  const cmd = `npx --yes hyperframes@0.8.92 media-use resolve --type logo --intent "${intencao.replace(/["%^&|<>]/g, "")}" --project .`;
-  const r = spawnSync(cmd, { encoding: "utf8", shell: true, timeout: 180_000, windowsHide: true });
+  // O HyperFrames que a estação instalou (HF_CLI), sem terminal no meio; sem ele, o npx
+  const args = ["media-use", "resolve", "--type", "logo", "--intent", intencao, "--project", "."];
+  const r = process.env.HF_CLI && fs.existsSync(process.env.HF_CLI)
+    ? spawnSync(process.execPath, [process.env.HF_CLI, ...args], { encoding: "utf8", timeout: 180_000, windowsHide: true })
+    : spawnSync(`npx --yes hyperframes@0.8.92 media-use resolve --type logo --intent "${intencao.replace(/["%^&|<>$`\\]/g, "")}" --project .`, { encoding: "utf8", shell: true, timeout: 180_000, windowsHide: true });
   return `${r.stdout}${r.stderr}`.match(/resolved \S+ → (\S+)/)?.[1];
 }
 async function baixar(url) {

@@ -1,4 +1,4 @@
-// "Meus sons": a biblioteca do painel (criador.edicao_som; origem kit, 99hud ou criador) vai pra oficina, nivelada,
+// "Meus sons": a biblioteca do painel (criador.edicao_som; origem kit ou criador) vai pra oficina, nivelada,
 // em assets/sons/biblioteca + dados/sons.json (o montador e o Claude leem dali).
 // Cache no PC (editor/oficina/_sons) pra não baixar e nivelar de novo a cada edição.
 

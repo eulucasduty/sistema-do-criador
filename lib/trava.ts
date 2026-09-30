@@ -1,7 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-/** Trava entre chamadas (tabela criador.trava): só uma pega, até `ms` depois. */
+/** Trava entre chamadas (tabela trava): só uma pega, até `ms` depois. */
 export async function pegarTrava(nome: string, ms: number): Promise<boolean> {
   const db = createAdminClient();
   const agora = new Date().toISOString();

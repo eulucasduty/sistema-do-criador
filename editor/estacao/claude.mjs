@@ -1,20 +1,27 @@
-// O cérebro da edição: Claude Code sem janela (modo -p), rodando no plano Claude do criador.
-// Sem chave de API no ambiente, a CLI usa a assinatura logada no PC: não gasta API paga.
+// Motores "claude" e "openrouter": Claude Code sem janela (modo -p) na oficina.
+//   claude      no plano Claude do criador (Pro ou Max): sem chave de API no ambiente, a CLI usa a
+//               assinatura logada no PC e não gasta API paga
+//   openrouter  o mesmo Claude Code, apontado pra OpenRouter com a chave do criador (paga por uso;
+//               não precisa de assinatura do Claude). Documentado pela OpenRouter:
+//               https://openrouter.ai/docs/cookbook/coding-agents/claude-code-integration
 //
-// Isolado de propósito: só lê e escreve na oficina e só roda os scripts do kit
-// (ignora as permissões globais do Claude Code do PC, os conectores MCP e o histórico).
-// Onde fica o executável: CLAUDE_BIN, senão ~/.local/bin (instalador nativo), senão o PATH.
+// Isolado de propósito: ignora as permissões globais do Claude Code do PC, os conectores MCP e o
+// histórico; só lê e escreve dentro da oficina (e nunca .env, a sessão da estação ou os logins
+// das CLIs) e só roda os scripts do kit. Onde fica o executável: CLAUDE_BIN, senão ~/.local/bin
+// (instalador nativo), senão o PATH.
 
 import { spawn } from "node:child_process";
-import fs from "node:fs";
-import { FERRAMENTAS } from "./ferramentas.mjs";
+import { ambienteDaIA } from "./ambiente.mjs";
+import { FERRAMENTAS, comoRodar } from "./ferramentas.mjs";
 
 export const CLAUDE = FERRAMENTAS.claude;
+export const OPENROUTER_BASE = "https://openrouter.ai/api";
 
+// Caminhos relativos à oficina (a pasta onde o Claude roda): "./**" = só ela
 const PERMITIDAS = [
-  "Read",
-  "Write",
-  "Edit",
+  "Read(./**)",
+  "Edit(./**)",
+  "Write(./**)",
   "Glob",
   "Grep",
   "TodoWrite",
@@ -22,28 +29,31 @@ const PERMITIDAS = [
   "Bash(node kit/montar.mjs:*)",
   "Bash(node kit/print.mjs:*)",
   "Bash(node kit/logo.mjs:*)",
-  "Bash(npx --yes hyperframes@0.8.92 lint:*)",
-  "Bash(npx --yes hyperframes@0.8.92 snapshot:*)",
-  "Bash(npx --yes hyperframes@0.8.92 inspect:*)",
+  "Bash(node kit/hf.mjs lint)",
+  "Bash(node kit/hf.mjs lint:*)",
+  "Bash(node kit/hf.mjs snapshot:*)",
+  "Bash(node kit/hf.mjs inspect:*)",
 ];
-const PROIBIDAS = ["PowerShell", "WebFetch", "WebSearch", "Agent", "Task", "NotebookEdit"];
-
-/** Tira do ambiente a chave de API (faria cobrar por uso) e os segredos do sistema (.env.local). */
-function ambienteLimpo() {
-  const env = { ...process.env };
-  const doSistema = new Set();
-  try {
-    for (const l of fs.readFileSync(".env.local", "utf8").split(/\r?\n/)) {
-      const m = l.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=/);
-      if (m) doSistema.add(m[1]);
-    }
-  } catch {}
-  for (const k of Object.keys(env)) if (doSistema.has(k) || /^ANTHROPIC_/.test(k) || k === "CLAUDECODE" || k === "CLAUDE_CODE_ENTRYPOINT") delete env[k];
-  // Caminhos dos programas (não são segredo): os scripts do kit (logo, print) usam os mesmos da estação
-  if (FERRAMENTAS.ffmpeg) env.FFMPEG_BIN = FERRAMENTAS.ffmpeg;
-  if (FERRAMENTAS.chrome) env.CHROME_BIN = FERRAMENTAS.chrome;
-  return env;
-}
+// Só estas ferramentas existem pra IA (o resto do Claude Code nem aparece: agendador, sub-agentes, web…)
+const FERRAMENTAS_DA_IA = "Bash,Read,Edit,Write,Glob,Grep,TodoWrite";
+// No Windows o Claude Code também tem PowerShell: desligado, pra valer só as regras do Bash acima.
+// E nada de ler segredo, mesmo que alguma regra acima deixasse (negar sempre vence)
+const PROIBIDAS = [
+  "PowerShell",
+  "WebFetch",
+  "WebSearch",
+  "Agent",
+  "Task",
+  "NotebookEdit",
+  "Read(//**/.env*)",
+  "Edit(//**/.env*)",
+  "Read(~/.sistema-do-criador/**)",
+  "Read(~/.claude/**)",
+  "Read(~/.codex/**)",
+  "Read(~/.ssh/**)",
+  "Read(~/.aws/**)",
+  "Read(~/.config/**)",
+];
 
 function descrever(b) {
   const i = b.input ?? {};
@@ -56,14 +66,39 @@ function descrever(b) {
 }
 
 /**
- * Roda o Claude na oficina com o pedido. Resolve com o resumo que ele escreveu pro criador e o uso
- * (turnos, tempo, tokens; o custo é só a referência do que seria na API, não é cobrado).
+ * O ambiente do Claude Code. Sem `openrouter`: só o login do plano (nenhuma chave de API).
+ * Com `openrouter: { chave, modelo, rapido }`: a OpenRouter como provedor, pelas variáveis que ela
+ * documenta (a de API da Anthropic vai vazia, senão ele tenta a Anthropic direto).
  */
-export function rodarClaude(pasta, prompt, { modelo = process.env.EDITOR_MODELO || "opus", esforco = process.env.EDITOR_ESFORCO || "high", minutos = 50, aoPasso = () => {} } = {}) {
+export function ambienteClaude({ openrouter } = {}) {
+  if (!openrouter) return ambienteDaIA({ manter: ["CLAUDE_CODE_OAUTH_TOKEN", "CLAUDE_CODE_GIT_BASH_PATH"] });
+  const { chave, modelo, rapido = "anthropic/claude-haiku-4.5" } = openrouter;
+  return ambienteDaIA({
+    manter: ["CLAUDE_CODE_GIT_BASH_PATH"],
+    extra: {
+      ANTHROPIC_BASE_URL: process.env.EDITOR_OPENROUTER_URL || OPENROUTER_BASE, // outro endereço só pra teste
+      ANTHROPIC_AUTH_TOKEN: chave,
+      ANTHROPIC_API_KEY: "",
+      ANTHROPIC_MODEL: modelo,
+      ANTHROPIC_DEFAULT_OPUS_MODEL: modelo,
+      ANTHROPIC_DEFAULT_SONNET_MODEL: modelo,
+      ANTHROPIC_DEFAULT_HAIKU_MODEL: rapido,
+      CLAUDE_CODE_SUBAGENT_MODEL: modelo,
+      CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1",
+    },
+  });
+}
+
+/**
+ * Roda o Claude na oficina com o pedido. Resolve com o resumo que ele escreveu pro criador e o uso
+ * (turnos, tempo, tokens; no plano, o custo é só a referência do que seria na API, não é cobrado).
+ * `openrouter: { chave }` troca o provedor (motor "openrouter"; `modelo` vira o da OpenRouter).
+ */
+export function rodarClaude(pasta, prompt, { modelo = process.env.EDITOR_MODELO || "opus", esforco = process.env.EDITOR_ESFORCO || "high", minutos = 50, aoPasso = () => {}, openrouter = null } = {}) {
   return new Promise((resolve, reject) => {
-    // No Windows o Claude Code também tem PowerShell: desligado, pra valer só as regras do Bash acima
-    const args = ["-p", "--output-format", "stream-json", "--verbose", "--model", modelo, "--effort", esforco, "--setting-sources", "project,local", "--strict-mcp-config", "--no-session-persistence", "--disallowedTools", ...PROIBIDAS, "--allowedTools", ...PERMITIDAS];
-    const p = spawn(CLAUDE, args, { cwd: pasta, env: ambienteLimpo(), windowsHide: true });
+    const args = ["-p", "--output-format", "stream-json", "--verbose", "--model", modelo, "--effort", esforco, "--tools", FERRAMENTAS_DA_IA, "--setting-sources", "project,local", "--strict-mcp-config", "--no-session-persistence", "--disallowedTools", ...PROIBIDAS, "--allowedTools", ...PERMITIDAS];
+    const [cmd, ...antes] = comoRodar(CLAUDE);
+    const p = spawn(cmd, [...antes, ...args], { cwd: pasta, env: ambienteClaude({ openrouter: openrouter && { ...openrouter, modelo } }), windowsHide: true });
     let resto = "";
     let final = null;
     let erro = "";
@@ -95,6 +130,7 @@ export function rodarClaude(pasta, prompt, { modelo = process.env.EDITOR_MODELO 
       erro += d;
       if (erro.length > 100_000) erro = erro.slice(-50_000);
     });
+    p.stdin.on("error", () => {});
     p.stdin.end(prompt);
     const relogio = setTimeout(() => {
       p.kill();
@@ -111,7 +147,16 @@ export function rodarClaude(pasta, prompt, { modelo = process.env.EDITOR_MODELO 
       resolve({
         resumo: String(final.result ?? "").trim(),
         passos,
-        uso: { modelo, turnos: final.num_turns, duracao_s: Math.round((final.duration_ms ?? 0) / 1000), tokens: final.usage ?? null, equivalente_api_usd: final.total_cost_usd ?? null },
+        uso: {
+          motor: openrouter ? "openrouter" : "claude",
+          modelo,
+          turnos: final.num_turns,
+          duracao_s: Math.round((final.duration_ms ?? 0) / 1000),
+          tokens: final.usage ?? null,
+          // No plano não é cobrado (é só a referência de quanto seria na API). Na OpenRouter quem
+          // mede o gasto de verdade é a estação (saldo da chave antes e depois)
+          ...(openrouter ? {} : { equivalente_api_usd: typeof final.total_cost_usd === "number" ? final.total_cost_usd : null }),
+        },
       });
     });
   });

@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "migrar": "node --env-file=.env.local scripts/migrar.mjs",
-    "estacao": "node --env-file=.env.local scripts/estacao-edicao.mjs",
+    "estacao": "node --env-file-if-exists=.env.local scripts/estacao-edicao.mjs",
     "editor:testar": "node --env-file-if-exists=.env.local scripts/testar-editor.mjs",
     "sons:gerar": "node --env-file-if-exists=.env.local scripts/gerar-sons.mjs"
   },

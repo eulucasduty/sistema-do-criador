@@ -15,7 +15,7 @@ export function Marca({ tamanho = "md" }: { tamanho?: "md" | "lg" }) {
         </svg>
       </span>
       <span className={`logo ${grande ? "text-[40px]" : "text-[22px]"}`} aria-label="Sistema do Criador">
-        <span className="logo-eu" style={{ "--c": "var(--color-marca)" } as React.CSSProperties}>sistema</span>
+        <span className="logo-prefixo" style={{ "--c": "var(--color-marca)" } as React.CSSProperties}>sistema</span>
         <span style={{ "--c": "var(--color-texto)" } as React.CSSProperties}>CRIADOR</span>
       </span>
     </span>

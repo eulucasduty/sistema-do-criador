@@ -1,0 +1,3 @@
+# Os instaladores do Mac rodam no bash: sempre com fim de linha LF
+instalar/*.sh text eol=lf
+instalar/*.command text eol=lf

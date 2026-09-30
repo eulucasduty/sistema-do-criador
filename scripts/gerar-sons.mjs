@@ -4,7 +4,7 @@
 //
 // Cada som é uma expressão do aevalsrc (senos, ruído e envelopes) + filtros do ffmpeg, depois
 // nivelado igual à biblioteca do painel (sem silêncio no começo, pico em -3 dB, mp3 192k).
-// Os *-99hud.mp3 (também sintetizados) já vêm prontos no kit e só entram no catálogo.
+// Os 5 de PRONTOS (também sintetizados) já vêm no kit e só entram no catálogo.
 
 import fs from "node:fs";
 import os from "node:os";
@@ -73,11 +73,11 @@ const GERADOS = [
 
 // sintetizados que já vêm no kit (não são refeitos aqui, só catalogados)
 const PRONTOS = [
-  { nome: "obturador-99hud", funcao: "obturador", origem: "99hud", descricao: "clique curto de câmera: entra em toda emenda de tomada, junto com a onda de calor" },
-  { nome: "ding-99hud", funcao: "ding", origem: "99hud", descricao: "ding de dica ou momento de valor (a revelação, o número, o resultado)" },
-  { nome: "tick-99hud", funcao: "tecla", origem: "99hud", descricao: "tick curtinho: os ticks do contador subindo" },
-  { nome: "whoosh-99hud", funcao: "whoosh", origem: "99hud", descricao: "whoosh de transição, rápido (de vez em quando, não em toda cena)" },
-  { nome: "pop-99hud", funcao: "pop", origem: "99hud", descricao: "pop na entrada de card, item, comentário e mensagem" },
+  { nome: "obturador-seco", funcao: "obturador", origem: "kit", descricao: "clique curto de câmera: entra em toda emenda de tomada, junto com a onda de calor" },
+  { nome: "ding-claro", funcao: "ding", origem: "kit", descricao: "ding de dica ou momento de valor (a revelação, o número, o resultado)" },
+  { nome: "tick-curto", funcao: "tecla", origem: "kit", descricao: "tick curtinho: os ticks do contador subindo" },
+  { nome: "whoosh-rapido", funcao: "whoosh", origem: "kit", descricao: "whoosh de transição, rápido (de vez em quando, não em toda cena)" },
+  { nome: "pop-curto", funcao: "pop", origem: "kit", descricao: "pop na entrada de card, item, comentário e mensagem" },
 ];
 const ORDEM = ["obturador", "ding", "teclado", "tecla", "whoosh", "riser", "pop", "click", "impacto", "notificacao"];
 

@@ -5,20 +5,23 @@ import { END, MessagesAnnotation, START, StateGraph } from "@langchain/langgraph
 import { ToolNode } from "@langchain/langgraph/prebuilt";
 import { ChatOpenAI } from "@langchain/openai";
 import { urlDoApp } from "@/lib/app";
+import { chaveOpenRouter } from "@/lib/segredos";
 import { MODELO_PADRAO, OPENROUTER_URL } from "@/lib/ia/openrouter";
 
 // O motor do agente: dois nós — `agente` (o modelo com as
 // ferramentas) e `ferramentas` (ToolNode) — em loop até o modelo parar de chamar
 // ferramenta. Modelo via OpenRouter com o cliente ChatOpenAI.
 
-export function criarModelo(opcoes: { modelo?: string; temperatura?: number; maxTokens?: number }) {
+export async function criarModelo(opcoes: { modelo?: string; temperatura?: number; maxTokens?: number }) {
+  const apiKey = await chaveOpenRouter();
+  if (!apiKey) throw new Error("falta a chave da OpenRouter (Início → passo 2)");
   return new ChatOpenAI({
     model: opcoes.modelo || MODELO_PADRAO,
     temperature: opcoes.temperatura ?? 0.7,
     // Folga: modelo que raciocina gasta token pensando antes de escrever (com teto
     // baixo a resposta sai cortada). Só paga o que usar.
     maxTokens: opcoes.maxTokens ?? 1500,
-    apiKey: process.env.OPENROUTER_API_KEY,
+    apiKey,
     timeout: 60_000,
     maxRetries: 2,
     configuration: {

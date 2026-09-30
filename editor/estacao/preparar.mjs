@@ -7,7 +7,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { FERRAMENTAS, fonteDrawtext } from "./ferramentas.mjs";
+import { FERRAMENTAS, GSAP_LOCAL, fonteDrawtext } from "./ferramentas.mjs";
 
 export { FERRAMENTAS };
 const AQUI = path.dirname(fileURLToPath(import.meta.url));
@@ -18,11 +18,11 @@ export const KIT = path.join(AQUI, "..", "kit");
 //  - quente: contraste suave (curva em S leve) e meios-tons um tico mais quentes, com a
 //    luminosidade preservada. Sutil de propósito: a pele não pode puxar pro laranja (medido
 //    em amostras de pele clara, média e escura: o tom muda no máximo 2°, cinza fica neutro)
-//  - duty: curvas calibradas a partir de uma edição real no CapCut (brilho -10, iluminação -5,
+//  - contraste: curvas calibradas a partir de uma edição real no CapCut (brilho -10, iluminação -5,
 //    nitidez, "Aprimorar"), medidas contra o mesmo bruto do iPhone depois do HDR → SDR
 //    (47 quadros casados, casamento de histograma por canal): mais escuro, mais contraste,
 //    rosto mais quente. Depois, a nitidez.
-const CURVAS_DUTY =
+const CURVAS_CONTRASTE =
   "curves=r='0/0 0.063/0.004 0.125/0.039 0.188/0.079 0.251/0.105 0.376/0.15 0.502/0.214 0.627/0.308 0.753/0.535 0.878/0.725 1/1'" +
   ":g='0/0 0.063/0 0.125/0.024 0.188/0.051 0.251/0.073 0.376/0.151 0.502/0.317 0.627/0.486 0.753/0.683 0.878/0.823 1/1'" +
   ":b='0/0 0.063/0 0.125/0.018 0.188/0.043 0.251/0.075 0.376/0.186 0.502/0.342 0.627/0.511 0.753/0.679 0.878/0.835 1/1'";
@@ -32,14 +32,22 @@ const CURVAS_QUENTE =
 export const LOOKS = {
   natural: "unsharp=5:5:0.5:5:5:0",
   quente: `${CURVAS_QUENTE},unsharp=5:5:0.6:5:5:0`,
-  duty: `${CURVAS_DUTY},unsharp=5:5:0.8:5:5:0`,
+  contraste: `${CURVAS_CONTRASTE},unsharp=5:5:0.8:5:5:0`,
 };
-/** Filtro de cor do look (natural, quente, duty). Nome desconhecido ou vazio → natural. */
+// Nomes antigos (pedidos e perfis de antes da troca) continuam valendo na leitura
+const ANTIGOS = { duty: "contraste", labs: "limpa" };
+const atual = (n) => {
+  const s = String(n ?? "").trim().toLowerCase();
+  return ANTIGOS[s] ?? s;
+};
+/** Filtro de cor do look (natural, quente, contraste). Nome desconhecido ou vazio → natural. */
 export function corDoLook(nome) {
-  return LOOKS[String(nome ?? "").trim().toLowerCase()] ?? LOOKS.natural;
+  return LOOKS[atual(nome)] ?? LOOKS.natural;
 }
 /** O primeiro nome de look válido da lista (o do pedido, depois o do perfil); senão natural. */
-export const lookValido = (...nomes) => nomes.map((n) => String(n ?? "").trim().toLowerCase()).find((n) => LOOKS[n]) ?? "natural";
+export const lookValido = (...nomes) => nomes.map(atual).find((n) => LOOKS[n]) ?? "natural";
+/** O primeiro estilo de legenda válido da lista (bangers ou limpa); senão bangers. */
+export const legendaValida = (...nomes) => nomes.map(atual).find((n) => n === "bangers" || n === "limpa") ?? "bangers";
 // iPhone grava em HDR (HLG): sem isso o vídeo fica lavado
 const TOM_HDR = "zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=yuv420p";
 const FONTE = fonteDrawtext(); // "fontfile='…':" ou "" (aí o ffmpeg usa a fonte padrão)
@@ -290,13 +298,14 @@ function copiar(de, para) {
   fs.cpSync(de, para, { recursive: true });
 }
 
-/** Cria a oficina com o kit (montador, estilo, sons, fontes, manual). */
+/** Cria a oficina com o kit (montador, estilo, sons, fontes, manual, GSAP local). */
 export function prepararPasta(pasta) {
   for (const p of ["assets", "dados", "materiais", "logos", "prints", "cenas"]) fs.mkdirSync(path.join(pasta, p), { recursive: true });
-  for (const f of ["montar.mjs", "estilo.css", "print.mjs", "logo.mjs", "EDITOR.md", "DESIGN.md"]) copiar(path.join(KIT, f), path.join(pasta, "kit", f));
+  for (const f of ["montar.mjs", "estilo.css", "print.mjs", "logo.mjs", "hf.mjs", "EDITOR.md", "DESIGN.md"]) copiar(path.join(KIT, f), path.join(pasta, "kit", f));
   copiar(path.join(KIT, "DESIGN.md"), path.join(pasta, "DESIGN.md"));
   copiar(path.join(KIT, "sons"), path.join(pasta, "assets", "sons"));
   copiar(path.join(KIT, "fontes"), path.join(pasta, "assets", "fontes"));
+  if (fs.existsSync(GSAP_LOCAL)) copiar(GSAP_LOCAL, path.join(pasta, "assets", "gsap.min.js"));
   const nome = path.basename(pasta);
   fs.writeFileSync(path.join(pasta, "hyperframes.json"), JSON.stringify({ $schema: "https://hyperframes.heygen.com/schema/hyperframes.json", registry: "https://raw.githubusercontent.com/heygen-com/hyperframes/main/registry", paths: { blocks: "compositions", components: "compositions/components", assets: "assets" }, media: { autoProxy: true } }, null, 2));
   fs.writeFileSync(path.join(pasta, "meta.json"), JSON.stringify({ id: nome, name: nome, createdAt: new Date().toISOString() }, null, 2));
@@ -316,7 +325,7 @@ export function perfilLimpo(p) {
     tom: txt(p?.tom, 800),
     foto_url: txt(p?.foto_url, 3000),
     cor: lookValido(p?.cor),
-    legenda: p?.legenda === "labs" ? "labs" : "bangers",
+    legenda: legendaValida(p?.legenda),
   };
 }
 
@@ -389,13 +398,15 @@ export async function prepararOficina({ pasta, bruto, materiais = [], pedido, av
   const tomadas = await folhaDeTomadas(path.join(pasta, "assets", "video.mp4"), dados("tomadas.jpg"), video.duracao, cortes);
   fs.writeFileSync(dados("tomadas.json"), JSON.stringify(tomadas));
 
+  // O print.mjs só abre os links do pedido: o pedido vai pra oficina antes (e de novo no fim, completo)
+  fs.writeFileSync(dados("pedido.json"), JSON.stringify({ ...pedido, materiais: materiais.map((m) => ({ id: m.id, tipo: m.tipo, descricao: m.descricao, url: m.url })) }, null, 2));
   const prontos = [];
   for (const m of materiais) {
     try {
       if (m.tipo === "link") {
         aviso(`print do link ${m.url}`);
         const saida = path.join(pasta, "materiais", `${m.id}.png`);
-        await rodar(process.execPath, [path.join(KIT, "print.mjs"), m.url, saida, "--escuro"], { timeoutMs: 90_000, env: { ...process.env, ...(FERRAMENTAS.chrome ? { CHROME_BIN: FERRAMENTAS.chrome } : {}) } });
+        await rodar(process.execPath, [path.join(pasta, "kit", "print.mjs"), m.url, saida, "--escuro"], { cwd: pasta, timeoutMs: 90_000, env: { ...process.env, ...(FERRAMENTAS.chrome ? { CHROME_BIN: FERRAMENTAS.chrome } : {}) } });
         const i = await sondar(saida);
         prontos.push({ id: m.id, tipo: "imagem", arquivo: `materiais/${m.id}.png`, descricao: m.descricao, url: m.url, largura: i.largura, altura: i.altura });
       } else {

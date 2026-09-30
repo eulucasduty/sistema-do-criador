@@ -56,6 +56,7 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Fica de fora: arquivos estáticos, healthcheck, webhooks e rotinas (não têm usuário logado)
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/health|api/webhooks|api/relogio|robots.txt|privacidade|r/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)"],
+  // Fica de fora: arquivos estáticos, healthcheck, webhooks, rotinas e a conexão da estação de
+  // edição (não têm usuário logado)
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/health|api/webhooks|api/relogio|api/estacao|robots.txt|privacidade|r/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)"],
 };

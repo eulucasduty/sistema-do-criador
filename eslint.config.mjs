@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Oficinas do editor de vídeo: cópias do kit e composições geradas, só no PC da estação
     "editor/oficina/**",
+    // HyperFrames e GSAP que a estação instala sozinha
+    "editor/ferramentas/**",
   ]),
 ]);
 

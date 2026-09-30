@@ -141,7 +141,7 @@ export async function gerarResposta(opcoes: {
     extras,
   });
 
-  const modelo = criarModelo({ modelo: agente.modelo, temperatura: Number(agente.temperatura) });
+  const modelo = await criarModelo({ modelo: agente.modelo, temperatura: Number(agente.temperatura) });
   const permitidos = linksPermitidos(extras);
   let tokensEntrada = 0;
   let tokensSaida = 0;
@@ -312,7 +312,7 @@ export async function processarConversa(conversaId: string, pegoEm: string): Pro
   if (estaPausado(agente.pausado_ate)) {
     return void (await adiar(agente.pausado_ate === "infinity" ? null : agente.pausado_ate));
   }
-  if (!iaConfigurada() || !(await instagramConfigurado()) || !contato.instagram_id) return void (await adiar(null));
+  if (!(await iaConfigurada()) || !(await instagramConfigurado()) || !contato.instagram_id) return void (await adiar(null));
   if (!conversa.janela_ate || Date.parse(conversa.janela_ate) < Date.now() + 60_000) return void (await adiar(null));
   // Perfil de teste responde a qualquer hora: teste é pra ver na hora
   const proximaAbertura = SIMULADO || deTeste ? null : foraDoHorario(agente.horario_inicio, agente.horario_fim);

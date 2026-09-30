@@ -335,7 +335,8 @@ for (const c of emendas) {
 
 // ── legenda: grupos curtos, a palavra falada em destaque ───────────
 // estilo: o do plano; senão o do pedido (o padrão do perfil do criador); senão bangers
-const estiloLeg = (plano.legenda?.estilo ?? pedido.opcoes?.legenda) === "labs" ? "labs" : "bangers";
+// "limpa" (o nome antigo "labs" ainda vale); o resto é bangers
+const estiloLeg = ["limpa", "labs"].includes(plano.legenda?.estilo ?? pedido.opcoes?.legenda) ? "limpa" : "bangers";
 const limpar = (t) => t.replace(/^[^\p{L}\p{N}$]+|[^\p{L}\p{N}%]+$/gu, "");
 let palavras = ler("dados/palavras.json", []).map((w) => ({ texto: String(w.text ?? w.texto ?? "").trim(), a: Number(w.start ?? w.a), b: Number(w.end ?? w.b) }));
 for (const e of plano.legenda?.edicoes ?? []) if (palavras[e.i]) palavras[e.i].texto = String(e.texto ?? "");
@@ -779,13 +780,15 @@ for (const s of plano.sons ?? []) {
 sons.sort((a, b) => a.t - b.t);
 const audioHtml = sons.map((s, k) => `      <audio id="sfx${k}" data-start="${s.t}" data-duration="${s.dur}" data-track-index="${faixaSom(s.t, s.t + s.dur)}" src="assets/sons/${s.arquivo}" data-volume="${s.volume}"></audio>`).join("\n");
 const css = fs.readFileSync(path.join(KIT, "estilo.css"), "utf8");
+// GSAP: a cópia que a estação pôs na oficina (funciona sem internet); sem ela, a da CDN
+const GSAP = fs.existsSync("assets/gsap.min.js") ? "assets/gsap.min.js" : "https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js";
 const html = `<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=${W}, height=${H}" />
     <title>${esc(plano.titulo ?? "Edição")}</title>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script src="${GSAP}"></script>
     <style>
 ${css}
     </style>

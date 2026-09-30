@@ -221,6 +221,6 @@
       .p { display: inline-block; margin: 0 0.07em; }
       .leg-bangers .grupo { font-family: "Bangers", sans-serif; font-size: 100px; line-height: 1.02; letter-spacing: 0.02em; color: #ffffff; -webkit-text-stroke: 12px #000; paint-order: stroke fill; text-shadow: 0 8px 0 #000; }
       .leg-bangers .p.dest { font-size: 120px; color: #ffc93c; }
-      .leg-labs .grupo { font-family: "Jakarta", sans-serif; font-weight: 800; font-size: 66px; line-height: 1.15; color: #ffffff; text-shadow: 0 4px 0 #000, 0 0 22px rgba(0, 0, 0, 0.6); }
-      .leg-labs .p { padding: 0 12px 4px; border-radius: 14px; }
-      .leg-labs .p.dest { font-family: "Lilita", sans-serif; font-weight: 400; text-transform: uppercase; color: #ffc93c; font-size: 76px; }
+      .leg-limpa .grupo { font-family: "Jakarta", sans-serif; font-weight: 800; font-size: 66px; line-height: 1.15; color: #ffffff; text-shadow: 0 4px 0 #000, 0 0 22px rgba(0, 0, 0, 0.6); }
+      .leg-limpa .p { padding: 0 12px 4px; border-radius: 14px; }
+      .leg-limpa .p.dest { font-family: "Lilita", sans-serif; font-weight: 400; text-transform: uppercase; color: #ffc93c; font-size: 76px; }

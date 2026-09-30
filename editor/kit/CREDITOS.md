@@ -7,7 +7,7 @@ mesma licença dele.
 - `teclado-kit`, `riser-kit`, `click-kit`, `impacto-kit`, `notificacao-kit`, `brilho`, `glitch`,
   `erro`: feitos pelo `scripts/gerar-sons.mjs` (rode `npm run sons:gerar` pra refazer os arquivos
   e o catálogo).
-- `obturador-99hud`, `ding-99hud`, `pop-99hud`, `whoosh-99hud`, `tick-99hud`: também sintetizados
+- `obturador-seco`, `ding-claro`, `pop-curto`, `whoosh-rapido`, `tick-curto`: também sintetizados
   no ffmpeg; já vêm prontos no kit.
 
 Todos nivelados do mesmo jeito que a biblioteca do painel: sem silêncio no começo e o mesmo pico
@@ -23,3 +23,8 @@ Os sons que o criador sobe no painel são dele: ele responde pela licença de ca
 Buscadas na hora pelo media-use do HyperFrames (theSVG → avatar do GitHub → favicon) ou o ícone
 do próprio site: são marcas dos donos, usadas só pra identificar a plataforma de que o criador
 fala no vídeo. Não vêm no kit.
+
+## GSAP e HyperFrames
+Não vêm no kit: a estação baixa na primeira vez (editor/ferramentas, fora do git) o HyperFrames
+(npm) e o `gsap.min.js` da CDN jsDelivr, e põe uma cópia do GSAP em cada oficina pra edição e o
+render funcionarem sem internet. GSAP: licença própria da GreenSock/Webflow, gratuita.

@@ -18,7 +18,7 @@ acendendo em dourado.
 
 ## Typography
 - `Lilita` (Lilita One): títulos, números grandes, palavra em tela cheia
-- `Jakarta` (Plus Jakarta Sans 500/800): texto dos cards e legenda "labs"
+- `Jakarta` (Plus Jakarta Sans 500/800): texto dos cards e legenda "limpa"
 - `Mono` (JetBrains Mono 500): rótulos pequenos espaçados
 - `Bangers`: legenda "bangers" (caixa alta, contorno preto)
 

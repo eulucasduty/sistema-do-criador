@@ -258,7 +258,7 @@ export async function simular(opcoes: {
   } catch {
     return { ...vazio, erro: "sem acesso: entre de novo no painel" };
   }
-  if (!iaConfigurada()) return { ...vazio, erro: "falta a chave da OpenRouter (Conexões)" };
+  if (!(await iaConfigurada())) return { ...vazio, erro: "falta a chave da OpenRouter (Conexões)" };
 
   try {
     const db = createAdminClient();
