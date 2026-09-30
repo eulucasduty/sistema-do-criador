@@ -1,0 +1,39 @@
+{
+  "name": "sistema-do-criador",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "migrar": "node --env-file=.env.local scripts/migrar.mjs",
+    "estacao": "node --env-file=.env.local scripts/estacao-edicao.mjs",
+    "editor:testar": "node --env-file-if-exists=.env.local scripts/testar-editor.mjs",
+    "sons:gerar": "node --env-file-if-exists=.env.local scripts/gerar-sons.mjs"
+  },
+  "dependencies": {
+    "@langchain/core": "1.2.12",
+    "@langchain/langgraph": "1.4.17",
+    "@langchain/openai": "1.5.13",
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.117.1",
+    "next": "16.3.6",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "server-only": "0.0.1",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.6",
+    "pg": "8.23.0",
+    "tailwindcss": "^4",
+    "tsx": "4.23.15",
+    "typescript": "^5"
+  }
+}

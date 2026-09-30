@@ -1,0 +1,119 @@
+[
+  {
+    "nome": "obturador-99hud",
+    "arquivo": "obturador-99hud.mp3",
+    "funcao": "obturador",
+    "principal": true,
+    "origem": "99hud",
+    "descricao": "clique curto de câmera: entra em toda emenda de tomada, junto com a onda de calor",
+    "duracao": 0.19
+  },
+  {
+    "nome": "ding-99hud",
+    "arquivo": "ding-99hud.mp3",
+    "funcao": "ding",
+    "principal": true,
+    "origem": "99hud",
+    "descricao": "ding de dica ou momento de valor (a revelação, o número, o resultado)",
+    "duracao": 0.5
+  },
+  {
+    "nome": "teclado-kit",
+    "arquivo": "teclado-kit.mp3",
+    "funcao": "teclado",
+    "principal": true,
+    "origem": "kit",
+    "descricao": "digitação: o “comenta X” do CTA e o terminal",
+    "duracao": 1.1
+  },
+  {
+    "nome": "tick-99hud",
+    "arquivo": "tick-99hud.mp3",
+    "funcao": "tecla",
+    "principal": true,
+    "origem": "99hud",
+    "descricao": "tick curtinho: os ticks do contador subindo",
+    "duracao": 0.05
+  },
+  {
+    "nome": "whoosh-99hud",
+    "arquivo": "whoosh-99hud.mp3",
+    "funcao": "whoosh",
+    "principal": true,
+    "origem": "99hud",
+    "descricao": "whoosh de transição, rápido (de vez em quando, não em toda cena)",
+    "duracao": 0.291
+  },
+  {
+    "nome": "riser-kit",
+    "arquivo": "riser-kit.mp3",
+    "funcao": "riser",
+    "principal": true,
+    "origem": "kit",
+    "descricao": "riser curto (~2,3 s) que sobe até a revelação (use \"ate\" = o instante da revelação)",
+    "duracao": 2.345
+  },
+  {
+    "nome": "pop-99hud",
+    "arquivo": "pop-99hud.mp3",
+    "funcao": "pop",
+    "principal": true,
+    "origem": "99hud",
+    "descricao": "pop na entrada de card, item, comentário e mensagem",
+    "duracao": 0.16
+  },
+  {
+    "nome": "click-kit",
+    "arquivo": "click-kit.mp3",
+    "funcao": "click",
+    "principal": true,
+    "origem": "kit",
+    "descricao": "clique curto quando a caixa dourada destaca algo no print",
+    "duracao": 0.09
+  },
+  {
+    "nome": "impacto-kit",
+    "arquivo": "impacto-kit.mp3",
+    "funcao": "impacto",
+    "principal": true,
+    "origem": "kit",
+    "descricao": "grave de impacto quando entra a palavra em tela cheia",
+    "duracao": 1.92
+  },
+  {
+    "nome": "notificacao-kit",
+    "arquivo": "notificacao-kit.mp3",
+    "funcao": "notificacao",
+    "principal": true,
+    "origem": "kit",
+    "descricao": "notificação de celular chegando (duas notas de sino)",
+    "duracao": 1
+  },
+  {
+    "nome": "brilho",
+    "arquivo": "brilho.mp3",
+    "funcao": null,
+    "principal": false,
+    "origem": "kit",
+    "descricao": "brilho: algo aparece do nada ou fica pronto",
+    "duracao": 1.54
+  },
+  {
+    "nome": "erro",
+    "arquivo": "erro.mp3",
+    "funcao": null,
+    "principal": false,
+    "origem": "kit",
+    "descricao": "buzzer de erro: “não é assim”, o jeito errado",
+    "duracao": 0.55
+  },
+  {
+    "nome": "glitch",
+    "arquivo": "glitch.mp3",
+    "funcao": null,
+    "principal": false,
+    "origem": "kit",
+    "descricao": "glitch digital curto (erro, bug, algo quebrando)",
+    "duracao": 0.6
+  }
+]
