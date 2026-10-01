@@ -9,7 +9,7 @@ const jakarta = Plus_Jakarta_Sans({ variable: "--font-jakarta", subsets: ["latin
 const jetbrains = JetBrains_Mono({ variable: "--font-jetbrains", subsets: ["latin"], weight: ["400", "500", "700"] });
 
 export const metadata: Metadata = {
-  title: "Sistema do Criador",
+  title: "Creator System",
   description: "Esteira de referências, roteiro na sua voz, editor de vídeo com IA e automações do Instagram",
   robots: { index: false, follow: false },
 };

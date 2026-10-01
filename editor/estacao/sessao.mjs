@@ -142,7 +142,7 @@ export async function buscarConexao(endereco) {
   const r = await fetch(`${endereco}/api/estacao`, { headers: { accept: "application/json" }, redirect: "follow", signal: AbortSignal.timeout(20_000) });
   if (!r.ok) throw new Error(`o endereço respondeu ${r.status}`);
   const j = await r.json().catch(() => null);
-  if (!j?.supabaseUrl || !j?.publishableKey) throw new Error("esse endereço não parece o Sistema do Criador (ou ele ainda não tem o Supabase configurado)");
+  if (!j?.supabaseUrl || !j?.publishableKey) throw new Error("esse endereço não parece o Creator System (ou ele ainda não tem o Supabase configurado)");
   return { supabaseUrl: String(j.supabaseUrl), publishableKey: String(j.publishableKey) };
 }
 

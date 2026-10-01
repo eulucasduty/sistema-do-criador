@@ -1,4 +1,4 @@
-# Imagem do Sistema do Criador, pra quem prefere servidor próprio (VPS) no lugar da Vercel.
+# Imagem do Creator System, pra quem prefere servidor próprio (VPS) no lugar da Vercel.
 #
 #   docker build -t sistema-do-criador --build-arg NEXT_PUBLIC_SUPABASE_URL=... \
 #     --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=... .

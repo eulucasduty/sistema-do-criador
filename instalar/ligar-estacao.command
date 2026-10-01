@@ -1,5 +1,5 @@
 #!/bin/bash
-# Liga a estação de edição do Sistema do Criador (Mac).
+# Liga a estação de edição do Creator System (Mac).
 # O atalho "Estação de edição" da Mesa (criado pelo instalar/mac.sh) abre este arquivo.
 cd "$(dirname "$0")/.." || exit 1
 # Homebrew (Apple Silicon ou Intel) e o Claude Code do instalador oficial

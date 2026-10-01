@@ -1,5 +1,4 @@
-// A marca do sistema: o selo (um play com faísca) e o nome com prefixo em minúscula +
-// nome em caixa alta, com o corte estêncil atravessando as letras.
+// A marca do sistema: o selo (um play com faísca) e o nome, CREATOR em branco e SYSTEM em dourado.
 export function Marca({ tamanho = "md" }: { tamanho?: "md" | "lg" }) {
   const grande = tamanho === "lg";
   return (
@@ -14,9 +13,9 @@ export function Marca({ tamanho = "md" }: { tamanho?: "md" | "lg" }) {
           <path d="M3.5 3.2l.6 1.6 1.6.6-1.6.6-.6 1.6-.6-1.6-1.6-.6 1.6-.6zM4 15.5l.45 1.2 1.2.45-1.2.45L4 18.8l-.45-1.2-1.2-.45 1.2-.45z" />
         </svg>
       </span>
-      <span className={`logo ${grande ? "text-[40px]" : "text-[22px]"}`} aria-label="Sistema do Criador">
-        <span className="logo-prefixo" style={{ "--c": "var(--color-marca)" } as React.CSSProperties}>sistema</span>
-        <span style={{ "--c": "var(--color-texto)" } as React.CSSProperties}>CRIADOR</span>
+      <span className={`logo ${grande ? "text-[38px]" : "text-[19px]"}`} aria-label="Creator System">
+        <span style={{ color: "var(--color-texto)" }}>CREATOR</span>
+        <span className="logo-prefixo" style={{ color: "var(--color-marca)", marginLeft: "0.22em" }}>SYSTEM</span>
       </span>
     </span>
   );

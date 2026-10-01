@@ -1,6 +1,6 @@
 @AGENTS.md
 
-# Sistema do Criador
+# Creator System
 
 Sistema de produção de conteúdo de UM criador do Instagram: Esteira de referências (análise, roteiro na voz dele, cópia de carrossel), editor de vídeo com IA (roda no PC dele com o Claude Code), automações do Instagram (comentário → DM) e um agente de IA opcional no direct.
 

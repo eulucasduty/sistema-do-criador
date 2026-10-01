@@ -49,7 +49,7 @@ A primeira instalação baixa uns 2 GB e leva de 10 a 30 minutos.
    (roda no seu PC, grátis). No Mac, instala antes o Homebrew (o instalador de programas do Mac).
    No Windows, com o Claude ou a OpenRouter, instala também o **Git for Windows** (o Claude usa o
    terminal dele).
-2. Baixa o sistema na pasta **SistemaDoCriador** (dentro da sua pasta de usuário). Não precisa de Git.
+2. Baixa o sistema na pasta **CreatorSystem** (dentro da sua pasta de usuário). Não precisa de Git.
 3. Prepara o kit de edição (HyperFrames e o Chrome dele).
 4. Pergunta **quem edita** e instala essa IA:
    - **Claude**: instala o Claude Code e abre o login no navegador. Entre com a conta da sua assinatura.
@@ -89,12 +89,12 @@ as edições saiam.
 - **Desligar**: feche a janela (ou aperte Ctrl+C nela).
 - **Atualizar**: rode o mesmo comando da instalação de novo. Ele baixa a versão nova e mantém o seu
   login, as edições anteriores (os ajustes precisam delas) e o que já estava instalado.
-- **Entrar com outra conta**: abra o terminal na pasta SistemaDoCriador e rode
+- **Entrar com outra conta**: abra o terminal na pasta CreatorSystem e rode
   `npm run estacao -- --sair` (na próxima vez a estação pergunta de novo).
 - **Conferir se a IA está pronta**: `npm run estacao -- --testar-motor` (na mesma pasta). O painel
   também mostra isso em **Editor de vídeo → Quem edita os seus vídeos**.
 
-Cada vídeo pronto sobe pro painel e fica também numa cópia no seu PC (`Vídeos/Sistema do Criador`).
+Cada vídeo pronto sobe pro painel e fica também numa cópia no seu PC (`Vídeos/Creator System`).
 
 ---
 
@@ -158,7 +158,7 @@ seu banco: não mande pra ninguém.
 
 | variável | pra quê | padrão |
 |---|---|---|
-| `EDITOR_SAIDA` | pasta onde a cópia do vídeo pronto fica no seu PC | `Vídeos/Sistema do Criador` |
+| `EDITOR_SAIDA` | pasta onde a cópia do vídeo pronto fica no seu PC | `Vídeos/Creator System` |
 | `EDITOR_ESFORCO` | quanto a IA pensa (`low`, `medium`, `high`) | `high` (OpenRouter: `medium`) |
 | `OPENROUTER_API_KEY` | chave da OpenRouter só neste PC (vale por cima da do painel) | a do painel |
 | `FFMPEG_BIN` | caminho do ffmpeg (o ffprobe tem que estar na mesma pasta) | procura sozinha |

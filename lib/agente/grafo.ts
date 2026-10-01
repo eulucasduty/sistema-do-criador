@@ -28,7 +28,7 @@ export async function criarModelo(opcoes: { modelo?: string; temperatura?: numbe
       baseURL: OPENROUTER_URL,
       defaultHeaders: {
         "HTTP-Referer": urlDoApp(),
-        "X-Title": "Sistema do Criador",
+        "X-Title": "Creator System",
       },
     },
   });

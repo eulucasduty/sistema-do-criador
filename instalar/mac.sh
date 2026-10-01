@@ -1,11 +1,11 @@
 #!/bin/bash
-# Instalador da estação de edição do Sistema do Criador (macOS, Apple Silicon ou Intel).
+# Instalador da estação de edição do Creator System (macOS, Apple Silicon ou Intel).
 #
 # Abra o Terminal (⌘ + espaço, digite Terminal) e cole esta linha:
 #   curl -fsSL https://raw.githubusercontent.com/eulucasduty/sistema-do-criador/main/instalar/mac.sh | bash
 #
 # Ele instala o que falta (Homebrew, Node.js, ffmpeg-full, whisper.cpp e o modelo de transcrição),
-# baixa o sistema em ~/SistemaDoCriador (sem precisar de Git), pergunta quem edita os vídeos
+# baixa o sistema em ~/CreatorSystem (sem precisar de Git), pergunta quem edita os vídeos
 # (Claude, ChatGPT ou OpenRouter), instala e abre o login dessa IA, cria o atalho
 # "Estação de edição" na Mesa e liga a estação.
 # Rodar de novo = atualizar: baixa a versão nova e mantém o seu login, as edições e o .env.local.
@@ -21,7 +21,7 @@ RAMO="main"
 ZIP_SISTEMA="https://github.com/$REPO/archive/refs/heads/$RAMO.zip"
 MODELO="ggml-large-v3-turbo-q5_0.bin"
 URL_MODELO="https://huggingface.co/ggerganov/whisper.cpp/resolve/main/$MODELO"
-PASTA="$HOME/SistemaDoCriador"
+PASTA="$HOME/CreatorSystem"
 MOTOR=""
 LIGAR=1
 SIMULAR="${SIMULAR:-0}"
@@ -148,7 +148,7 @@ criar_atalho() {
   local atalho="$mesa/Estação de edição.command"
   cat >"$atalho" <<EOF
 #!/bin/bash
-# Liga a estação de edição do Sistema do Criador (criado pelo instalar/mac.sh)
+# Liga a estação de edição do Creator System (criado pelo instalar/mac.sh)
 exec bash "$PASTA/instalar/ligar-estacao.command"
 EOF
   chmod +x "$atalho"
@@ -167,7 +167,7 @@ main() {
   done
 
   echo
-  printf '\033[33mEstação de edição do Sistema do Criador: instalação\033[0m\n'
+  printf '\033[33mEstação de edição do Creator System: instalação\033[0m\n'
   [ "$SIMULAR" = "1" ] && printf '\033[36m(modo simulação: nada vai ser instalado nem baixado)\033[0m\n'
   echo "Pasta do sistema: $PASTA"
   if [ "$(uname -s)" != "Darwin" ]; then
@@ -209,7 +209,7 @@ main() {
   # ── 6. O sistema (sem Git: baixa o zip do GitHub) ─────────────
   titulo "O sistema em $PASTA"
   if [ -d "$PASTA" ] && [ -n "$(ls -A "$PASTA" 2>/dev/null)" ] && ! grep -qs '"name": *"sistema-do-criador"' "$PASTA/package.json"; then
-    pare "a pasta $PASTA já existe e não é do Sistema do Criador. Apague ou escolha outra (--pasta)."
+    pare "a pasta $PASTA já existe e não é do Creator System. Apague ou escolha outra (--pasta)."
   fi
   faz "baixando a versão mais nova do sistema" baixar_sistema
   faz "instalando o que a estação usa do npm (só o cliente do Supabase)" instalar_dependencias

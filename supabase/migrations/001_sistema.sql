@@ -1,4 +1,4 @@
--- Sistema do Criador · 001 · tudo
+-- Creator System · 001 · tudo
 --
 -- Cole este arquivo inteiro no SQL Editor do seu projeto Supabase e clique em Run.
 -- (Use um projeto NOVO, só pro sistema: as tabelas ficam no schema public.)
@@ -11,7 +11,7 @@ do $$
 begin
   if exists (select 1 from information_schema.tables where table_schema = 'public' and table_name = 'configuracao')
      and not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'configuracao' and column_name = 'chave') then
-    raise exception 'este projeto já tem uma tabela "configuracao" de outro sistema: crie um projeto novo no Supabase só pro Sistema do Criador';
+    raise exception 'este projeto já tem uma tabela "configuracao" de outro sistema: crie um projeto novo no Supabase só pro Creator System';
   end if;
 end
 $$;

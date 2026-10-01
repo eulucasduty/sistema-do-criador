@@ -11,7 +11,7 @@
 // Pega o pedido mais antigo "na fila", lê o perfil do criador e quem edita (configuracao "perfil"
 // e "editor", a cada pedido), baixa o vídeo e os materiais do storage (em partes), faz a edição
 // (editor/estacao/fluxo.mjs: oficina → IA → render) e sobe o vídeo pronto pro painel.
-// O vídeo final também fica no PC (EDITOR_SAIDA; padrão: Vídeos/Sistema do Criador).
+// O vídeo final também fica no PC (EDITOR_SAIDA; padrão: Vídeos/Creator System).
 // Pra parar: Ctrl+C.
 
 import { spawnSync } from "node:child_process";
@@ -24,7 +24,7 @@ import { configMotor, conferirMotor, lerChaveOpenRouter, lerConfigMotor, MOTORES
 import { conectar, esquecerSessao, ARQUIVO_SESSAO } from "../editor/estacao/sessao.mjs";
 import { sincronizarSons } from "../editor/estacao/sons.mjs";
 
-const AJUDA = `Estação de edição do Sistema do Criador
+const AJUDA = `Estação de edição do Creator System
 
   npm run estacao                     liga a estação (na 1ª vez pede endereço, e-mail e senha)
   npm run estacao -- --testar-motor   confere se quem edita os vídeos está instalado e logado
@@ -41,7 +41,7 @@ const valor = (f) => (argv.includes(f) ? argv[argv.indexOf(f) + 1] : undefined);
 
 const BUCKET = "edicao";
 const RAIZ = path.resolve("editor", "oficina");
-const SAIDA = process.env.EDITOR_SAIDA || path.join(os.homedir(), "Videos", "Sistema do Criador");
+const SAIDA = process.env.EDITOR_SAIDA || path.join(os.homedir(), "Videos", "Creator System");
 const MAQUINA = os.hostname();
 const ESPERA_MS = 8000;
 const EM_ANDAMENTO = ["preparando", "editando", "renderizando", "enviando"];

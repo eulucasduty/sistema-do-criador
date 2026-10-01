@@ -1,5 +1,5 @@
 @echo off
-rem Liga a estacao de edicao do Sistema do Criador.
+rem Liga a estacao de edicao do Creator System.
 rem O atalho "Estacao de edicao" da Area de Trabalho (criado pelo instalar\windows.ps1) abre este arquivo.
 title Estacao de edicao
 chcp 65001 >nul

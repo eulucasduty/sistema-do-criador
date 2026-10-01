@@ -1,4 +1,4 @@
-# Sistema do Criador
+# Creator System
 
 O sistema de produção de conteúdo pra criador do Instagram, rodando nas **suas** contas:
 

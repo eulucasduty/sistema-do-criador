@@ -1,10 +1,10 @@
-# Instalador da estação de edição do Sistema do Criador (Windows 10 e 11).
+# Instalador da estação de edição do Creator System (Windows 10 e 11).
 #
 # Abra o PowerShell (menu Iniciar, digite PowerShell) e cole esta linha:
 #   irm https://raw.githubusercontent.com/eulucasduty/sistema-do-criador/main/instalar/windows.ps1 | iex
 #
 # Ele instala o que falta (Node.js, ffmpeg completo, whisper.cpp e o modelo de transcrição, Git
-# quando precisa), baixa o sistema em %USERPROFILE%\SistemaDoCriador (sem precisar de Git),
+# quando precisa), baixa o sistema em %USERPROFILE%\CreatorSystem (sem precisar de Git),
 # pergunta quem edita os vídeos (Claude, ChatGPT ou OpenRouter), instala e abre o login dessa IA,
 # cria o atalho "Estação de edição" na Área de Trabalho e liga a estação.
 # Rodar de novo = atualizar: baixa a versão nova e mantém o seu login, as edições e o .env.local.
@@ -27,7 +27,7 @@ $ProgressPreference = 'SilentlyContinue' # o Invoke-WebRequest fica muito mais r
 try { [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12 } catch {}
 try { Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force } catch {}
 if ($env:SIMULAR -eq '1') { $Simular = $true }
-if (-not $Pasta) { $Pasta = Join-Path $HOME 'SistemaDoCriador' }
+if (-not $Pasta) { $Pasta = Join-Path $HOME 'CreatorSystem' }
 
 $REPO = 'eulucasduty/sistema-do-criador'
 $RAMO = 'main'
@@ -142,7 +142,7 @@ function TemGitBash {
 
 # ── começo ─────────────────────────────────────────────────────────
 Write-Host ''
-Write-Host 'Estação de edição do Sistema do Criador: instalação' -ForegroundColor Yellow
+Write-Host 'Estação de edição do Creator System: instalação' -ForegroundColor Yellow
 if ($Simular) { Write-Host '(modo simulação: nada vai ser instalado nem baixado)' -ForegroundColor Cyan }
 Write-Host "Pasta do sistema: $Pasta"
 
@@ -250,7 +250,7 @@ try {
   Titulo "O sistema em $Pasta"
   $pacote = Join-Path $Pasta 'package.json'
   if ((Test-Path $Pasta) -and (Get-ChildItem -Force $Pasta | Select-Object -First 1) -and -not ((Test-Path $pacote) -and ((Get-Content $pacote -Raw) -match '"name":\s*"sistema-do-criador"'))) {
-    Pare "a pasta $Pasta já existe e não é do Sistema do Criador. Apague ou escolha outra (-Pasta)."
+    Pare "a pasta $Pasta já existe e não é do Creator System. Apague ou escolha outra (-Pasta)."
   }
   Faz 'baixando a versão mais nova do sistema' {
     $zip = Join-Path $TEMP 'sistema.zip'
@@ -372,7 +372,7 @@ try {
     $lnk = $ws.CreateShortcut($atalho)
     $lnk.TargetPath = Join-Path $Pasta 'instalar\ligar-estacao.cmd'
     $lnk.WorkingDirectory = $Pasta
-    $lnk.Description = 'Liga a estação de edição do Sistema do Criador'
+    $lnk.Description = 'Liga a estação de edição do Creator System'
     $lnk.IconLocation = "$env:SystemRoot\System32\imageres.dll,18"
     $lnk.Save()
   }

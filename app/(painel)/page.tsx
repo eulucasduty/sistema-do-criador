@@ -220,7 +220,7 @@ export default async function Inicio({ searchParams }: PageProps<"/">) {
             </li>
             <li>
               Em <T>developers.facebook.com</T>, entre com o seu Facebook → <T>Meus apps → Criar app</T> → escolha o caso de uso{" "}
-              <T>Gerenciar mensagens e conteúdo no Instagram</T> → dê um nome (ex.: Sistema do Criador) → criar.
+              <T>Gerenciar mensagens e conteúdo no Instagram</T> → dê um nome (ex.: Creator System) → criar.
             </li>
             <li>
               No app da Meta: <T>Casos de uso → Instagram → Personalizar → Configuração da API com login do Instagram</T>.

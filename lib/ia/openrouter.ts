@@ -39,7 +39,7 @@ async function completar(opcoes: {
       Authorization: `Bearer ${chave}`,
       "Content-Type": "application/json",
       "HTTP-Referer": urlDoApp(),
-      "X-Title": "Sistema do Criador",
+      "X-Title": "Creator System",
     },
     body: JSON.stringify({
       model: opcoes.modelo || MODELO_PADRAO,
