@@ -1,0 +1,57 @@
+      /* Keynote: #000, #1d1d1f e #f5f5f7. Peso 600, frase normal, entrelinha justa. */
+      :root {
+        --void: #000000;
+        --void-img: none;
+        --card: #1d1d1f;
+        --card-borda: none;
+        --card-sombra: none;
+        --card-raio: 28px;
+        --texto: #f5f5f7;
+        --dim: #86868b;
+        --apagado: #6e6e73;
+        --acento: #2997ff;
+        --acento-tinta: #ffffff;
+        --acento2: #f5f5f7;
+        --ok: #30d158;
+        --erro: #ff453a;
+        --brilho: 41, 151, 255;
+        --tinta-borda: none;
+        --chip-sombra: none;
+        --chip-raio: 980px;
+        --f-titulo: "Inter", sans-serif;
+        --f-texto: "Inter", sans-serif;
+        --titulo-espaco: -0.015em;
+        --titulo-sombra: none;
+        --palavra-sombra: none;
+        --palavra-caixa: none;
+        --f-numero: "Inter", sans-serif;
+        --numero-peso: 600;
+        --logo-fundo: #f5f5f7;
+        --logo-sombra: none;
+        --mold: #1d1d1f;
+        --janela: #1d1d1f;
+        --janela-borda: #2d2d2f;
+        --url: #000000;
+        --notif: #1d1d1f;
+        --notif-borda: #2d2d2f;
+        --trilho: #2d2d2f;
+        --quadro-borda: none;
+        --prog-altura: 4px;
+        --prog-cor: #ffffff;
+        --cab-caixa: none;
+        --let-caixa: none;
+      }
+      .cena-titulo, .lista-titulo, .palavra-linha, .chip-titulo { font-weight: 600; }
+      .item, .logo-nome, .grade-rotulo { font-weight: 600; text-transform: none; letter-spacing: -0.01em; }
+      .rotulo, .cab-rotulo { font-family: "Inter", sans-serif; font-weight: 600; letter-spacing: 0.02em; text-transform: none; color: #86868b; }
+      .palavra-linha { line-height: 1.05; }
+      /* a linha de destaque ganha o degradê furta-cor */
+      .palavra-linha.ouro, .cab-l.l1 { background: linear-gradient(90deg, rgb(203, 156, 145) 0%, rgb(194, 141, 109) 21%, rgb(182, 151, 90) 41%, rgb(138, 161, 105) 54%, rgb(111, 160, 197) 78%, rgb(148, 158, 195) 97%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+      .cab-l { text-shadow: none; letter-spacing: -0.015em; line-height: 1.06; }
+      .cab-regua { display: none; }
+      .tarja { left: 54px; gap: 0; }
+      .tarja-barra { display: none; }
+      .tarja-nome { font-family: "Inter", sans-serif; font-weight: 600; font-size: 40px; letter-spacing: 0.004em; text-shadow: 0 1px 14px rgba(0, 0, 0, 0.5); }
+      .tarja-cargo { font-family: "Inter", sans-serif; font-weight: 500; font-size: 30px; letter-spacing: 0.007em; color: rgba(245, 245, 247, 0.8); text-shadow: 0 1px 14px rgba(0, 0, 0, 0.5); }
+      .marca { background: #2d2d2f; color: #f5f5f7; border: none; border-radius: 50%; }
+      .leg-titulo .grupo { color: #ffffff; text-shadow: 0 1px 18px rgba(0, 0, 0, 0.55); }

@@ -1,0 +1,31 @@
+      /* Nativo: nada de identidade visual. Só a fonte e as caixas do aplicativo. */
+      :root {
+        --void: #000000;
+        --void-img: none;
+        --card: #ffffff;
+        --card-borda: none;
+        --card-sombra: 0 10px 30px rgba(0, 0, 0, 0.35);
+        --card-raio: 18px;
+        --texto: #161823;
+        --dim: #6a6b72;
+        --acento: #EA4040;
+        --acento-tinta: #ffffff;
+        --acento2: #3496EF;
+        --acento3: #F2CE46;
+        --ok: #77C25D;
+        --erro: #EA4040;
+        --brilho: 234, 64, 64;
+        --f-titulo: "TikTok", sans-serif;
+        --f-texto: "TikTok", sans-serif;
+        --f-legenda: "TikTok", sans-serif;
+        --titulo-sombra: none;
+        --palavra-sombra: none;
+        --cab-caixa: none;
+        --let-caixa: none;
+      }
+      .cena-titulo, .lista-titulo, .palavra-linha { font-weight: 800; }
+      .palavra-linha { color: #ffffff; text-transform: none; }
+      .leg-caixa .grupo { color: #ffffff; }
+      .leg-branca .grupo { color: #000000; }
+      .leg-contorno .grupo { color: #ffffff; -webkit-text-stroke: 8.7px #000000; paint-order: stroke fill; }
+      .man-balao { font-family: "TikTok", sans-serif; }

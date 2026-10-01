@@ -3,19 +3,19 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { haQuanto } from "@/lib/formato";
-import { FINAIS, PASSO_DA_IA, STATUS_EDICAO, estacaoLigada, nomeDoMotor, type BatidaEstacao } from "@/lib/editor";
+import { FINAIS, PASSO_DA_IA, STATUS_EDICAO, estacaoLigada, nomeDaLegenda, nomeDoEstilo, nomeDoMotor, type BatidaEstacao } from "@/lib/editor";
 import { BotaoGerar } from "../../esteira/botoes";
 import { apagarEdicao, cancelarEdicao, pedirAjuste, tentarDeNovo } from "../acoes";
 import { AutoAtualizar } from "../atualizar";
 import { EstacaoDesligada } from "../estacao";
-import { nomeDoEstilo, nomeDoLook } from "../opcoes";
+import { nomeDoLook } from "../opcoes";
 
 export const dynamic = "force-dynamic";
 
 type Uso = { motor?: string; modelo?: string; turnos?: number; duracao_s?: number; render_s?: number; equivalente_api_usd?: number | null; custo_usd?: number | null; conserto?: { custo_usd?: number | null } };
 type Resultado = { caminho: string; tamanho?: number; duracao?: number; local?: string };
 type Linha = { t: string; msg: string };
-type Opcoes = { legenda?: string; cor?: string };
+type Opcoes = { estilo?: string; legenda?: string; cor?: string };
 
 const horaSP = (iso: string) => new Date(iso).toLocaleTimeString("pt-BR", { timeZone: "America/Sao_Paulo" });
 const minutos = (s?: number) => (s ? (s < 90 ? `${s} s` : `${Math.round(s / 60)} min`) : "—");
@@ -47,7 +47,7 @@ export default async function PaginaEdicao({ params, searchParams }: PageProps<"
   const log = ((e.log ?? []) as Linha[]).slice().reverse();
   const ligada = estacaoLigada(cfg?.valor as BatidaEstacao | null);
   const opcoes = (e.opcoes ?? {}) as Opcoes;
-  const escolhas = [nomeDoEstilo(opcoes.legenda) && `legenda ${nomeDoEstilo(opcoes.legenda)}`, nomeDoLook(opcoes.cor) && `look ${nomeDoLook(opcoes.cor)}`].filter(Boolean).join(" · ");
+  const escolhas = [`estilo ${nomeDoEstilo(opcoes.estilo)}`, `legenda ${nomeDaLegenda(opcoes.estilo, opcoes.legenda).toLowerCase()}`, nomeDoLook(opcoes.cor) && `look ${nomeDoLook(opcoes.cor)}`].filter(Boolean).join(" · ");
 
   let assistir: string | null = null;
   let baixar: string | null = null;

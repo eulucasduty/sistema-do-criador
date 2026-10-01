@@ -1,0 +1,82 @@
+{
+  "id": "cortes",
+  "nome": "Corte de podcast",
+  "grupo": "virais",
+  "ordem": 34,
+  "descricao": "O formato dos canais de cortes: manchete numa caixa branca em cima, o vídeo num clipe no meio sobre o fundo desfocado e legenda amarela com contorno preto.",
+  "layout": {
+    "base": {
+      "x": 0,
+      "y": 560,
+      "w": 1080,
+      "h": 900,
+      "r": 0
+    },
+    "base_k": 0.62,
+    "fundo_video": true,
+    "painel": false
+  },
+  "manchete": {
+    "y": 250,
+    "tamanho": 62,
+    "largura": 860,
+    "fonte": "inter-preta",
+    "entrada": "desce"
+  },
+  "legenda": {
+    "padrao": "amarela",
+    "tipos": {
+      "amarela": {
+        "max_chars": 18,
+        "max_palavras": 4,
+        "acende": "nenhum",
+        "entrada": "seco",
+        "fonte": "poppins",
+        "tamanho": 62,
+        "janela_y": 0.8,
+        "segura": 0.3
+      },
+      "caps": {
+        "max_chars": 16,
+        "max_palavras": 4,
+        "caixa": "alta",
+        "acende": "nenhum",
+        "entrada": "seco",
+        "fonte": "bebas",
+        "tamanho": 92,
+        "janela_y": 0.78,
+        "segura": 0.3
+      }
+    },
+    "clara": "#F7D70A",
+    "acento": "#ffffff",
+    "cores": {
+      "amarelo": "#F7D70A",
+      "branco": "#ffffff"
+    }
+  },
+  "cores": {
+    "verde": "#2fd16b",
+    "vermelho": "#e5332e",
+    "dourado": "#F7D70A",
+    "branco": "#ffffff"
+  },
+  "cortes": {
+    "estilo": "seco",
+    "som": null
+  },
+  "sons": {
+    "automaticos": [
+      "pop"
+    ],
+    "volume": 0.6
+  },
+  "fontes": {
+    "manchete": "inter-preta",
+    "titulo": "inter-preta",
+    "cabecalho": "inter-preta",
+    "palavra": "inter-preta",
+    "lettering": "inter-preta"
+  },
+  "escurecer": false
+}

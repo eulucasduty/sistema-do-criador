@@ -1,0 +1,95 @@
+{
+  "id": "doc-streaming",
+  "nome": "Documentário de streaming (inspirado em Netflix)",
+  "grupo": "documentario",
+  "ordem": 52,
+  "descricao": "Barras de cinema, cor fria e dessaturada, lugar e data datilografados, nome em letra pequena e legenda de até duas linhas como a de filme. Aproximação lenta e batida grave nas revelações.",
+  "legenda": {
+    "padrao": "subtitulo",
+    "tipos": {
+      "subtitulo": {
+        "linhas": 2,
+        "max_chars": 34,
+        "max_palavras_linha": 8,
+        "max_palavras_bloco": 14,
+        "quebra_virgula": false,
+        "pausa": 0.6,
+        "acende": "nenhum",
+        "entrada": "seco",
+        "fonte": "inter",
+        "tamanho": 40,
+        "entrelinha": 1.3,
+        "ancora": "auto",
+        "prefere_y": 0.74,
+        "segura": 0.5
+      }
+    },
+    "clara": "#ffffff"
+  },
+  "cores": {
+    "verde": "#9bd3a8",
+    "vermelho": "#d24a43",
+    "dourado": "#ffffff",
+    "branco": "#ffffff"
+  },
+  "video": {
+    "camadas": [
+      "tom",
+      "vinheta",
+      "grao",
+      "barras"
+    ]
+  },
+  "camera": {
+    "planos": {
+      "medio": 1.14
+    },
+    "auto": {
+      "alterna": [
+        "aberto",
+        "medio"
+      ],
+      "cada": [
+        5,
+        9
+      ],
+      "empurrar": 0.05
+    }
+  },
+  "cortes": {
+    "estilo": "seco",
+    "som": null
+  },
+  "sons": {
+    "automaticos": [
+      "impacto",
+      "tecla"
+    ],
+    "volume": 0.8
+  },
+  "fontes": {
+    "palavra": "condensada",
+    "local": "maquina",
+    "titulo": "condensada",
+    "cabecalho": "condensada",
+    "lettering": "condensada",
+    "citacao": "serifa-reta",
+    "passo": "condensada",
+    "numero": "condensada"
+  },
+  "palavra": {
+    "entrada": "fade",
+    "som": "impacto",
+    "teto": 170
+  },
+  "tarja": {
+    "entrada": "fade",
+    "y": 1330
+  },
+  "margem_topo": 170,
+  "cabecalho": {
+    "y": 210,
+    "tamanho": 96
+  },
+  "escurecer": false
+}

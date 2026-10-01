@@ -1,0 +1,17 @@
+{
+  "id": "insercao-imagens",
+  "nome": "Inserção de imagens",
+  "base": "roxo",
+  "ordem": 18,
+  "descricao": "Você em tela cheia com um cabeçalho de capítulo (IDEIA 01, 02, 03) e as imagens entrando por cima: card com brilho, polaroides, janela de site.",
+  "legenda": {
+    "padrao": "simples"
+  },
+  "cabecalho": {
+    "tamanho": 92,
+    "y": 96
+  },
+  "fotos": {
+    "modo": "polaroid"
+  }
+}

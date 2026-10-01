@@ -1,0 +1,80 @@
+      /* Componentes que mexem no próprio vídeo, dentro do palco em 3D: camadas de vidro,
+         profundidade e troca de cenário. Ficam dentro de #palco (herdam a perspectiva). */
+
+      /* ── camadas de vidro (montagem em 3D) ── */
+      .vidro { position: absolute; box-sizing: border-box; border: 2px solid color-mix(in srgb, var(--cor) 72%, transparent); background: linear-gradient(140deg, color-mix(in srgb, var(--cor) 20%, transparent), color-mix(in srgb, var(--cor) 6%, transparent) 60%); box-shadow: 0 0 46px color-mix(in srgb, var(--cor) 34%, transparent), inset 0 0 0 1px rgba(255, 255, 255, 0.08); opacity: 0; pointer-events: none; }
+      .vd-onda { position: absolute; left: 7%; right: 7%; bottom: 9%; height: 104px; border-radius: 30px; padding: 0 26px; display: flex; align-items: center; gap: 20px; background: rgba(10, 6, 24, 0.72); border: 2px solid color-mix(in srgb, var(--cor) 80%, transparent); box-sizing: border-box; }
+      .vd-ic { width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; font-size: 30px; background: var(--cor); color: #0d0716; flex: none; }
+      .vd-barras { flex: 1; height: 64px; display: flex; align-items: center; gap: 6px; }
+      .vd-barras i { flex: 1; display: block; border-radius: 3px; background: var(--cor); }
+      .vd-icones { position: absolute; top: 20%; display: flex; flex-direction: column; gap: 26px; }
+      .vd-icones.esq { left: -46px; }
+      .vd-icones.dir { right: -46px; }
+      .vd-icones span { width: 96px; height: 96px; border-radius: 50%; display: grid; place-items: center; font-size: 46px; color: #ffffff; background: var(--cor); box-shadow: 0 0 34px color-mix(in srgb, var(--cor) 70%, transparent), inset 0 0 0 2px rgba(255, 255, 255, 0.35); }
+      .vd-titulo { position: absolute; left: 0; right: 0; top: 7%; display: flex; flex-direction: column; align-items: center; text-transform: uppercase; line-height: 1; color: #ffffff; text-shadow: 0 4px 24px rgba(0, 0, 0, 0.5); }
+      .vd-titulo .l1 { color: var(--cor); }
+      .vd-img { position: absolute; left: 8%; top: 8%; width: 84%; height: 40%; object-fit: cover; border-radius: 20px; border: 2px solid rgba(255, 255, 255, 0.4); }
+      .vd-texto { position: absolute; left: 8%; right: 8%; top: 40%; text-align: center; font-weight: 800; font-size: 46px; line-height: 1.15; color: #ffffff; }
+      .vd-leg { position: absolute; left: 0; right: 0; top: 62%; height: 150px; }
+      .vd-leg { top: 57%; }
+      .vd-g { position: absolute; left: 0; right: 0; top: 0; text-align: center; font-family: var(--f-texto); font-weight: 500; font-size: 48px; line-height: 1.24; color: #ffffff; text-shadow: 0 3px 14px rgba(0, 0, 0, 0.7); opacity: 0; }
+      .vd-ln { display: block; white-space: nowrap; }
+      .vd-w { display: inline-block; opacity: 0.46; }
+      .vd-w.dest { padding: 0 16px 2px; margin: 4px 0; border-radius: 12px; background: var(--acento); color: #ffffff; font-family: "Archivo", sans-serif; font-weight: 800; font-stretch: 125%; font-size: 0.74em; letter-spacing: 0.02em; text-shadow: none; }
+      .camadas-rodape { position: absolute; left: 0; width: 1080px; z-index: 8; display: flex; flex-direction: column; align-items: center; gap: 26px; pointer-events: none; }
+      .cm-dashes { display: flex; gap: 14px; }
+      .cm-dashes i { width: 104px; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.16); display: block; overflow: hidden; }
+      .cm-dashes i b { display: block; width: 100%; height: 100%; background: var(--cor); transform-origin: 0 50%; }
+      .cm-pilha { position: relative; width: 1080px; height: 170px; }
+      .cm-et { position: absolute; left: 0; top: 0; width: 1080px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+      .cm-selo { display: inline-flex; align-items: center; gap: 12px; font-family: var(--f-mono); font-size: 26px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--cor); }
+      .cm-selo i { width: 12px; height: 12px; border-radius: 50%; background: currentColor; display: block; box-shadow: 0 0 14px currentColor; }
+      .cm-nome { line-height: 1.05; color: var(--texto); white-space: nowrap; }
+
+      /* ── profundidade (fundo, texto, pessoa, ícones, moldura em planos separados) ── */
+      .prof-texto { position: absolute; left: 0; width: 1080px; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
+      .prof-l { line-height: 0.98; text-transform: uppercase; white-space: nowrap; color: var(--texto); text-shadow: 0 0 60px rgba(var(--brilho, 139, 92, 246), 0.6); }
+      .prof-l.l1 { color: var(--acento2); }
+      .prof-quadro { position: absolute; left: 46px; top: 46px; width: 988px; height: 1828px; box-sizing: border-box; border: 3px solid color-mix(in srgb, var(--acento2) 62%, transparent); border-radius: 34px; opacity: 0; pointer-events: none; }
+      .prof-etq { position: absolute; left: 26px; top: -22px; padding: 6px 18px 7px; border-radius: 999px; background: var(--void); border: 2px solid color-mix(in srgb, var(--acento2) 70%, transparent); font-family: var(--f-mono); font-size: 24px; letter-spacing: 0.16em; color: var(--acento2); white-space: nowrap; }
+      .prof-icone { position: absolute; width: 120px; height: 120px; border-radius: 50%; display: grid; place-items: center; font-size: 56px; color: var(--acento2); background: rgba(14, 8, 30, 0.72); border: 2px solid color-mix(in srgb, var(--acento2) 70%, transparent); box-shadow: 0 0 44px rgba(var(--brilho), 0.5); box-sizing: border-box; opacity: 0; }
+      .prof-chao { position: absolute; inset: 0; overflow: hidden; }
+      .prof-chao i { position: absolute; left: -60%; bottom: -34%; width: 220%; height: 70%; background-image: linear-gradient(var(--grade, rgba(167, 139, 250, 0.45)) 2px, transparent 2px), linear-gradient(90deg, var(--grade, rgba(167, 139, 250, 0.45)) 2px, transparent 2px); background-size: 110px 110px; transform: perspective(900px) rotateX(74deg); -webkit-mask-image: linear-gradient(to top, #000 0, #000 40%, transparent 90%); mask-image: linear-gradient(to top, #000 0, #000 40%, transparent 90%); display: block; }
+      .prof-rodape { position: absolute; left: 0; top: 1470px; width: 1080px; display: flex; justify-content: center; z-index: 9; pointer-events: none; }
+      .prof-rodape span { padding: 12px 30px 13px; border-radius: 999px; background: rgba(8, 6, 18, 0.74); border: 2px solid color-mix(in srgb, var(--acento2) 60%, transparent); font-family: var(--f-mono); font-size: 27px; letter-spacing: 0.2em; color: var(--acento2); white-space: nowrap; }
+
+      /* ── cenário: o fundo atrás da pessoa ── */
+      .cenario { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: hidden; pointer-events: none; }
+      .cen-tudo { position: absolute; inset: 0; }
+      .cen-fundo { position: absolute; inset: 0; overflow: hidden; }
+      .cen-fundo > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+      .cen-fundo.bokeh { background: linear-gradient(to bottom, #070b22 0, #141a44 52%, #2a1d4d 100%); }
+      .cen-fundo.bokeh > i { position: absolute; border-radius: 50%; display: block; filter: blur(16px); opacity: 0.62; mix-blend-mode: screen; }
+      .cen-fundo.bokeh .predios { position: absolute; left: 0; right: 0; bottom: 0; height: 46%; background: linear-gradient(to top, rgba(4, 5, 16, 0.96) 0, rgba(4, 5, 16, 0.5) 62%, transparent 100%), repeating-linear-gradient(90deg, rgba(4, 5, 16, 0.9) 0 96px, rgba(4, 5, 16, 0.35) 96px 150px); filter: blur(7px); }
+      .cen-fundo.neon { background: radial-gradient(ellipse at 50% 36%, #3b1d7a 0, #170c33 46%, #08051a 100%); }
+      .cen-fundo.neon .raios { position: absolute; width: 2600px; height: 2600px; background: repeating-conic-gradient(from 0deg at 50% 50%, rgba(196, 181, 253, 0.2) 0deg 4deg, transparent 4deg 15deg); -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent 8%, #000 22%, transparent 56%); mask-image: radial-gradient(circle at 50% 50%, transparent 8%, #000 22%, transparent 56%); display: block; }
+      .cen-fundo.neon .aro { position: absolute; border-radius: 50%; border: 14px solid #efe7ff; box-shadow: 0 0 60px #8b5cf6, 0 0 150px rgba(139, 92, 246, 0.8), inset 0 0 60px rgba(139, 92, 246, 0.7); box-sizing: border-box; display: block; }
+      .cen-fundo .chao { position: absolute; left: -60%; bottom: -36%; width: 220%; height: 80%; background-image: linear-gradient(rgba(167, 139, 250, 0.55) 3px, transparent 3px), linear-gradient(90deg, rgba(167, 139, 250, 0.55) 3px, transparent 3px); background-size: 120px 120px; transform: perspective(900px) rotateX(74deg); -webkit-mask-image: linear-gradient(to top, #000 0, #000 46%, transparent 92%); mask-image: linear-gradient(to top, #000 0, #000 46%, transparent 92%); display: block; }
+      .cen-fundo.grade { background: radial-gradient(ellipse at 50% 30%, #2a1660 0, #0d0716 70%); }
+      .cen-fundo.xadrez { background: conic-gradient(#e2d7fb 25%, #ffffff 0 50%, #e2d7fb 0 75%, #ffffff 0) 0 0 / 100px 100px; }
+      .cen-fundo.estudio { background: radial-gradient(ellipse at 50% 34%, var(--estudio-luz, #5b5e66) 0, var(--estudio, #1b1c20) 62%, #08080a 100%); }
+      .cen-div { position: absolute; top: 0; width: 6px; height: 1920px; background: #ffffff; display: block; }
+      .cen-palavra { position: absolute; left: 0; width: 1080px; text-align: center; text-transform: uppercase; line-height: 0.9; white-space: nowrap; color: #ffffff; }
+      .cen-palavra span { display: inline-block; }
+      .cen-palavra.gradiente span { background: linear-gradient(to bottom, #ffffff 34%, var(--c2, var(--acento2))); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+      .cen-palavra.contorno span { -webkit-text-fill-color: transparent; -webkit-text-stroke: 5px currentColor; }
+      .cen-palavra.sombra span { text-shadow: 9px 9px 0 var(--c2, var(--acento)); }
+      .cen-palavra.eco span { text-shadow: 7px 7px 0 var(--c2, var(--acento2)), 0 0 44px rgba(var(--brilho), 0.8); }
+      .cen-rotulo { position: absolute; left: 0; top: 150px; width: 1080px; display: flex; justify-content: center; z-index: 9; pointer-events: none; }
+      .cen-rotulo span { display: inline-flex; align-items: center; gap: 14px; padding: 12px 28px 13px; border-radius: 999px; background: rgba(8, 6, 18, 0.78); border: 2px solid rgba(255, 255, 255, 0.26); font-family: var(--f-texto); font-weight: 800; font-size: 32px; color: #ffffff; white-space: nowrap; }
+      .cen-rotulo i { width: 14px; height: 14px; border-radius: 50%; background: var(--ok); display: block; box-shadow: 0 0 14px var(--ok); }
+      .cen-linha { position: absolute; inset: 0; z-index: 9; pointer-events: none; overflow: hidden; }
+      .cen-varre { position: absolute; left: 0; top: 0; width: 1080px; height: 0; }
+      .cen-varre i { position: absolute; left: 0; top: -4px; width: 1080px; height: 8px; display: block; background: #ffffff; box-shadow: 0 0 30px 8px rgba(var(--brilho), 0.9); }
+      .cen-chip { position: absolute; padding: 9px 22px 10px; border-radius: 999px; font-family: var(--f-texto); font-weight: 800; font-size: 34px; white-space: nowrap; }
+      .cen-chip.novo { right: 44px; top: -92px; background: #ffffff; color: #0d0817; }
+      .cen-chip.velho { left: 44px; top: 34px; background: rgba(8, 6, 18, 0.82); color: #ffffff; border: 2px solid rgba(255, 255, 255, 0.3); }
+      .cen-tiras-chips { position: absolute; left: 0; top: 1480px; width: 1080px; height: 80px; z-index: 9; pointer-events: none; }
+      .cen-tc { position: absolute; top: 0; width: 0; display: flex; justify-content: center; }
+      .cen-chip.tira { position: static; background: rgba(8, 6, 18, 0.82); color: #ffffff; border: 2px solid rgba(255, 255, 255, 0.6); }
+      .cen-chip.tira.clara { background: var(--tira-clara, #fad24a); color: #0d0817; border-color: #0d0817; }

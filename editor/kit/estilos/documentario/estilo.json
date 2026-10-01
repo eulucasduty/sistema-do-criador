@@ -1,0 +1,72 @@
+{
+  "id": "documentario",
+  "nome": "Documentário explicativo (inspirado em Vox)",
+  "grupo": "documentario",
+  "ordem": 50,
+  "descricao": "Papel, recorte, marca-texto amarelo e traço de lápis. Os gráficos andam aos pulinhos, como animação feita à mão. Corte seco, nada de transição enfeitada.",
+  "quadros": 12,
+  "legenda": {
+    "padrao": "marca-texto",
+    "tipos": {
+      "marca-texto": {
+        "max_chars": 20,
+        "max_palavras": 4,
+        "acende": "marcador",
+        "entrada": "seco",
+        "fonte": "franklin-forte",
+        "tamanho": 58,
+        "ancora": "auto",
+        "segura": 0.4
+      }
+    },
+    "acento": "#FFF200",
+    "tinta": "#131313",
+    "clara": "#ffffff",
+    "sobre_fundo_claro": "#131313"
+  },
+  "cores": {
+    "verde": "#2f7d4f",
+    "vermelho": "#C44C48",
+    "dourado": "#131313",
+    "branco": "#131313"
+  },
+  "fontes": {
+    "titulo": "editorial",
+    "cabecalho": "editorial",
+    "lettering": "editorial",
+    "palavra": "editorial",
+    "citacao": "editorial-italica",
+    "manchete": "franklin-forte",
+    "passo": "editorial",
+    "numero": "editorial",
+    "carimbo": "franklin-forte",
+    "local": "mono"
+  },
+  "cortes": {
+    "estilo": "seco",
+    "som": null
+  },
+  "sons": {
+    "automaticos": [
+      "click",
+      "obturador",
+      "whoosh",
+      "tecla"
+    ],
+    "volume": 0.7
+  },
+  "anotacao": {
+    "traco": 6
+  },
+  "fotos": {
+    "modo": "card"
+  },
+  "palavra": {
+    "entrada": "seco",
+    "som": "click",
+    "teto": 170
+  },
+  "cabecalho": {
+    "tamanho": 84
+  }
+}

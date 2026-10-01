@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { exigirEquipe } from "@/lib/supabase/server";
 import { lerPerfil, salvarConfig, type Perfil } from "@/lib/config";
+import { estiloValido, legendaValida } from "@/lib/editor";
 
 const texto = (v: FormDataEntryValue | null, max = 300) => String(v ?? "").trim().slice(0, max) || null;
 const hex = (v: FormDataEntryValue | null, padrao: string) => (/^#[0-9a-f]{6}$/i.test(String(v ?? "")) ? String(v).toLowerCase() : padrao);
@@ -12,6 +13,7 @@ export async function salvarPerfil(formData: FormData) {
   await exigirEquipe();
   const antes = await lerPerfil();
   const cor = String(formData.get("cor"));
+  const estilo = estiloValido(formData.get("estilo"));
   const perfil: Perfil = {
     ...antes,
     nome: texto(formData.get("nome"), 60),
@@ -19,8 +21,10 @@ export async function salvarPerfil(formData: FormData) {
     nicho: texto(formData.get("nicho"), 200),
     publico: texto(formData.get("publico"), 400),
     tom: texto(formData.get("tom"), 1500),
+    regras: texto(formData.get("regras"), 1500),
     cor: cor === "quente" || cor === "contraste" ? cor : "natural",
-    legenda: formData.get("legenda") === "limpa" ? "limpa" : "bangers",
+    estilo,
+    legenda: legendaValida(estilo, antes.legenda),
     cores: {
       fundo: hex(formData.get("cor_fundo"), antes.cores.fundo),
       texto: hex(formData.get("cor_texto"), antes.cores.texto),

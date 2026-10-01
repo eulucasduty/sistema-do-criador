@@ -11,7 +11,8 @@
 // Ler arquivo fora da oficina o sandbox ainda deixa (Windows e Mac): por isso nada de segredo mora
 // em variável, e sem internet não tem pra onde mandar.
 //
-// O manual (kit/EDITOR.md) vai também como AGENTS.md na oficina, com as notas deste ambiente.
+// Os manuais (kit/EDITOR.md e kit/ESTILO.md) vão também como AGENTS.md na oficina, com as notas
+// deste ambiente; o catálogo das cenas (kit/COMPONENTES.md) ele lê de lá.
 
 import { spawn } from "node:child_process";
 import fs from "node:fs";
@@ -48,16 +49,23 @@ Notas deste ambiente, que valem por cima do manual abaixo:
   desta pasta.
 - Os comandos do kit são \`node kit/montar.mjs\`, \`node kit/hf.mjs lint\` e
   \`node kit/hf.mjs snapshot --at "1.2,3.4"\` (a lista do --at sempre entre aspas).
+- O catálogo das cenas do plano está em \`kit/COMPONENTES.md\`: leia antes de escrever o plano.
 - Não instale nada, não use a internet e não mexa em \`assets/\` nem em \`kit/\`.
 
 ---
 
 `;
 
-/** AGENTS.md da oficina: as notas do Codex + o manual inteiro (o Codex lê sozinho ao começar). */
+/**
+ * AGENTS.md da oficina: as notas do Codex + o manual inteiro + o manual do estilo desta edição (o
+ * Codex lê sozinho ao começar). Fica abaixo do limite de 32 KB do AGENTS.md; por isso o catálogo
+ * das cenas (kit/COMPONENTES.md) vai por leitura.
+ */
 export function escreverAgentsMd(pasta) {
   const manual = fs.readFileSync(path.join(pasta, "kit", "EDITOR.md"), "utf8");
-  fs.writeFileSync(path.join(pasta, "AGENTS.md"), NOTAS + manual);
+  const arquivoEstilo = path.join(pasta, "kit", "ESTILO.md");
+  const estilo = fs.existsSync(arquivoEstilo) ? `\n\n---\n\n${fs.readFileSync(arquivoEstilo, "utf8")}` : "";
+  fs.writeFileSync(path.join(pasta, "AGENTS.md"), NOTAS + manual + estilo);
 }
 
 /** "powershell.exe -Command 'node kit/montar.mjs'" → "node kit/montar.mjs" (o log fica legível). */

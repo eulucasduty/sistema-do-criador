@@ -1,0 +1,55 @@
+      /* Tema do estilo "clássico": os motions em papel creme, serifada itálica e laranja. A legenda
+         fica por cima do vídeo (palavra acendendo em dourado). */
+      :root {
+        --void: #f4f1ea;
+        --void-img: radial-gradient(ellipse at 16% 0%, rgba(255, 255, 255, 0.95), transparent 56%), radial-gradient(ellipse at 94% 98%, rgba(217, 119, 87, 0.12), transparent 56%), radial-gradient(circle, rgba(26, 26, 26, 0.055) 1.5px, transparent 1.6px);
+        --void-tam: auto, auto, 34px 34px;
+        --card: #ffffff;
+        --card-borda: 2px solid #e6e0d4;
+        --card-sombra: 0 3px 0 #e6e0d4, 0 26px 60px rgba(70, 50, 30, 0.17);
+        --texto: #1a1a1a;
+        --dim: #7a7368;
+        --apagado: #a39c90;
+        --acento: #d97757;
+        --acento-tinta: #ffffff;
+        --ok: #1fa35c;
+        --erro: #e5533d;
+        --tinta-borda: 2px solid rgba(26, 26, 26, 0.08);
+        --chip-sombra: 0 8px 20px rgba(70, 50, 30, 0.16);
+        --chip-raio: 999px;
+        --f-titulo: "Serifa", serif;
+        --titulo-estilo: italic;
+        --titulo-sombra: none;
+        --palavra-sombra: none;
+        --nome-sombra: none;
+        --f-numero: "Jakarta", sans-serif;
+        --numero-peso: 800;
+        --logo-fundo: #ffffff;
+        --logo-sombra: 0 16px 36px rgba(70, 50, 30, 0.15);
+        --mold: #ffffff;
+        --janela: #efebe2;
+        --janela-borda: #e0d9cb;
+        --url: #ffffff;
+        --notif: #ffffff;
+        --notif-borda: #e6e0d4;
+        --notif-texto: #4a453d;
+        --notif-sombra: 0 18px 40px rgba(70, 50, 30, 0.17);
+        --trilho: #ece7dc;
+        --destaque-brilho: 0 0 0 4px rgba(255, 255, 255, 0.75), 0 0 30px rgba(217, 119, 87, 0.5);
+      }
+      /* a serifada é mais fina que a Lilita: títulos um pouco maiores */
+      .cena-titulo { font-size: 88px; line-height: 0.98; }
+      .lista-titulo { font-size: 76px; }
+      .logo-op { font-style: italic; }
+      /* rótulo em pílula escura (o laranja fica pro que é destaque de verdade) */
+      .chip-ouro, .chip-rotulo { background: #1a1a1a; color: #f4f1ea; border: none; padding: 9px 20px; }
+      .notif-cab { color: #8a8377; }
+      /* o que fica por cima do vídeo dele: papel creme com sombra macia */
+      .chip-titulo { background: #f4f1ea; color: #1a1a1a; border: none; border-radius: 18px; box-shadow: 0 16px 44px rgba(0, 0, 0, 0.38); padding: 14px 36px 18px; }
+      .chip-titulo.verde, .chip-titulo.vermelho { color: #ffffff; }
+      .chip-titulo.branco { background: #ffffff; }
+      .cta-coment, .cta-perfil { box-shadow: 0 18px 50px rgba(0, 0, 0, 0.4); }
+      .seguir { border: none; box-shadow: none; }
+      /* legenda "limpa" em cima de um card em tela cheia (papel creme): tinta escura, sem sombra */
+      .leg-limpa .grupo.no-claro { color: #1a1a1a; text-shadow: none; }
+      .leg-limpa .grupo.no-claro .p.dest { color: #1a1a1a; }

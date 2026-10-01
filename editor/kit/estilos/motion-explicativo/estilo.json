@@ -1,0 +1,40 @@
+{
+  "id": "motion-explicativo",
+  "nome": "Motion explicativo",
+  "base": "roxo",
+  "ordem": 12,
+  "descricao": "Abre no seu rosto com um título; depois você encolhe pro canto e uma lista de pontos acende no ritmo da fala, com ícone animado.",
+  "legenda": {
+    "padrao": "frase"
+  },
+  "icones": {
+    "desenha": true
+  },
+  "fontes": {
+    "cabecalho": "condensada-media"
+  },
+  "cabecalho": {
+    "tamanho": 112,
+    "alinhar": "esquerda",
+    "y": 110
+  },
+  "layout": {
+    "pip_padrao": "direita",
+    "pip": {
+      "direita": {
+        "x": 560,
+        "y": 950,
+        "w": 470,
+        "h": 520,
+        "r": 20
+      },
+      "esquerda": {
+        "x": 50,
+        "y": 950,
+        "w": 470,
+        "h": 520,
+        "r": 20
+      }
+    }
+  }
+}

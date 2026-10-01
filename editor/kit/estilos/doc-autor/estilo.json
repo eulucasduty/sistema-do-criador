@@ -1,0 +1,98 @@
+{
+  "id": "doc-autor",
+  "nome": "Documentário de autor (inspirado em Johnny Harris)",
+  "grupo": "documentario",
+  "ordem": 51,
+  "descricao": "Você como repórter: papel creme, serifa fina, etiqueta em letra de máquina, foto que entra em foco com um estalo, queima de filme entre os cortes e grão em tudo.",
+  "quadros": 12,
+  "legenda": {
+    "padrao": "editorial",
+    "tipos": {
+      "editorial": {
+        "max_chars": 20,
+        "max_palavras": 4,
+        "acende": "nenhum",
+        "enfase": "palavra",
+        "entrada": "seco",
+        "fonte": "apertada",
+        "tamanho": 56,
+        "ancora": "auto",
+        "segura": 0.4
+      }
+    },
+    "acento": "#FFBF00",
+    "clara": "#F4F2E6",
+    "tinta": "#121118",
+    "sobre_fundo_claro": "#121118"
+  },
+  "cores": {
+    "verde": "#0D5921",
+    "vermelho": "#DD2C1E",
+    "dourado": "#FFBF00",
+    "branco": "#121118"
+  },
+  "fontes": {
+    "titulo": "serifa-reta",
+    "cabecalho": "serifa-reta",
+    "lettering": "serifa-reta",
+    "palavra": "serifa-reta",
+    "citacao": "serifa",
+    "manchete": "serifa-reta",
+    "passo": "serifa-reta",
+    "numero": "serifa-reta",
+    "local": "mono",
+    "carimbo": "mono"
+  },
+  "cortes": {
+    "estilo": "queima",
+    "som": "obturador"
+  },
+  "camera": {
+    "planos": {
+      "medio": 1.2,
+      "fechado": 1.42
+    },
+    "auto": {
+      "alterna": [
+        "aberto",
+        "medio",
+        "aberto",
+        "fechado"
+      ],
+      "cada": [
+        2.5,
+        5
+      ]
+    }
+  },
+  "video": {
+    "camadas": [
+      "tom",
+      "vinheta",
+      "grao"
+    ]
+  },
+  "sons": {
+    "automaticos": [
+      "obturador",
+      "click",
+      "whoosh",
+      "tecla"
+    ],
+    "volume": 0.8
+  },
+  "anotacao": {
+    "traco": 8
+  },
+  "fotos": {
+    "modo": "card"
+  },
+  "palavra": {
+    "entrada": "borra",
+    "som": "obturador",
+    "teto": 190
+  },
+  "cabecalho": {
+    "tamanho": 100
+  }
+}

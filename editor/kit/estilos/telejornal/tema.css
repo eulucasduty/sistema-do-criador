@@ -1,0 +1,44 @@
+      /* Telejornal: vermelho de plantão, branco, preto. Barras chapadas. */
+      :root {
+        --void: #0C0C0C;
+        --void-img: linear-gradient(180deg, #2a0006 0, #0C0C0C 60%);
+        --void-tam: auto;
+        --card: #ffffff;
+        --card-borda: none;
+        --card-sombra: 0 16px 40px rgba(0, 0, 0, 0.5);
+        --card-raio: 4px;
+        --texto: #111111;
+        --dim: #555555;
+        --acento: #CC0000;
+        --acento-tinta: #ffffff;
+        --acento2: #ffffff;
+        --ok: #2bb673;
+        --erro: #CC0000;
+        --brilho: 204, 0, 0;
+        --tinta-borda: none;
+        --chip-sombra: none;
+        --chip-raio: 0;
+        --f-titulo: "Inter", sans-serif;
+        --titulo-sombra: none;
+        --palavra-sombra: none;
+        --faixa-fundo: #CC0000;
+        --faixa-selo: #7a0000;
+        --cab-caixa: uppercase;
+      }
+      .cena-titulo, .lista-titulo, .palavra-linha { font-weight: 900; text-transform: uppercase; letter-spacing: -0.01em; }
+      .cena-titulo, .palavra-linha { color: #ffffff; }
+      .palavra-linha.ouro { color: #ffffff; background: #CC0000; padding: 0 0.2em; }
+      /* a manchete é a tarja de baixo: bandeira vermelha, faixa branca com letra preta e faixa preta com o complemento */
+      .manchete { justify-content: flex-start; }
+      .manchete .man-in { align-items: flex-start; gap: 0; max-width: 1080px; width: 1080px; }
+      .man-selo { background: #CC0000; border-radius: 0; padding: 8px 24px; font-size: 32px; margin-left: 44px; font-family: "Inter", sans-serif; font-weight: 900; }
+      .man-selo i { display: none; }
+      .man-txt { background: #ffffff; color: #111111; text-shadow: none; text-transform: uppercase; align-items: flex-start; text-align: left; padding: 14px 30px 16px 22px; width: 1080px; box-sizing: border-box; border-left: 44px solid #CC0000; line-height: 1.06; letter-spacing: -0.01em; }
+      .man-txt em { color: #CC0000; }
+      .man-sub { background: #111111; color: #ffffff; width: 1080px; padding: 8px 30px 10px 66px; text-shadow: none; box-sizing: border-box; font-size: 32px; font-weight: 500; }
+      .tarja-barra { width: 14px; border-radius: 0; background: #CC0000; }
+      .tarja-txt { background: #ffffff; padding: 8px 22px 10px; }
+      .tarja-nome { color: #111111; text-shadow: none; text-transform: uppercase; font-family: "Inter", sans-serif; font-weight: 900; font-size: 40px; }
+      .tarja-cargo { color: #444444; text-shadow: none; font-family: "Inter", sans-serif; font-weight: 500; font-size: 28px; }
+      .tarja { gap: 0; }
+      .leg-simples .grupo { color: #ffffff; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9), 0 0 16px rgba(0, 0, 0, 0.7); }

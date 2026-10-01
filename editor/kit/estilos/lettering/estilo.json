@@ -1,0 +1,27 @@
+{
+  "id": "lettering",
+  "nome": "Lettering",
+  "base": "roxo",
+  "ordem": 20,
+  "usa_recorte": true,
+  "descricao": "A fala vira tipografia: cada palavra entra na hora em que você fala, com fontes e cores misturadas, e a palavra-chave gigante atrás da sua cabeça.",
+  "legenda": {
+    "padrao": "simples"
+  },
+  "lettering": {
+    "fontes": [
+      "larga-media",
+      "larga",
+      "preta",
+      "larga-media"
+    ],
+    "area": "topo",
+    "y": 110,
+    "teto": {
+      "larga": 210,
+      "preta": 190,
+      "larga-media": 120,
+      "condensada": 320
+    }
+  }
+}

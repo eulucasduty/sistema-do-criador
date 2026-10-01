@@ -1,0 +1,6 @@
+      /* Tutorial em 3D: céu violeta com estrelas e chão de grade. */
+      :root {
+        --void: #0a0616;
+        --void-img: radial-gradient(circle 3px at 12% 18%, #ffffff 0, transparent 100%), radial-gradient(circle 2px at 82% 12%, #ffffff 0, transparent 100%), radial-gradient(circle 2px at 64% 30%, #d9c8ff 0, transparent 100%), radial-gradient(circle 3px at 28% 44%, #d9c8ff 0, transparent 100%), radial-gradient(circle 2px at 92% 52%, #ffffff 0, transparent 100%), radial-gradient(circle 2px at 8% 64%, #ffffff 0, transparent 100%), radial-gradient(circle 3px at 46% 8%, #d9c8ff 0, transparent 100%), radial-gradient(circle 2px at 74% 76%, #ffffff 0, transparent 100%), radial-gradient(ellipse at 50% 40%, rgba(96, 54, 190, 0.7), transparent 66%);
+        --void-tam: auto;
+      }

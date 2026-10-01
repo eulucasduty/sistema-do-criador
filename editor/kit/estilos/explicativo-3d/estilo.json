@@ -1,0 +1,96 @@
+{
+  "id": "explicativo-3d",
+  "nome": "Explicativo 3D",
+  "grupo": "roxo-3d",
+  "ordem": 17,
+  "descricao": "Uma ideia desmontada em andares, como maquete: cada camada cai, ganha etiqueta, e você explica do cantinho.",
+  "legenda": {
+    "padrao": "caixa",
+    "tipos": {
+      "caixa": {
+        "max_chars": 22,
+        "max_palavras": 4,
+        "acende": "nenhum",
+        "entrada": "seco",
+        "fonte": "inter-leve",
+        "tamanho": 42,
+        "ancora": "auto",
+        "pip_y": 1386,
+        "segura": 0.4
+      }
+    },
+    "clara": "#ffffff",
+    "acento": "#e58a55"
+  },
+  "cores": {
+    "verde": "#9bc48a",
+    "vermelho": "#d9644a",
+    "dourado": "#c27344",
+    "branco": "#efe6d2"
+  },
+  "fontes": {
+    "cabecalho": "din-condensada",
+    "isometrico": "din-condensada",
+    "titulo": "din-condensada",
+    "passo": "din-condensada",
+    "numero": "din-condensada",
+    "lettering": "din-condensada",
+    "palavra": "din-condensada"
+  },
+  "cabecalho": {
+    "tamanho": 110,
+    "y": 130
+  },
+  "layout": {
+    "pip_padrao": "esquerda",
+    "pip": {
+      "esquerda": {
+        "x": 70,
+        "y": 1010,
+        "w": 350,
+        "h": 470,
+        "r": 0
+      },
+      "direita": {
+        "x": 660,
+        "y": 1010,
+        "w": 350,
+        "h": 470,
+        "r": 0
+      }
+    },
+    "dividida": {
+      "x": 30,
+      "y": 820,
+      "w": 1020,
+      "h": 1060,
+      "r": 0
+    },
+    "dividida_baixo": {
+      "x": 30,
+      "y": 150,
+      "w": 1020,
+      "h": 760,
+      "r": 0
+    }
+  },
+  "isometrico": {
+    "cores": [
+      "#e9d9b4",
+      "#dccaa2",
+      "#f3ead2",
+      "#c27344"
+    ]
+  },
+  "cortes": {
+    "estilo": "seco",
+    "som": null
+  },
+  "sons": {
+    "automaticos": [
+      "pop",
+      "click"
+    ],
+    "volume": 0.7
+  }
+}

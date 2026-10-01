@@ -1,15 +1,63 @@
 // Editor de vídeo: tipos e constantes que o painel e as ações do servidor compartilham.
 // A edição em si roda na estação, no PC do criador (scripts/estacao-edicao.mjs).
 
+import catalogo from "./editor-estilos.json";
+
 /** Partes de 45 MB: o storage aceita até 50 MB por arquivo. */
 export const PARTE_BYTES = 45 * 1024 * 1024;
 export const partesDe = (tamanho: number) => Math.max(1, Math.ceil(tamanho / PARTE_BYTES));
+
+/**
+ * Estilos de edição: os cards que o criador escolhe ao subir o vídeo. Vêm do kit do editor
+ * (editor/kit/estilos/<id>: o manual que a IA segue, as cores e as regras de cada um). A lista é
+ * gerada por `npm run editor:catalogo` em lib/editor-estilos.json.
+ */
+export type EstiloEdicao = {
+  id: string;
+  nome: string;
+  grupo: string;
+  ordem: number;
+  descricao: string;
+  /** recorta a pessoa do fundo em alguns trechos (o render demora mais) */
+  recorte: boolean;
+  padrao: boolean;
+  /** o tipo de legenda padrão do estilo (o primeiro de `legendas`) */
+  legenda: string;
+  legendas: Array<{ id: string; nome: string }>;
+  /** fundo, destaque e segunda cor do tema (a amostra do card) */
+  cores: string[];
+};
+export const ESTILOS_EDICAO = catalogo as EstiloEdicao[];
+/** Os grupos, na ordem em que aparecem no formulário. */
+export const GRUPOS_ESTILO: Array<{ id: string; nome: string; resumo: string }> = [
+  { id: "base", nome: "Para começar", resumo: "Os três do dia a dia: o clássico, o vlog e o profissional." },
+  { id: "roxo-3d", nome: "Roxo e 3D", resumo: "Motion em violeta: janelas, camadas de vidro, recorte de fundo e tipografia." },
+  { id: "virais", nome: "Virais", resumo: "Os formatos que dominam o feed: legenda grande, corte rápido, manchete." },
+  { id: "cinema", nome: "Cinema e minimal", resumo: "Contidos: pouca coisa na tela, muito acabamento." },
+  { id: "documentario", nome: "Documentário", resumo: "Papel, prova, marca-texto, lugar e data." },
+  { id: "tech", nome: "Tech e jornal", resumo: "Código, review e plantão de TV." },
+];
+export const ESTILO_PADRAO = (ESTILOS_EDICAO.find((e) => e.padrao) ?? ESTILOS_EDICAO[0]).id;
+/** O estilo pedido, se existir; senão, o padrão. */
+export const estiloDe = (v: unknown): EstiloEdicao => ESTILOS_EDICAO.find((e) => e.id === v) ?? ESTILOS_EDICAO.find((e) => e.id === ESTILO_PADRAO)!;
+export const estiloValido = (v: unknown) => estiloDe(v).id;
+export const nomeDoEstilo = (v: unknown) => estiloDe(v).nome;
+// nomes de legenda de antes dos estilos (pedidos e perfis antigos)
+const LEGENDA_ANTIGA: Record<string, string> = { labs: "limpa" };
+/** A legenda pedida, se o estilo tiver esse tipo; senão, a padrão dele. */
+export function legendaValida(estilo: unknown, v: unknown) {
+  const e = estiloDe(estilo);
+  const pedida = LEGENDA_ANTIGA[String(v)] ?? String(v ?? "");
+  return e.legendas.some((l) => l.id === pedida) ? pedida : e.legenda;
+}
+export const nomeDaLegenda = (estilo: unknown, v: unknown) => estiloDe(estilo).legendas.find((l) => l.id === legendaValida(estilo, v))?.nome ?? "";
 
 export type ArquivoPedido = { nome: string; tamanho: number; tipo: string; partes: number };
 export type PedidoEdicao = {
   titulo: string;
   roteiro?: string;
-  legenda: "bangers" | "limpa";
+  estilo: string; // o estilo de edição (editor/kit/estilos/<id>)
+  legenda: string; // um dos tipos de legenda do estilo
   cor?: "natural" | "quente" | "contraste"; // o look do vídeo (vazio = o do perfil)
   video: ArquivoPedido;
   materiais: Array<{ tipo: "imagem" | "video" | "link"; descricao: string; url?: string; arquivo?: ArquivoPedido }>;

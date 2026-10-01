@@ -1,0 +1,249 @@
+      /* Os cards de sempre (faixa de cima, tela cheia, CTA, chip de título). As cores e as fontes vêm
+         das variáveis de 01-base.css, que o tema de cada estilo troca. */
+      /* cenas da faixa de cima */
+      .cena-topo { position: absolute; left: 0; top: 0; width: 1080px; height: 760px; z-index: 10; }
+      .topo-centro { width: 100%; height: 100%; box-sizing: border-box; padding: 116px 40px 70px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 22px; }
+      .card { background: var(--card); border: var(--card-borda); border-radius: var(--card-raio); box-shadow: var(--card-sombra); box-sizing: border-box; color: var(--texto); }
+      .rotulo { font-family: var(--f-mono); font-size: 25px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); }
+      .detalhe { font-size: 30px; color: var(--dim); }
+      .cena-titulo { font-family: var(--f-titulo); font-style: var(--titulo-estilo); letter-spacing: var(--titulo-espaco); font-size: 74px; line-height: 1; text-align: center; color: var(--texto); text-shadow: var(--titulo-sombra); max-width: 960px; }
+      .cena-olho { font-family: var(--f-mono); font-size: 24px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--acento2); text-align: center; }
+      .mid-cab { position: absolute; left: 48px; top: 92px; width: 984px; display: flex; flex-direction: column; gap: 8px; }
+      .mid-cab .cena-titulo, .mid-cab .cena-olho { text-align: left; max-width: none; }
+      .chip-ouro, .chip-rotulo { font-family: var(--f-mono); font-size: 25px; letter-spacing: 0.08em; text-transform: uppercase; background: var(--acento); color: var(--acento-tinta); padding: 8px 16px; border-radius: var(--chip-raio); border: var(--tinta-borda); box-shadow: var(--chip-sombra); white-space: nowrap; }
+      .chip-rotulo { position: absolute; z-index: 3; }
+      .av { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; flex: none; display: block; }
+      .av.letra { display: grid; place-items: center; font-weight: 800; font-size: 32px; color: #fff; }
+      .av.grande { width: 84px; height: 84px; }
+
+      /* logo oficial numa caixa clara (serve pra logo escura e clara) */
+      .logo-caixa { width: 210px; height: 210px; border-radius: 50px; background: var(--logo-fundo); display: grid; place-items: center; border: var(--tinta-borda); box-shadow: var(--logo-sombra); flex: none; }
+      .logo-caixa.escuro { background: #121212; border-color: #333; }
+      .logo-caixa.pequena { width: 136px; height: 136px; border-radius: 34px; }
+      .logo-caixa.mini { width: 76px; height: 76px; border-radius: 18px; box-shadow: var(--chip-sombra); }
+      .logo-caixa img { width: 64%; height: 64%; object-fit: contain; display: block; }
+
+      /* print / gravação de tela na moldura */
+      .mold { position: absolute; background: var(--mold); border: var(--card-borda); border-radius: 26px; box-shadow: var(--card-sombra); overflow: hidden; box-sizing: border-box; }
+      .janela { position: absolute; left: 0; top: 0; width: 100%; height: 52px; display: flex; align-items: center; gap: 10px; padding: 0 18px; background: var(--janela); border-bottom: 1px solid var(--janela-borda); box-sizing: border-box; }
+      .janela i, .janela-barra i { width: 14px; height: 14px; border-radius: 50%; display: block; flex: none; }
+      .janela .url { margin-left: 12px; flex: 1; height: 32px; border-radius: 8px; background: var(--url); font-family: var(--f-mono); font-size: 19px; color: var(--dim); display: flex; align-items: center; padding: 0 14px; overflow: hidden; white-space: nowrap; }
+      .mold-midia { position: absolute; left: 0; overflow: hidden; }
+      .midia-in { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+      .midia-in img, .midia-in video { display: block; }
+      .topo-video { position: absolute; overflow: hidden; border-radius: 24px; z-index: 11; }
+      .topo-video.com-barra { border-radius: 0 0 24px 24px; }
+      .topo-over { position: absolute; left: 0; top: 0; width: 1080px; height: 760px; z-index: 12; }
+      .topo-over-in { position: absolute; inset: 0; }
+      .destaque-box { position: absolute; border: 5px solid var(--acento); border-radius: 14px; box-shadow: var(--destaque-brilho); box-sizing: border-box; }
+
+      /* régua de quadros embaixo de um print (o quadro-chave e a etiqueta) */
+      .mid-regua { position: absolute; height: 110px; z-index: 12; pointer-events: none; }
+      .mr-linha { position: absolute; left: 0; top: 18px; width: 100%; height: 22px; display: block; background: linear-gradient(var(--dim), var(--dim)) 0 50% / 100% 2px no-repeat, repeating-linear-gradient(90deg, var(--dim) 0 2px, transparent 2px 41px); opacity: 0.7; }
+      .mr-agulha { position: absolute; left: -2px; top: 0; width: 4px; height: 58px; border-radius: 2px; background: #ffffff; display: block; box-shadow: 0 0 14px rgba(255, 255, 255, 0.8); }
+      .mr-chave { position: absolute; top: 16px; width: 26px; height: 26px; margin-left: -13px; display: block; background: var(--acento2); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+      .mr-chip { position: absolute; left: 0; top: 62px; display: inline-flex; align-items: center; gap: 10px; padding: 9px 22px 10px; border-radius: 999px; background: var(--acento); color: var(--acento-tinta); font-weight: 800; font-size: 25px; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; box-shadow: 0 0 30px rgba(var(--brilho), 0.5); }
+
+      /* logos */
+      .logos { display: flex; align-items: center; justify-content: center; gap: 30px; flex-wrap: wrap; max-width: 980px; }
+      .logo-tile { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+      .logo-nome { font-weight: 800; font-size: 34px; text-shadow: var(--nome-sombra); }
+      .logo-op { font-family: var(--f-titulo); font-size: 96px; color: var(--acento); text-shadow: var(--titulo-sombra); margin-bottom: 52px; }
+
+      /* fluxo A → B → C */
+      .fluxo { display: flex; align-items: center; justify-content: center; width: 1000px; }
+      .no { width: 250px; padding: 28px 14px 24px; display: flex; flex-direction: column; align-items: center; gap: 16px; font-weight: 800; font-size: 30px; text-align: center; flex: none; }
+      .liga { flex: 1; height: 10px; display: flex; align-items: center; min-width: 30px; }
+      .liga-linha { position: relative; width: 100%; border-top: 6px dashed var(--acento); transform-origin: 0 50%; }
+
+      /* antes → depois */
+      .compara { display: flex; align-items: stretch; gap: 14px; width: 1000px; }
+      .lado { flex: 1; padding: 34px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; }
+      .lado .valor { position: relative; font-family: var(--f-numero, var(--f-titulo)); font-weight: var(--numero-peso, 400); font-size: 104px; line-height: 1; display: inline-block; white-space: nowrap; }
+      .antes .valor { color: var(--apagado); }
+      .depois { border-color: var(--ok); }
+      .depois .valor { color: var(--ok); }
+      .risco { position: absolute; left: -8px; right: -8px; top: 50%; height: 8px; background: var(--erro); border-radius: 4px; transform-origin: 0 50%; display: block; }
+      .vs { align-self: center; font-family: var(--f-numero, var(--f-titulo)); font-size: 84px; color: var(--acento); text-shadow: var(--titulo-sombra); }
+
+      /* contador */
+      .contador { width: 960px; padding: 34px 44px 38px; display: flex; flex-direction: column; gap: 10px; }
+      .contador-topo { display: flex; align-items: center; gap: 18px; }
+      .contador .num { font-family: var(--f-numero, var(--f-titulo)); font-weight: var(--numero-peso, 400); font-size: 176px; line-height: 1; font-variant-numeric: tabular-nums; color: var(--texto); white-space: nowrap; }
+      .xp { height: 24px; border-radius: 999px; background: var(--trilho); border: var(--tinta-borda); overflow: hidden; }
+      .xp div { height: 100%; width: 100%; background: var(--acento); transform-origin: 0 50%; }
+
+      /* direct / whatsapp */
+      /* chat, comentários e terminal imitam o aplicativo de verdade: escuros em qualquer estilo */
+      .chat, .coments, .terminal { color: #f5f4f0; border-color: #262626; }
+      .terminal .rotulo { color: #bdb9b0; }
+      .chat { width: 960px; overflow: hidden; }
+      .chat-topo { display: flex; align-items: center; gap: 18px; padding: 20px 28px; border-bottom: 1px solid #262626; }
+      .chat-nome { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+      .chat-nome b { font-size: 34px; }
+      .chat-nome span { font-size: 24px; color: #a8a8a8; }
+      .chat-logo img { width: 56px; height: 56px; object-fit: contain; display: block; }
+      .chat-corpo { padding: 24px 28px 30px; display: flex; flex-direction: column; gap: 14px; }
+      .bolha { max-width: 720px; padding: 18px 26px; border-radius: 30px; font-size: 37px; line-height: 1.3; }
+      .bolha.eu { align-self: flex-end; border-bottom-right-radius: 8px; }
+      .bolha.ela { align-self: flex-start; border-bottom-left-radius: 8px; }
+      .chat.instagram { background: #000; border-color: #262626; }
+      .chat.instagram .bolha.eu { background: #7a3cf4; background-image: linear-gradient(160deg, #a033ff, #5b51d8 55%, #3797f0); color: #fff; }
+      .chat.instagram .bolha.ela { background: #262626; color: #f5f5f5; }
+      .chat.whatsapp { background: #0b141a; border-color: #222d34; }
+      .chat.whatsapp .chat-topo { background: #202c33; border-bottom: none; }
+      .chat.whatsapp .bolha { border-radius: 16px; }
+      .chat.whatsapp .bolha.eu { background: #005c4b; color: #e9edef; border-top-right-radius: 4px; }
+      .chat.whatsapp .bolha.ela { background: #202c33; color: #e9edef; border-top-left-radius: 4px; }
+
+      /* comentários do instagram */
+      .coments { width: 960px; padding: 22px 32px 30px; display: flex; flex-direction: column; gap: 22px; background: #000; }
+      .coments-topo { display: flex; align-items: center; justify-content: center; gap: 12px; font-weight: 800; font-size: 30px; padding-bottom: 12px; border-bottom: 1px solid #262626; }
+      .coments-logo { width: 40px; height: 40px; object-fit: contain; }
+      .coment { display: flex; align-items: flex-start; gap: 18px; font-size: 35px; line-height: 1.3; }
+      .coment b { font-weight: 800; }
+      .coment-txt { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+      .coment-meta { font-size: 24px; color: #a8a8a8; }
+      .coracao { font-size: 32px; color: #a8a8a8; }
+      .coment.resposta { margin-left: 88px; }
+      .coment .av { width: 70px; height: 70px; }
+
+      /* notificações do celular */
+      .notifs { gap: 16px; }
+      .notif { width: 980px; padding: 24px 28px; border-radius: 38px; background: var(--notif); border: 1px solid var(--notif-borda); color: var(--texto); box-shadow: var(--notif-sombra, 0 18px 40px rgba(0, 0, 0, 0.55)); display: flex; align-items: center; gap: 20px; box-sizing: border-box; }
+      .notif-icone { width: 92px; height: 92px; border-radius: 22px; background: var(--logo-fundo); display: grid; place-items: center; flex: none; overflow: hidden; }
+      .notif-icone.escuro { background: #000; }
+      .notif-icone img { width: 70%; height: 70%; object-fit: contain; }
+      .notif-txt { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+      .notif-cab { display: flex; justify-content: space-between; font-size: 24px; color: #a8a8a8; text-transform: uppercase; letter-spacing: 0.04em; }
+      .notif-txt b { font-size: 35px; }
+      .notif-corpo { font-size: 32px; color: var(--notif-texto); }
+
+      /* lista */
+      .lista { width: 960px; padding: 34px 42px 38px; display: flex; flex-direction: column; gap: 22px; }
+      .lista-titulo { display: flex; align-items: center; gap: 18px; font-family: var(--f-titulo); font-style: var(--titulo-estilo); letter-spacing: var(--titulo-espaco); font-size: 66px; line-height: 1.05; }
+      .item { display: flex; align-items: center; gap: 22px; font-size: 40px; font-weight: 800; line-height: 1.15; }
+      .marca { width: 62px; height: 62px; border-radius: 16px; background: var(--acento); color: var(--acento-tinta); font-family: var(--f-numero, var(--f-titulo)); font-weight: var(--numero-peso, 400); font-size: 34px; display: grid; place-items: center; flex: none; border: var(--tinta-borda); }
+
+      /* terminal */
+      .terminal { width: 980px; padding-bottom: 32px; background: #0d0d0d; }
+      .janela-barra { display: flex; align-items: center; gap: 12px; padding: 22px 28px 0; }
+      .janela-barra .rotulo { margin-left: 10px; }
+      .t-logo { width: 42px; height: 42px; object-fit: contain; margin-left: 10px; }
+      .t-corpo { padding: 20px 36px 0; font-family: "Mono", monospace; font-size: 33px; line-height: 1.55; color: #d9d5cc; display: flex; flex-direction: column; gap: 4px; }
+      .t-linha.cmd { color: #f5f4f0; }
+      .t-linha.ok { color: #7dff3d; }
+
+      /* card / print / gravação em tela cheia 9:16 (padrão 2x1: a cada 2 na faixa, 1 cheio).
+         Tudo ampliado com zoom; a legenda fica embaixo (y ~1480) */
+      .cena-cheia { position: absolute; inset: 0; z-index: 24; }
+      .cheia-fundo { position: absolute; inset: 0; }
+      .cheia-centro { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; box-sizing: border-box; padding: 200px 40px 480px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+      .cheia-zoom { zoom: 1.32; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 22px; }
+      .cheia-zoom.notifs { gap: 16px; }
+      .cheia-zoom .contador, .cheia-zoom .chat, .cheia-zoom .coments, .cheia-zoom .lista, .cheia-zoom .terminal, .cheia-zoom .notif { width: 750px; }
+      .cheia-zoom .cena-titulo { max-width: 760px; }
+      .cheia-zoom .contador .num { font-size: 150px; }
+      /* na tela cheia sobra altura: texto maior pra ocupar a tela */
+      .cheia-zoom .lista { gap: 28px; padding: 40px 44px 44px; }
+      .cheia-zoom .lista-titulo { font-size: 74px; }
+      .cheia-zoom .item { font-size: 48px; gap: 24px; }
+      .cheia-zoom .marca { width: 74px; height: 74px; font-size: 40px; }
+      .cheia-zoom .bolha { font-size: 44px; max-width: 600px; }
+      .cheia-zoom .chat-corpo { gap: 18px; padding: 30px 28px 36px; }
+      .cheia-zoom .coment { font-size: 42px; }
+      .cheia-zoom .coment-meta { font-size: 28px; }
+      .cheia-zoom .coments { gap: 30px; }
+      .cheia-zoom .notif-txt b { font-size: 40px; }
+      .cheia-zoom .notif-corpo { font-size: 36px; }
+      .cheia-zoom .notif { padding: 30px 30px; }
+      .cheia-zoom .t-corpo { font-size: 36px; line-height: 1.6; }
+      .cheia-zoom .terminal { padding-bottom: 40px; }
+      .cheia-zoom .logos { max-width: 620px; }
+      .cheia-zoom .compara { flex-direction: column; width: 620px; }
+      .cheia-zoom .vs { align-self: center; }
+      .cheia-zoom .fluxo { flex-direction: column; width: auto; }
+      .cheia-zoom .liga { width: 12px; height: 56px; flex: none; min-width: 0; justify-content: center; }
+      .cheia-zoom .liga-linha { width: 0; height: 100%; border-top: none; border-left: 6px dashed var(--acento); transform-origin: 50% 0; }
+      .cheia-zoom .no { flex-direction: row; width: 480px; justify-content: flex-start; padding: 18px 22px; gap: 22px; text-align: left; }
+      .cena-cheia.sangra .mold { border: none; border-radius: 0; box-shadow: none; }
+      .topo-video.cheia { z-index: 25; }
+      .topo-over.cheia { z-index: 26; height: 1920px; }
+
+      /* tela cheia: palavra solta */
+      .tela-cheia { position: absolute; inset: 0; z-index: 24; }
+      .tela-cheia-in { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; }
+      .palavra-linha { font-family: var(--f-titulo); font-style: var(--titulo-estilo); letter-spacing: var(--titulo-espaco); line-height: 0.95; text-transform: var(--palavra-caixa); color: var(--texto); text-shadow: var(--palavra-sombra); text-align: center; max-width: 1000px; }
+      .palavra-linha.ouro { color: var(--acento); }
+      .palavra-linha em, .cena-titulo em, .lista-titulo em { font-style: normal; color: var(--acento2); }
+
+      /* chip de título ("DICA", "ATENÇÃO") */
+      .titulo-linha { position: absolute; left: 0; width: 1080px; display: flex; justify-content: center; z-index: 20; }
+      .chip-titulo { display: inline-flex; align-items: center; gap: 14px; font-family: var(--f-titulo); font-style: var(--titulo-estilo); font-size: 62px; line-height: 1; padding: 16px 34px 18px; border-radius: 20px; background: var(--acento); color: var(--acento-tinta); border: 3px solid #000; box-shadow: 0 8px 0 #000; text-transform: uppercase; }
+      .chip-titulo.verde { background: var(--ok); }
+      .chip-titulo.vermelho { background: var(--erro); color: #fff; }
+      .chip-titulo.branco { background: #f5f4f0; }
+
+      /* CTA: "comenta X" + card do perfil */
+      .cta { position: absolute; inset: 0; z-index: 22; }
+      .cta-coment { position: absolute; left: 70px; width: 940px; top: 150px; padding: 24px 30px; display: flex; align-items: center; gap: 20px; font-size: 44px; }
+      .cta-txt b { font-family: var(--f-titulo); font-style: var(--titulo-estilo); font-weight: 400; color: var(--acento); font-size: 58px; }
+      .cta-perfil { position: absolute; left: 90px; width: 900px; top: 1450px; padding: 20px 24px; display: flex; align-items: center; gap: 20px; }
+      .cta-nome { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+      .cta-nome b { font-size: 36px; }
+      .cta-nome span { font-size: 26px; color: var(--dim); }
+      .seguir { background: var(--acento); color: var(--acento-tinta); font-weight: 800; font-size: 32px; padding: 16px 34px; border-radius: 14px; border: var(--tinta-borda); box-shadow: var(--chip-sombra); display: inline-block; }
+
+      /* cena livre (sub-composição escrita pelo Claude) */
+      .livre { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; z-index: 10; }
+      .livre-cheia { z-index: 24; }
+
+      /* faixa de baixo (o rosto numa janela em cima): o mesmo card, um pouco menor */
+      .cena-topo.baixo { top: 1050px; height: 520px; }
+      .cena-topo.baixo .topo-centro { padding: 10px 40px; zoom: 0.86; }
+      /* tela cheia com o rosto numa janelinha (pip): o card sobe pra dar lugar a ela */
+      .cena-cheia.com-pip .cheia-centro { padding: 150px 40px var(--pip-pb, 1000px); }
+      .cena-cheia.com-pip .cheia-zoom { zoom: var(--pip-zoom, 1.12); }
+      /* card por cima do vídeo dele */
+      .sobre-centro .card { box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5); }
+      .sobre-centro .lista { width: 100%; padding: 22px 26px; gap: 12px; }
+      .sobre-centro .item { font-size: 34px; }
+      .sobre-centro .marca { width: 54px; height: 54px; font-size: 28px; border-radius: 14px; }
+      .cena-rotulo { text-align: center; }
+
+      /* ícone numa caixinha (no lugar da logo) */
+      .icone-caixa { width: 210px; height: 210px; border-radius: 50px; display: grid; place-items: center; background: var(--icone-fundo, rgba(255, 255, 255, 0.08)); border: var(--card-borda); color: var(--acento); font-size: 110px; flex: none; box-sizing: border-box; }
+      .icone-caixa.pequena { width: 136px; height: 136px; border-radius: 34px; font-size: 70px; }
+      .icone-caixa.mini { width: 76px; height: 76px; border-radius: 18px; font-size: 40px; }
+      .no small { font-size: 22px; font-weight: 500; color: var(--dim); }
+      .notif-icone .ic { font-size: 54px; color: #111; }
+
+      /* lista: item com subtítulo, ícone ou foto; e o modo "foco" (acende o da vez) */
+      .item-txt { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+      .item-txt small { font-size: 0.62em; font-weight: 500; color: var(--dim); }
+      .marca.icone { font-size: 36px; }
+      /* placar de certo e errado */
+      .marca.ok, .marca.nao { font-size: 38px; border: none; color: #ffffff; }
+      .marca.ok { background: var(--ok); }
+      .marca.nao { background: var(--erro); }
+      .marca.foto { overflow: hidden; padding: 0; }
+      .marca.foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .lista-foco { gap: 14px; }
+      .item.foco { position: relative; opacity: 0.5; padding: 18px 20px; border-radius: 20px; }
+      .item.foco > :not(.item-luz) { position: relative; }
+      .item-luz { position: absolute; inset: 0; border-radius: 20px; border: 2px solid var(--acento); background: var(--foco-fundo, rgba(255, 255, 255, 0.06)); opacity: 0; display: block; }
+      .item.foco em { font-style: normal; font-family: var(--f-mono); font-size: 20px; color: var(--dim); align-self: flex-start; }
+      .chip-titulo .ic { font-size: 0.9em; }
+
+      /* rodapé da lista, ao lado da janelinha do rosto */
+      .lista-rodape { position: absolute; top: 1140px; width: 520px; z-index: 25; pointer-events: none; }
+      .lista-rodape.esquerda { left: 60px; }
+      .lista-rodape.direita { left: 510px; }
+      .rod-ic { display: block; font-size: 62px; color: var(--acento3); margin-bottom: 14px; }
+      .rod-l { font-family: "Archivo", sans-serif; font-weight: 700; font-stretch: 62%; line-height: 1.02; text-transform: uppercase; color: var(--texto); white-space: nowrap; }
+      .rod-l.l1 { color: var(--acento2); }
+      .rod-regua { display: block; width: 150px; height: 4px; margin-top: 18px; border-radius: 2px; background: linear-gradient(90deg, var(--acento3), var(--acento2)); }
+
+      /* palavra por trás do criador (precisa do recorte da pessoa) */
+      .palavra-atras { position: absolute; left: 0; width: 1080px; }
+      .palavra-atras-in { display: flex; flex-direction: column; align-items: center; gap: 6px; }

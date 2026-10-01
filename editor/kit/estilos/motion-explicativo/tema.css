@@ -1,0 +1,17 @@
+      /* Motion explicativo: fundo quase preto com um brilho violeta no canto; títulos condensados. */
+      :root {
+        --void: #0a0712;
+        --void-img: radial-gradient(ellipse at 104% -4%, rgba(104, 60, 204, 0.6), transparent 58%), radial-gradient(ellipse at 0% 100%, rgba(60, 34, 120, 0.4), transparent 50%);
+        --cab-caixa: uppercase;
+        --quadro-borda: 2px solid rgba(196, 166, 250, 0.36);
+        --quadro-sombra: none;
+      }
+      .janela-borda i { display: none; }
+      .cab-l { line-height: 1; }
+      .cab-regua { width: 620px; height: 3px; margin-top: 18px; background: linear-gradient(90deg, var(--acento2), rgba(196, 166, 250, 0)); }
+      .cab-rotulo { font-family: var(--f-texto); font-weight: 800; font-size: 22px; letter-spacing: 0.22em; }
+      /* a lista ocupa a parte de cima, na largura toda; você fica na janelinha embaixo */
+      .cena-cheia.com-pip .cheia-centro { padding: 130px 50px 1000px; justify-content: flex-start; align-items: stretch; }
+      .cena-cheia.com-pip .cheia-zoom { zoom: 1; align-items: stretch; }
+      .cena-cheia.com-pip .cheia-zoom .lista { width: 980px; }
+      .lista-foco .rotulo { font-family: var(--f-texto); font-weight: 800; }

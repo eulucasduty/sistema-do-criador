@@ -1,0 +1,4 @@
+      /* Do bruto ao editado: palavra gigante branca com brilho, moldura violeta fina. */
+      .palavra-atras .palavra-linha { color: #ffffff; text-shadow: 0 0 40px rgba(255, 255, 255, 0.55), 0 0 90px rgba(145, 83, 248, 0.6); line-height: 0.98; }
+      .palavra-atras .palavra-linha.ouro { color: #ffffff; }
+      .car-card { border: 2px solid rgba(242, 234, 252, 0.6); border-radius: 20px; }

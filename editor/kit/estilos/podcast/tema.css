@@ -1,0 +1,41 @@
+      /* Podcast cinematográfico: baixo-chave, preto que desce de baixo, dourado e branco. */
+      :root {
+        --void: #050505;
+        --void-img: none;
+        --card: #ffffff;
+        --card-borda: none;
+        --card-sombra: 0 16px 40px rgba(0, 0, 0, 0.6);
+        --card-raio: 22px;
+        --texto: #0b0b0b;
+        --dim: #555555;
+        --apagado: #8a8a8a;
+        --acento: #F6C046;
+        --acento-tinta: #000000;
+        --acento2: #E90003;
+        --ok: #7bd88f;
+        --erro: #E90003;
+        --brilho: 246, 192, 70;
+        --f-titulo: "Inter", sans-serif;
+        --titulo-sombra: none;
+        --palavra-sombra: none;
+        --video-filtro: brightness(0.84) contrast(1.14) saturate(0.9);
+        --vinheta: 0.62;
+        --cab-caixa: uppercase;
+      }
+      #vinheta { background: linear-gradient(to top, rgba(0, 0, 0, 0.82) 0, rgba(0, 0, 0, 0) 36%), radial-gradient(ellipse at 50% 42%, transparent 46%, rgba(0, 0, 0, var(--vinheta)) 100%); }
+      .cena-titulo, .lista-titulo, .palavra-linha { font-weight: 900; text-transform: uppercase; letter-spacing: -0.01em; }
+      .palavra-linha { color: #ffffff; }
+      .palavra-linha.ouro { color: #E90003; }
+      /* o gancho: caixa branca arredondada, caixa alta preta, duas linhas */
+      .manchete .man-in { background: #ffffff; border-radius: 22px; padding: 22px 36px 26px; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5); }
+      .man-txt { color: #000000; text-shadow: none; text-transform: uppercase; line-height: 1.05; letter-spacing: -0.01em; }
+      .man-txt em { color: #E90003; }
+      /* o convidado: nome em caixa alta amarela pequena */
+      .tarja-barra { display: none; }
+      .tarja-nome { font-family: "Inter", sans-serif; font-weight: 800; font-size: 34px; letter-spacing: 0.06em; text-transform: uppercase; color: #F6C046; }
+      .tarja-cargo { font-family: "Inter", sans-serif; font-weight: 500; font-size: 28px; color: #ffffff; }
+      .leg-podcast .grupo, .leg-baixa .grupo { color: #ffffff; letter-spacing: -0.012em; text-shadow: 0 3px 18px rgba(0, 0, 0, 0.85); }
+      .citacao .tela-cheia-in { background: #ffffff; }
+      .cit-texto { color: #0b0b0b; }
+      .cit-aspas { color: #E90003; }
+      .cit-autor { color: #555555; }

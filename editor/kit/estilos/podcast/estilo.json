@@ -1,0 +1,104 @@
+{
+  "id": "podcast",
+  "nome": "Podcast cinematográfico (inspirado em The Diary of a CEO)",
+  "grupo": "virais",
+  "ordem": 33,
+  "descricao": "Escuro e de cinema, corte em quem fala, legenda em caixa alta com a linha forte maior e dourada, e uma caixa branca com o gancho nos primeiros segundos. Sem música, sem efeito sonoro.",
+  "legenda": {
+    "padrao": "podcast",
+    "tipos": {
+      "podcast": {
+        "linhas": 2,
+        "max_chars": 13,
+        "max_palavras_linha": 3,
+        "max_palavras_bloco": 5,
+        "caixa": "alta",
+        "enfase": "linha",
+        "enfase_auto": true,
+        "enfase_escala": 1.5,
+        "acende": "nenhum",
+        "entrada": "seco",
+        "fonte": "inter-preta",
+        "tamanho": 62,
+        "entrelinha": 1.04,
+        "ancora": "auto",
+        "prefere_y": 0.66,
+        "segura": 0.3
+      },
+      "baixa": {
+        "max_chars": 14,
+        "max_palavras": 2,
+        "caixa": "baixa",
+        "acende": "nenhum",
+        "entrada": "seco",
+        "fonte": "inter",
+        "tamanho": 62,
+        "ancora": "auto",
+        "prefere_y": 0.68,
+        "segura": 0.3
+      }
+    },
+    "acento": "#F6C046",
+    "clara": "#ffffff",
+    "cores": {
+      "dourado": "#F6C046",
+      "vermelho": "#C5182C",
+      "branco": "#ffffff"
+    }
+  },
+  "cores": {
+    "verde": "#7bd88f",
+    "vermelho": "#E90003",
+    "dourado": "#F6C046",
+    "branco": "#ffffff"
+  },
+  "manchete": {
+    "y": 1300,
+    "tamanho": 60,
+    "largura": 820,
+    "fonte": "inter-preta",
+    "entrada": "fade"
+  },
+  "camera": {
+    "planos": {
+      "medio": 1.2
+    },
+    "auto": {
+      "alterna": [
+        "aberto",
+        "medio"
+      ],
+      "cada": [
+        3.6,
+        6
+      ]
+    }
+  },
+  "video": {
+    "camadas": [
+      "vinheta"
+    ]
+  },
+  "cortes": {
+    "estilo": "seco",
+    "som": null
+  },
+  "sons": {
+    "automaticos": false
+  },
+  "tarja": {
+    "y": 300
+  },
+  "fontes": {
+    "titulo": "inter-preta",
+    "cabecalho": "inter-preta",
+    "lettering": "inter-preta",
+    "palavra": "inter-preta",
+    "citacao": "editorial-italica"
+  },
+  "palavra": {
+    "entrada": "seco",
+    "som": false
+  },
+  "escurecer": false
+}

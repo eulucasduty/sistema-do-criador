@@ -1,0 +1,70 @@
+{
+  "id": "review-tech",
+  "nome": "Review tech (inspirado em MKBHD)",
+  "grupo": "tech",
+  "ordem": 61,
+  "descricao": "Limpo, de canto reto, vermelho sobre grafite: uma ficha branca de especificações, placar de certo e errado, gráfico de barras em tela cheia e aproximação lenta e contínua. Sem legenda.",
+  "legenda": {
+    "padrao": "nenhuma",
+    "tipos": {
+      "tecnica": {
+        "max_chars": 22,
+        "max_palavras": 4,
+        "acende": "nenhum",
+        "entrada": "seco",
+        "fonte": "din-forte",
+        "tamanho": 54,
+        "ancora": "auto",
+        "segura": 0.3
+      }
+    },
+    "clara": "#ffffff",
+    "acento": "#E5202B"
+  },
+  "cores": {
+    "verde": "#2bb673",
+    "vermelho": "#E5202B",
+    "dourado": "#E5202B",
+    "branco": "#27292A"
+  },
+  "fontes": {
+    "titulo": "din-preta",
+    "cabecalho": "din-preta",
+    "lettering": "din-preta",
+    "palavra": "din-preta",
+    "passo": "din-preta",
+    "numero": "din-preta",
+    "manchete": "din-preta",
+    "carimbo": "din-preta"
+  },
+  "camera": {
+    "auto": {
+      "alterna": [
+        "aberto"
+      ],
+      "cada": [
+        6,
+        9
+      ],
+      "empurrar": 0.07
+    }
+  },
+  "cortes": {
+    "estilo": "seco",
+    "som": null
+  },
+  "sons": {
+    "automaticos": false
+  },
+  "tarja": {
+    "y": 1380
+  },
+  "palavra": {
+    "entrada": "seco",
+    "som": false,
+    "teto": 190
+  },
+  "cabecalho": {
+    "tamanho": 100
+  }
+}

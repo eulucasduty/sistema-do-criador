@@ -1,0 +1,85 @@
+{
+  "id": "keynote",
+  "nome": "Keynote (inspirado em Apple)",
+  "grupo": "cinema",
+  "ordem": 44,
+  "descricao": "Preto, uma frase por vez, letra limpa e apertada que aparece palavra por palavra. Cartões escuros arredondados, nenhuma sombra, nenhum contorno.",
+  "legenda": {
+    "padrao": "titulo",
+    "tipos": {
+      "titulo": {
+        "linhas": 2,
+        "max_chars": 20,
+        "max_palavras_linha": 4,
+        "max_palavras_bloco": 6,
+        "acende": "revela",
+        "entrada": "seco",
+        "fonte": "inter-semi",
+        "tamanho": 62,
+        "entrelinha": 1.08,
+        "ancora": "auto",
+        "prefere_y": 0.7,
+        "segura": 0.5
+      }
+    },
+    "clara": "#ffffff",
+    "acento": "#2997ff"
+  },
+  "cores": {
+    "verde": "#30d158",
+    "vermelho": "#ff453a",
+    "dourado": "#2997ff",
+    "branco": "#f5f5f7"
+  },
+  "fontes": {
+    "titulo": "inter-semi",
+    "cabecalho": "inter-semi",
+    "lettering": "inter-semi",
+    "palavra": "inter-semi",
+    "citacao": "inter-semi",
+    "manchete": "inter-semi",
+    "passo": "inter-semi",
+    "numero": "inter-semi"
+  },
+  "camera": {
+    "auto": {
+      "alterna": [
+        "aberto"
+      ],
+      "cada": [
+        4,
+        7
+      ],
+      "empurrar": 0.05
+    }
+  },
+  "barra_progresso": {
+    "posicao": "base"
+  },
+  "cortes": {
+    "estilo": "seco",
+    "som": null
+  },
+  "sons": {
+    "automaticos": [
+      "whoosh"
+    ],
+    "volume": 0.5
+  },
+  "palavra": {
+    "entrada": "fade",
+    "som": false,
+    "teto": 150
+  },
+  "cabecalho": {
+    "tamanho": 80,
+    "alinhar": "centro",
+    "y": 170
+  },
+  "tarja": {
+    "lado": "esquerda",
+    "entrada": "fade",
+    "y": 1420
+  },
+  "escurecer": false
+}

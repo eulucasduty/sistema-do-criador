@@ -1,0 +1,25 @@
+      /* Texto atrás: preto, quadro arredondado, amarelo. Cor quente e contrastada. */
+      :root {
+        --void: #000000;
+        --void-img: none;
+        --card: #111111;
+        --card-borda: 1px solid #2a2a2a;
+        --card-raio: 20px;
+        --texto: #ffffff;
+        --dim: #b5b5b5;
+        --acento: #F6CB0A;
+        --acento-tinta: #000000;
+        --acento2: #ffffff;
+        --brilho: 246, 203, 10;
+        --f-titulo: "Anton", sans-serif;
+        --titulo-sombra: none;
+        --palavra-sombra: none;
+        --video-filtro: contrast(1.16) saturate(1.22) brightness(0.95) sepia(0.14);
+        --grao: 0.16;
+        --quadro-borda: none;
+        --quadro-sombra: none;
+      }
+      .palavra-atras .palavra-linha { color: #F6CB0A; line-height: 0.92; letter-spacing: -0.005em; filter: blur(1.5px); }
+      .palavra-atras .palavra-linha.ouro { color: #ffffff; }
+      .tela-cheia .palavra-linha { color: #ffffff; }
+      .leg-acumula .grupo { color: #ffffff; text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6); }

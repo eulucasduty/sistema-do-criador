@@ -1,0 +1,96 @@
+{
+  "id": "didatico",
+  "nome": "Didático leve (inspirado em Ali Abdaal)",
+  "grupo": "cinema",
+  "ordem": 42,
+  "descricao": "Leve e simpático: legenda numa pílula clara em que cada palavra escurece quando você fala, títulos em serifa macia com tons pastel, sublinhado à mão e um som pra cada coisa que entra.",
+  "legenda": {
+    "padrao": "pilula",
+    "tipos": {
+      "pilula": {
+        "max_chars": 23,
+        "max_palavras": 4,
+        "acende": "preenche",
+        "entrada": "seco",
+        "fonte": "poppins-media",
+        "tamanho": 56,
+        "ancora": "auto",
+        "prefere_y": 0.72,
+        "segura": 0.3
+      }
+    },
+    "clara": "#181719",
+    "acento": "#181719"
+  },
+  "cores": {
+    "verde": "#79D287",
+    "vermelho": "#D7315B",
+    "dourado": "#FD976D",
+    "branco": "#1B1624"
+  },
+  "fontes": {
+    "cabecalho": "fraunces",
+    "titulo": "fraunces",
+    "lettering": "fraunces",
+    "palavra": "fraunces",
+    "citacao": "fraunces",
+    "manchete": "fraunces",
+    "passo": "fraunces",
+    "numero": "fraunces",
+    "carimbo": "fraunces"
+  },
+  "cabecalho": {
+    "tamanho": 96,
+    "alinhar": "centro",
+    "y": 150,
+    "entrada": "letras",
+    "saida": "borra",
+    "regua": "mao"
+  },
+  "lettering": {
+    "efeito": "letras",
+    "area": "topo",
+    "y": 170,
+    "fontes": [
+      "fraunces"
+    ]
+  },
+  "layout": {
+    "pip_padrao": "esquerda",
+    "pip": {
+      "esquerda": {
+        "x": 60,
+        "y": 900,
+        "w": 400,
+        "h": 560,
+        "r": 40
+      },
+      "direita": {
+        "x": 620,
+        "y": 900,
+        "w": 400,
+        "h": 560,
+        "r": 40
+      }
+    }
+  },
+  "cortes": {
+    "estilo": "seco",
+    "som": null
+  },
+  "sons": {
+    "automaticos": [
+      "pop",
+      "whoosh",
+      "teclado",
+      "tecla",
+      "ding",
+      "obturador",
+      "click"
+    ],
+    "volume": 0.8
+  },
+  "anotacao": {
+    "traco": 7
+  }
+}

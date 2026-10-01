@@ -1,0 +1,40 @@
+      /* Documentário de streaming: preto, branco e um vermelho raro. Frio, com barras em cima e embaixo. */
+      :root {
+        --void: #000000;
+        --void-img: none;
+        --card: #0d0d0d;
+        --card-borda: 1px solid #262626;
+        --card-sombra: none;
+        --card-raio: 2px;
+        --texto: #ffffff;
+        --dim: #b5b5b5;
+        --apagado: #7c7c7c;
+        --acento: #d24a43;
+        --acento-tinta: #ffffff;
+        --acento2: #ffffff;
+        --erro: #d24a43;
+        --brilho: 210, 74, 67;
+        --chip-sombra: none;
+        --chip-raio: 0;
+        --f-titulo: "Archivo", sans-serif;
+        --titulo-espaco: 0.16em;
+        --titulo-sombra: none;
+        --palavra-sombra: none;
+        --video-filtro: saturate(0.72) contrast(1.12) brightness(0.92) hue-rotate(-6deg);
+        --tom: rgba(40, 90, 110, 0.16);
+        --vinheta: 0.62;
+        --grao: 0.2;
+        --barra-cine: 170px;
+        --cab-caixa: uppercase;
+      }
+      .cena-titulo, .lista-titulo { font-weight: 700; font-stretch: 62%; text-transform: uppercase; }
+      .palavra-linha { font-weight: 700; font-stretch: 62%; color: #ffffff; letter-spacing: 0.16em; text-transform: uppercase; }
+      .palavra-linha.ouro { color: #d24a43; }
+      .cab-l { letter-spacing: 0.1em; }
+      .cab-regua { height: 2px; background: #ffffff; }
+      /* nome e descrição: letra pequena, branca, sem caixa */
+      .tarja-barra { display: none; }
+      .tarja-nome { font-family: "Inter", sans-serif; font-weight: 700; font-size: 38px; letter-spacing: 0.02em; }
+      .tarja-cargo { font-family: "Inter", sans-serif; font-weight: 500; font-size: 28px; color: rgba(255, 255, 255, 0.8); }
+      .local-l { letter-spacing: 0.2em; }
+      .leg-subtitulo .grupo { color: #ffffff; text-shadow: 0 0 4px rgba(0, 0, 0, 0.95), 0 2px 6px rgba(0, 0, 0, 0.9); }

@@ -1,0 +1,71 @@
+      /* Documentário explicativo: papel quente (nunca branco puro), tinta quase preta e amarelo. */
+      :root {
+        --void: #F0EFEA;
+        --void-img: url("assets/texturas/papel.jpg");
+        --void-tam: cover;
+        --void-mistura: multiply;
+        --card: #fbfaf6;
+        --card-borda: 1px solid rgba(19, 19, 19, 0.16);
+        --card-sombra: 0 14px 30px rgba(40, 30, 10, 0.22);
+        --card-raio: 3px;
+        --texto: #131313;
+        --dim: #5c5a54;
+        --apagado: #8b8880;
+        --acento: #FFF200;
+        --acento-tinta: #131313;
+        --acento2: #131313;
+        --acento3: #C44C48;
+        --ok: #2f7d4f;
+        --erro: #C44C48;
+        --brilho: 255, 242, 0;
+        --tinta-borda: none;
+        --chip-sombra: none;
+        --chip-raio: 2px;
+        --f-titulo: "Editorial", serif;
+        --titulo-sombra: none;
+        --palavra-sombra: none;
+        --palavra-caixa: none;
+        --f-numero: "Editorial", serif;
+        --numero-peso: 700;
+        --f-texto: "Franklin", sans-serif;
+        --logo-fundo: #ffffff;
+        --logo-sombra: 0 10px 22px rgba(40, 30, 10, 0.2);
+        --mold: #fbfaf6;
+        --janela: #e9e7df;
+        --janela-borda: rgba(19, 19, 19, 0.16);
+        --url: #fbfaf6;
+        --notif: #fbfaf6;
+        --notif-borda: rgba(19, 19, 19, 0.16);
+        --notif-texto: #3d3b36;
+        --trilho: #dedbd0;
+        --destaque-brilho: none;
+        --quadro-borda: 10px solid #fbfaf6;
+        --quadro-sombra: 0 16px 34px rgba(40, 30, 10, 0.3);
+        --escurece: 19, 19, 19;
+        --cab-caixa: none;
+        --let-caixa: none;
+        --marcador: #FFF200;
+        --fita: rgba(255, 242, 0, 0.75);
+      }
+      .cena-titulo, .lista-titulo, .palavra-linha { font-weight: 700; letter-spacing: -0.01em; }
+      .rotulo, .cab-rotulo { font-family: var(--f-mono); color: #131313; background: #FFF200; padding: 2px 12px; align-self: flex-start; }
+      /* etiqueta de data: caixinha vermelha com letra branca */
+      .chip-ouro, .chip-rotulo { background: #C44C48; color: #ffffff; border: none; font-weight: 700; }
+      .chip-titulo { background: #FFF200; color: #131313; border: none; border-radius: 2px; box-shadow: none; font-family: "Franklin", sans-serif; font-weight: 800; }
+      .marca { background: #131313; color: #FFF200; border: none; border-radius: 2px; }
+      .destaque-box { border: 6px solid #131313; border-radius: 4px; box-shadow: none; }
+      .liga-linha { border-top: 5px solid #131313; }
+      /* foto recortada: borda branca, sombra e uma leve inclinação */
+      .foto-card { border: 12px solid #fbfaf6; border-radius: 2px; box-shadow: 0 18px 34px rgba(40, 30, 10, 0.4); }
+      .foto-card img { border-radius: 0; }
+      .foto-brilho { display: none; }
+      .foto-etiqueta { background: #FFF200; color: #131313; border-radius: 2px; font-family: var(--f-mono); font-weight: 500; }
+      .cab-l { color: #ffffff; }
+      .cab-l.l1 { color: #FFF200; }
+      .cab-l em { background: #FFF200; color: #131313; padding: 0 0.14em; }
+      .cab-regua { background: #FFF200; height: 6px; border-radius: 0; }
+      .anot-texto { color: #131313; }
+      /* legenda: branca; a palavra de destaque ganha o marca-texto e vira tinta preta */
+      .leg-marca-texto .grupo { color: #ffffff; text-shadow: 0 2px 14px rgba(0, 0, 0, 0.8); }
+      .leg-marca-texto .p.dest { text-shadow: none; }
+      .leg-marca-texto .grupo.no-claro { color: #131313; text-shadow: none; }

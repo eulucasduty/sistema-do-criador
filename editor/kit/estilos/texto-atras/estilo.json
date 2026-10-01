@@ -1,0 +1,101 @@
+{
+  "id": "texto-atras",
+  "nome": "Texto atrás de você (inspirado em Daniel Dalen)",
+  "grupo": "cinema",
+  "ordem": 45,
+  "usa_recorte": true,
+  "descricao": "A frase-chave vira letra gigante atrás da sua cabeça, dentro de um quadro arredondado sobre preto. Legenda minúscula que vai somando palavra por palavra, na altura do rosto.",
+  "legenda": {
+    "padrao": "acumula",
+    "tipos": {
+      "acumula": {
+        "linhas": 2,
+        "max_chars": 16,
+        "max_palavras_linha": 3,
+        "max_palavras_bloco": 4,
+        "caixa": "baixa",
+        "acende": "acumula",
+        "entrada": "seco",
+        "enfase": "linha",
+        "enfase_escala": 1.6,
+        "dest_sozinha": true,
+        "fonte": "apertada-forte",
+        "tamanho": 62,
+        "entrelinha": 1.02,
+        "alinhar": "esquerda",
+        "x": 148,
+        "janela_y": 0.5,
+        "segura": 0.2
+      }
+    },
+    "acento": "#F6CB0A",
+    "clara": "#ffffff",
+    "cores": {
+      "amarelo": "#F6CB0A",
+      "laranja": "#e0702e",
+      "branco": "#ffffff"
+    }
+  },
+  "cores": {
+    "verde": "#b8d977",
+    "vermelho": "#e0702e",
+    "dourado": "#F6CB0A",
+    "branco": "#ffffff"
+  },
+  "layout": {
+    "base": {
+      "x": 24,
+      "y": 312,
+      "w": 1032,
+      "h": 1296,
+      "r": 56
+    },
+    "base_k": 0.5,
+    "painel": false
+  },
+  "fontes": {
+    "palavra": "impacto",
+    "lettering": "impacto",
+    "titulo": "impacto",
+    "cabecalho": "impacto"
+  },
+  "palavra": {
+    "teto_atras": 440,
+    "entrada": "borra",
+    "som": "obturador"
+  },
+  "camera": {
+    "planos": {
+      "medio": 1.18,
+      "fechado": 1.4
+    },
+    "auto": {
+      "alterna": [
+        "aberto",
+        "medio",
+        "fechado",
+        "medio"
+      ],
+      "cada": [
+        1,
+        2.2
+      ]
+    }
+  },
+  "video": {
+    "camadas": [
+      "grao"
+    ]
+  },
+  "cortes": {
+    "estilo": "seco",
+    "som": null
+  },
+  "sons": {
+    "automaticos": [
+      "obturador"
+    ],
+    "volume": 0.7
+  },
+  "escurecer": false
+}

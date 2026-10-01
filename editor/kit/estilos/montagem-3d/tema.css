@@ -1,0 +1,11 @@
+      /* Montagem em camadas: fundo violeta mais claro, com bolas de luz desfocadas. */
+      :root {
+        --void: #140b2c;
+        --void-img: radial-gradient(circle 74px at 5% 33%, rgba(196, 166, 250, 0.16) 0, rgba(196, 166, 250, 0.12) 70%, transparent 100%), radial-gradient(circle 46px at 95% 21%, rgba(196, 166, 250, 0.16) 0, rgba(196, 166, 250, 0.1) 70%, transparent 100%), radial-gradient(circle 86px at 97% 63%, rgba(145, 83, 248, 0.2) 0, rgba(145, 83, 248, 0.14) 70%, transparent 100%), radial-gradient(circle 58px at 8% 76%, rgba(145, 83, 248, 0.2) 0, rgba(145, 83, 248, 0.12) 70%, transparent 100%), radial-gradient(circle 96px at 74% 92%, rgba(196, 166, 250, 0.1) 0, rgba(196, 166, 250, 0.07) 70%, transparent 100%), radial-gradient(circle 40px at 30% 9%, rgba(196, 166, 250, 0.12) 0, rgba(196, 166, 250, 0.08) 70%, transparent 100%), radial-gradient(ellipse at 50% 42%, rgba(104, 60, 204, 0.8), transparent 68%);
+        --void-tam: auto;
+        --quadro-borda: 2px solid rgba(242, 234, 252, 0.7);
+      }
+      .janela-borda i { display: none; }
+      .cabecalho.centro .cab-in { gap: 6px; }
+      .cabecalho.centro .cab-rotulo { font-family: var(--f-texto); font-weight: 500; font-size: 30px; letter-spacing: 0.2em; }
+      .cabecalho.centro .cab-regua { display: none; }

@@ -1,0 +1,67 @@
+      /* Didático leve: papel quente, serifa macia, pastel. */
+      :root {
+        --void: #F9F6F3;
+        --void-img: none;
+        --card: #ffffff;
+        --card-borda: 1px solid #ECE5E1;
+        --card-sombra: 0 18px 44px rgba(60, 40, 30, 0.14);
+        --card-raio: 30px;
+        --texto: #1B1624;
+        --dim: #6f6878;
+        --apagado: #a39ba9;
+        --acento: #FD976D;
+        --acento-tinta: #ffffff;
+        --acento2: #5DCDF1;
+        --acento3: #C9B1FB;
+        --ok: #79D287;
+        --erro: #D7315B;
+        --brilho: 201, 177, 251;
+        --tinta-borda: none;
+        --chip-sombra: none;
+        --chip-raio: 14px;
+        --f-titulo: "Fraunces", serif;
+        --titulo-sombra: none;
+        --palavra-sombra: none;
+        --palavra-caixa: none;
+        --f-numero: "Fraunces", serif;
+        --numero-peso: 600;
+        --logo-fundo: #ffffff;
+        --logo-sombra: 0 12px 30px rgba(60, 40, 30, 0.14);
+        --mold: #ffffff;
+        --janela: #F3EDE9;
+        --janela-borda: #ECE5E1;
+        --url: #ffffff;
+        --notif: #ffffff;
+        --notif-borda: #ECE5E1;
+        --notif-texto: #4c4654;
+        --trilho: #ECE5E1;
+        --destaque-brilho: 0 0 0 4px rgba(255, 255, 255, 0.8);
+        --video-filtro: contrast(0.96) brightness(1.04) saturate(0.94);
+        --quadro-borda: 4px solid #ffffff;
+        --quadro-sombra: 0 16px 40px rgba(60, 40, 30, 0.2);
+        --escurece: 20, 14, 26;
+        --cab-caixa: none;
+        --let-caixa: none;
+        --marcador: #F4D542;
+      }
+      .cena-titulo, .lista-titulo, .palavra-linha { font-weight: 600; }
+      .marca { border-radius: 50%; border: none; color: #ffffff; font-weight: 600; }
+      .item:nth-child(3n + 1) .marca { background: #5DCDF1; }
+      .item:nth-child(3n + 2) .marca { background: #C9B1FB; }
+      .item:nth-child(3n) .marca { background: #FD976D; }
+      .chip-ouro, .chip-rotulo { background: #FD976D; color: #ffffff; border: none; }
+      /* título por cima do vídeo: degradê do céu pro lavanda; o trecho marcado vira pílula branca com letra carmim */
+      .cab-l, .let-l { text-shadow: none; }
+      .cab-l:not(.por-letra), .let-l:not(.por-letra) { background: linear-gradient(90deg, #CFDAFA, #E2BBFC); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+      .cab-l.l1:not(.por-letra) { background: linear-gradient(90deg, #95CFEB, #C3B4FA); -webkit-background-clip: text; background-clip: text; }
+      /* letra a letra: cada letra pinta o seu pedaço do mesmo degradê (--lx é onde ela começa na linha) */
+      .por-letra .cab-c, .por-letra .let-c { background: linear-gradient(90deg, #CFDAFA, #E2BBFC) no-repeat; background-size: calc(var(--lw) * 1em) 100%; background-position: calc(var(--lx) * -1em) 0; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+      .cab-l.l1.por-letra .cab-c, .let-linha:nth-child(even) .por-letra .let-c { background-image: linear-gradient(90deg, #95CFEB, #C3B4FA); }
+      .cab-l em, .let-l em { display: inline-block; font-style: normal; background: #ffffff; -webkit-text-fill-color: #B14260; color: #B14260; padding: 0 0.2em; border-radius: 0.22em; line-height: 1.16; }
+      .por-letra em .cab-c, .por-letra em .let-c { background-image: none !important; -webkit-text-fill-color: #B14260; }
+      .cab-regua { background: #D7315B; height: 7px; border-radius: 4px; }
+      .cab-mao { stroke: #D7315B; stroke-width: 7px; margin-top: -2px; }
+      .cab-rotulo, .anot-texto { font-family: "Manuscrita", cursive; font-size: 46px; letter-spacing: 0; text-transform: none; color: #F3DE9C; }
+      /* legenda: pílula cinza-clara; a frase aparece cinza e cada palavra escurece quando é falada */
+      .leg-pilula .gi { display: inline-block; background: #E6E4E7; padding: 12px 30px 16px; border-radius: 16px; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18); }
+      .leg-pilula .grupo.preenche .p { opacity: 1; color: #A3A1A4; }

@@ -1,0 +1,918 @@
+[
+  {
+    "id": "classico",
+    "nome": "Clássico",
+    "grupo": "base",
+    "ordem": 1,
+    "descricao": "O padrão: emenda com onda de calor e clique de câmera, legenda com a palavra acendendo em dourado e os motions em papel creme com laranja.",
+    "recorte": false,
+    "padrao": true,
+    "legenda": "bangers",
+    "legendas": [
+      {
+        "id": "bangers",
+        "nome": "Gibi (a palavra acende em dourado)"
+      },
+      {
+        "id": "limpa",
+        "nome": "Limpa (caixinha na palavra falada)"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#f4f1ea",
+      "#d97757",
+      "#1a1a1a"
+    ]
+  },
+  {
+    "id": "vlog",
+    "nome": "Vlog",
+    "grupo": "base",
+    "ordem": 2,
+    "descricao": "Dia a dia, com cara de gravado e postado: quase tudo é você e as suas imagens, corte seco, etiqueta de lugar e hora, polaroides. A edição quase não aparece.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "padrao",
+    "legendas": [
+      {
+        "id": "padrao",
+        "nome": "Padrão (caixinha na palavra falada)"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#0b0b0c",
+      "#ffffff",
+      "#ffffff"
+    ]
+  },
+  {
+    "id": "profissional",
+    "nome": "Profissional",
+    "grupo": "base",
+    "ordem": 3,
+    "descricao": "Sóbrio, pra falar com empresa e cliente: grafite com um azul só, cards retos de dado e de prova, nada pulando na tela.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "padrao",
+    "legendas": [
+      {
+        "id": "padrao",
+        "nome": "Padrão (caixinha na palavra falada)"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#0d1117",
+      "#6cb0ff",
+      "#e9eef5"
+    ]
+  },
+  {
+    "id": "tela-dividida",
+    "nome": "Tela dividida",
+    "grupo": "roxo-3d",
+    "ordem": 10,
+    "descricao": "O motion explica em cima e você aparece embaixo, numa janela. Bom pra lista, passo a passo e print de tela.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "destaque",
+    "legendas": [
+      {
+        "id": "destaque",
+        "nome": "Destaque (a linha-chave maior)"
+      },
+      {
+        "id": "frase",
+        "nome": "Frase numa caixa escura"
+      },
+      {
+        "id": "simples",
+        "nome": "Simples (pequena, branca)"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#0b0716",
+      "#9153f8",
+      "#c4a6fa"
+    ]
+  },
+  {
+    "id": "montagem-3d",
+    "nome": "Montagem em camadas 3D",
+    "grupo": "roxo-3d",
+    "ordem": 11,
+    "descricao": "Seu vídeo vira um cartão e a edição vai entrando em camadas de vidro: trilha, legenda, ícones, título. No fim, junta tudo.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "destaque",
+    "legendas": [
+      {
+        "id": "destaque",
+        "nome": "Destaque (a linha-chave maior)"
+      },
+      {
+        "id": "frase",
+        "nome": "Frase numa caixa escura"
+      },
+      {
+        "id": "simples",
+        "nome": "Simples (pequena, branca)"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#140b2c",
+      "#9153f8",
+      "#c4a6fa"
+    ]
+  },
+  {
+    "id": "motion-explicativo",
+    "nome": "Motion explicativo",
+    "grupo": "roxo-3d",
+    "ordem": 12,
+    "descricao": "Abre no seu rosto com um título; depois você encolhe pro canto e uma lista de pontos acende no ritmo da fala, com ícone animado.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "frase",
+    "legendas": [
+      {
+        "id": "frase",
+        "nome": "Frase numa caixa escura"
+      },
+      {
+        "id": "destaque",
+        "nome": "Destaque (a linha-chave maior)"
+      },
+      {
+        "id": "simples",
+        "nome": "Simples (pequena, branca)"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#0a0712",
+      "#9153f8",
+      "#c4a6fa"
+    ]
+  },
+  {
+    "id": "tutorial-3d",
+    "nome": "Tutorial em 3D",
+    "grupo": "roxo-3d",
+    "ordem": 13,
+    "descricao": "Tutorial em tela cheia, sem o seu rosto: uma janela em 3D recebe o comando, a lista de tarefas vai marcando e o resultado aparece num celular.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "frase",
+    "legendas": [
+      {
+        "id": "frase",
+        "nome": "Frase numa caixa escura"
+      },
+      {
+        "id": "destaque",
+        "nome": "Destaque (a linha-chave maior)"
+      },
+      {
+        "id": "simples",
+        "nome": "Simples (pequena, branca)"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#0a0616",
+      "#9153f8",
+      "#c4a6fa"
+    ]
+  },
+  {
+    "id": "bruto-editado",
+    "nome": "Do bruto ao editado",
+    "grupo": "roxo-3d",
+    "ordem": 14,
+    "descricao": "Começa cru, com visor de câmera gravando; um glitch vira a chave e o vídeo ganha cor, palavra gigante atrás de você, carrossel de referências e moldura.",
+    "recorte": true,
+    "padrao": false,
+    "legenda": "destaque",
+    "legendas": [
+      {
+        "id": "destaque",
+        "nome": "Destaque (a linha-chave maior)"
+      },
+      {
+        "id": "frase",
+        "nome": "Frase numa caixa escura"
+      },
+      {
+        "id": "simples",
+        "nome": "Simples (pequena, branca)"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#0b0716",
+      "#9153f8",
+      "#c4a6fa"
+    ]
+  },
+  {
+    "id": "perspectiva-3d",
+    "nome": "Perspectiva 3D",
+    "grupo": "roxo-3d",
+    "ordem": 15,
+    "descricao": "Imagem que entra no quadro exato, você saindo da moldura enquanto o card explica, e o vídeo desmontado em camadas de profundidade.",
+    "recorte": true,
+    "padrao": false,
+    "legenda": "destaque",
+    "legendas": [
+      {
+        "id": "destaque",
+        "nome": "Destaque (a linha-chave maior)"
+      },
+      {
+        "id": "frase",
+        "nome": "Frase numa caixa escura"
+      },
+      {
+        "id": "simples",
+        "nome": "Simples (pequena, branca)"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#0b0716",
+      "#9153f8",
+      "#c4a6fa"
+    ]
+  },
+  {
+    "id": "recorte-fundo",
+    "nome": "Recorte de fundo",
+    "grupo": "roxo-3d",
+    "ordem": 16,
+    "descricao": "A IA recorta você do fundo e troca o cenário atrás: cidade à noite, neon, cor sólida, com palavra gigante atrás da cabeça.",
+    "recorte": true,
+    "padrao": false,
+    "legenda": "destaque",
+    "legendas": [
+      {
+        "id": "destaque",
+        "nome": "Destaque (a linha-chave maior)"
+      },
+      {
+        "id": "frase",
+        "nome": "Frase numa caixa escura"
+      },
+      {
+        "id": "simples",
+        "nome": "Simples (pequena, branca)"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#0b0716",
+      "#9153f8",
+      "#c4a6fa"
+    ]
+  },
+  {
+    "id": "explicativo-3d",
+    "nome": "Explicativo 3D",
+    "grupo": "roxo-3d",
+    "ordem": 17,
+    "descricao": "Uma ideia desmontada em andares, como maquete: cada camada cai, ganha etiqueta, e você explica do cantinho.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "caixa",
+    "legendas": [
+      {
+        "id": "caixa",
+        "nome": "Caixinha preta"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#202727",
+      "#c27344",
+      "#d2b98e"
+    ]
+  },
+  {
+    "id": "insercao-imagens",
+    "nome": "Inserção de imagens",
+    "grupo": "roxo-3d",
+    "ordem": 18,
+    "descricao": "Você em tela cheia com um cabeçalho de capítulo (IDEIA 01, 02, 03) e as imagens entrando por cima: card com brilho, polaroides, janela de site.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "simples",
+    "legendas": [
+      {
+        "id": "simples",
+        "nome": "Simples (pequena, branca)"
+      },
+      {
+        "id": "destaque",
+        "nome": "Destaque (a linha-chave maior)"
+      },
+      {
+        "id": "frase",
+        "nome": "Frase numa caixa escura"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#0b0716",
+      "#9153f8",
+      "#c4a6fa"
+    ]
+  },
+  {
+    "id": "icones-animados",
+    "nome": "Ícones animados",
+    "grupo": "roxo-3d",
+    "ordem": 19,
+    "descricao": "Você em tela cheia e, no alto, o passo da vez: ícone que se desenha, número grande e duas linhas. A cada passo o cabeçalho rola.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "simples",
+    "legendas": [
+      {
+        "id": "simples",
+        "nome": "Simples (pequena, branca)"
+      },
+      {
+        "id": "destaque",
+        "nome": "Destaque (a linha-chave maior)"
+      },
+      {
+        "id": "frase",
+        "nome": "Frase numa caixa escura"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#0b0716",
+      "#9153f8",
+      "#c4a6fa"
+    ]
+  },
+  {
+    "id": "lettering",
+    "nome": "Lettering",
+    "grupo": "roxo-3d",
+    "ordem": 20,
+    "descricao": "A fala vira tipografia: cada palavra entra na hora em que você fala, com fontes e cores misturadas, e a palavra-chave gigante atrás da sua cabeça.",
+    "recorte": true,
+    "padrao": false,
+    "legenda": "simples",
+    "legendas": [
+      {
+        "id": "simples",
+        "nome": "Simples (pequena, branca)"
+      },
+      {
+        "id": "destaque",
+        "nome": "Destaque (a linha-chave maior)"
+      },
+      {
+        "id": "frase",
+        "nome": "Frase numa caixa escura"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#0b0716",
+      "#9153f8",
+      "#c4a6fa"
+    ]
+  },
+  {
+    "id": "hormozi",
+    "nome": "Impacto (inspirado em Alex Hormozi)",
+    "grupo": "virais",
+    "ordem": 30,
+    "descricao": "Legenda gigante em caixa alta, duas linhas, uma delas pintada de amarelo, verde ou vermelho; emoji embaixo; imagem estourando a cada frase; corte seco com aproximação.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "impacto",
+    "legendas": [
+      {
+        "id": "impacto",
+        "nome": "Impacto (2 linhas em caixa alta)"
+      },
+      {
+        "id": "torta",
+        "nome": "Impacto inclinada"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#0b0b0c",
+      "#F9FF09",
+      "#37FF29"
+    ]
+  },
+  {
+    "id": "mrbeast",
+    "nome": "Desafio (inspirado em MrBeast)",
+    "grupo": "virais",
+    "ordem": 31,
+    "descricao": "Legenda de gibi inclinada, branca com contorno preto grosso, o bloco inteiro amarelo ou vermelho na hora do grito; etiqueta de preço, placar e corte a cada segundo.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "gibi",
+    "legendas": [
+      {
+        "id": "gibi",
+        "nome": "Gibi com contorno"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#0d0d0f",
+      "#FFFF00",
+      "#EA0003"
+    ]
+  },
+  {
+    "id": "manchete-clipe",
+    "nome": "Manchete + clipe (inspirado em GaryVee)",
+    "grupo": "virais",
+    "ordem": 32,
+    "descricao": "Tela preta, manchete de duas linhas no alto com a frase-chave em vermelho, o seu vídeo num clipe no meio e a legenda pequena dentro dele. Cru, sem efeito.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "clipe",
+    "legendas": [
+      {
+        "id": "clipe",
+        "nome": "Branca pequena"
+      },
+      {
+        "id": "caixa-amarela",
+        "nome": "Caixa amarela"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#000000",
+      "#E52339",
+      "#ffffff"
+    ]
+  },
+  {
+    "id": "podcast",
+    "nome": "Podcast cinematográfico (inspirado em The Diary of a CEO)",
+    "grupo": "virais",
+    "ordem": 33,
+    "descricao": "Escuro e de cinema, corte em quem fala, legenda em caixa alta com a linha forte maior e dourada, e uma caixa branca com o gancho nos primeiros segundos. Sem música, sem efeito sonoro.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "podcast",
+    "legendas": [
+      {
+        "id": "podcast",
+        "nome": "Caixa alta com a linha dourada"
+      },
+      {
+        "id": "baixa",
+        "nome": "Caixa baixa, 1 a 2 palavras"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#050505",
+      "#F6C046",
+      "#E90003"
+    ]
+  },
+  {
+    "id": "cortes",
+    "nome": "Corte de podcast",
+    "grupo": "virais",
+    "ordem": 34,
+    "descricao": "O formato dos canais de cortes: manchete numa caixa branca em cima, o vídeo num clipe no meio sobre o fundo desfocado e legenda amarela com contorno preto.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "amarela",
+    "legendas": [
+      {
+        "id": "amarela",
+        "nome": "Amarela com contorno"
+      },
+      {
+        "id": "caps",
+        "nome": "Caixa alta condensada"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#000000",
+      "#F7D70A",
+      "#e5332e"
+    ]
+  },
+  {
+    "id": "nativo",
+    "nome": "Nativo (texto do próprio TikTok)",
+    "grupo": "virais",
+    "ordem": 35,
+    "descricao": "Parece post gravado e escrito no próprio app: texto com as caixas arredondadas do TikTok, balão de resposta a comentário, sem cor, sem efeito. Feito pra não ter cara de anúncio.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "caixa",
+    "legendas": [
+      {
+        "id": "caixa",
+        "nome": "Caixa preta do app"
+      },
+      {
+        "id": "branca",
+        "nome": "Caixa branca do app"
+      },
+      {
+        "id": "contorno",
+        "nome": "Contorno, sem caixa"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#000000",
+      "#EA4040",
+      "#3496EF"
+    ]
+  },
+  {
+    "id": "cinema-escuro",
+    "nome": "Cinema escuro (inspirado em Iman Gadzhi)",
+    "grupo": "cinema",
+    "ordem": 40,
+    "descricao": "Sala escura e quente, grão de filme em tudo, legenda pequena e apertada em branco (amarelo só na ênfase) e animações em fundo quase preto com grade. Caro e contido.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "apertada",
+    "legendas": [
+      {
+        "id": "apertada",
+        "nome": "Pequena e apertada"
+      },
+      {
+        "id": "leve-forte",
+        "nome": "Fina que engrossa na fala"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#07080c",
+      "#4dff9a",
+      "#45d9ff"
+    ]
+  },
+  {
+    "id": "minimalista",
+    "nome": "Minimalista (inspirado em Dan Koe)",
+    "grupo": "cinema",
+    "ordem": 41,
+    "descricao": "Só você falando, takes longos, uma linha de legenda em serifa minúscula âmbar e um cartão preto com a frase de abertura. Sem música, sem efeito, sem zoom.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "serifa",
+    "legendas": [
+      {
+        "id": "serifa",
+        "nome": "Serifa âmbar, uma linha"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#000000",
+      "#F0B419",
+      "#ffffff"
+    ]
+  },
+  {
+    "id": "didatico",
+    "nome": "Didático leve (inspirado em Ali Abdaal)",
+    "grupo": "cinema",
+    "ordem": 42,
+    "descricao": "Leve e simpático: legenda numa pílula clara em que cada palavra escurece quando você fala, títulos em serifa macia com tons pastel, sublinhado à mão e um som pra cada coisa que entra.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "pilula",
+    "legendas": [
+      {
+        "id": "pilula",
+        "nome": "Pílula que preenche na fala"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#F9F6F3",
+      "#FD976D",
+      "#5DCDF1"
+    ]
+  },
+  {
+    "id": "documental",
+    "nome": "Minimal documental (inspirado em Matt D'Avella)",
+    "grupo": "cinema",
+    "ordem": 43,
+    "descricao": "Plano parado, cor quente e apagada, quase nenhum gráfico. Legenda branca numa caixa preta, nome em serifa no canto direito entrando em fade. Sem música na sua fala.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "caixa",
+    "legendas": [
+      {
+        "id": "caixa",
+        "nome": "Caixa preta"
+      },
+      {
+        "id": "solta",
+        "nome": "Sem caixa, com sombra"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#0C0C0A",
+      "#7fd08a",
+      "#ffffff"
+    ]
+  },
+  {
+    "id": "keynote",
+    "nome": "Keynote (inspirado em Apple)",
+    "grupo": "cinema",
+    "ordem": 44,
+    "descricao": "Preto, uma frase por vez, letra limpa e apertada que aparece palavra por palavra. Cartões escuros arredondados, nenhuma sombra, nenhum contorno.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "titulo",
+    "legendas": [
+      {
+        "id": "titulo",
+        "nome": "Revela palavra por palavra"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#000000",
+      "#2997ff",
+      "#f5f5f7"
+    ]
+  },
+  {
+    "id": "texto-atras",
+    "nome": "Texto atrás de você (inspirado em Daniel Dalen)",
+    "grupo": "cinema",
+    "ordem": 45,
+    "descricao": "A frase-chave vira letra gigante atrás da sua cabeça, dentro de um quadro arredondado sobre preto. Legenda minúscula que vai somando palavra por palavra, na altura do rosto.",
+    "recorte": true,
+    "padrao": false,
+    "legenda": "acumula",
+    "legendas": [
+      {
+        "id": "acumula",
+        "nome": "Soma palavra por palavra"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#000000",
+      "#F6CB0A",
+      "#ffffff"
+    ]
+  },
+  {
+    "id": "documentario",
+    "nome": "Documentário explicativo (inspirado em Vox)",
+    "grupo": "documentario",
+    "ordem": 50,
+    "descricao": "Papel, recorte, marca-texto amarelo e traço de lápis. Os gráficos andam aos pulinhos, como animação feita à mão. Corte seco, nada de transição enfeitada.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "marca-texto",
+    "legendas": [
+      {
+        "id": "marca-texto",
+        "nome": "Marca-texto nas palavras-chave"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#F0EFEA",
+      "#FFF200",
+      "#131313"
+    ]
+  },
+  {
+    "id": "doc-autor",
+    "nome": "Documentário de autor (inspirado em Johnny Harris)",
+    "grupo": "documentario",
+    "ordem": 51,
+    "descricao": "Você como repórter: papel creme, serifa fina, etiqueta em letra de máquina, foto que entra em foco com um estalo, queima de filme entre os cortes e grão em tudo.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "editorial",
+    "legendas": [
+      {
+        "id": "editorial",
+        "nome": "Editorial (destaque em itálico)"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#F4F2E6",
+      "#FFBF00",
+      "#DD2C1E"
+    ]
+  },
+  {
+    "id": "doc-streaming",
+    "nome": "Documentário de streaming (inspirado em Netflix)",
+    "grupo": "documentario",
+    "ordem": 52,
+    "descricao": "Barras de cinema, cor fria e dessaturada, lugar e data datilografados, nome em letra pequena e legenda de até duas linhas como a de filme. Aproximação lenta e batida grave nas revelações.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "subtitulo",
+    "legendas": [
+      {
+        "id": "subtitulo",
+        "nome": "Legenda de filme (2 linhas)"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#000000",
+      "#d24a43",
+      "#ffffff"
+    ]
+  },
+  {
+    "id": "tech-rapido",
+    "nome": "Tech rápido (inspirado em Fireship)",
+    "grupo": "tech",
+    "ordem": 60,
+    "descricao": "Fundo quase preto, títulos gordos em caixa alta, janela de código colorida, palavra carimbada num retângulo torto e meme a cada explicação. Você fica numa bolinha no canto. Sem legenda.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "nenhuma",
+    "legendas": [
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      },
+      {
+        "id": "mono",
+        "nome": "Mono pequena"
+      }
+    ],
+    "cores": [
+      "#16181D",
+      "#FCBA28",
+      "#12B5E5"
+    ]
+  },
+  {
+    "id": "review-tech",
+    "nome": "Review tech (inspirado em MKBHD)",
+    "grupo": "tech",
+    "ordem": 61,
+    "descricao": "Limpo, de canto reto, vermelho sobre grafite: uma ficha branca de especificações, placar de certo e errado, gráfico de barras em tela cheia e aproximação lenta e contínua. Sem legenda.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "nenhuma",
+    "legendas": [
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      },
+      {
+        "id": "tecnica",
+        "nome": "Técnica, discreta"
+      }
+    ],
+    "cores": [
+      "#111111",
+      "#E5202B",
+      "#ffffff"
+    ]
+  },
+  {
+    "id": "telejornal",
+    "nome": "Telejornal (plantão)",
+    "grupo": "tech",
+    "ordem": 62,
+    "descricao": "Cara de plantão: selo AO VIVO, faixa de manchete branca com a bandeira vermelha de URGENTE, letreiro correndo embaixo e nome do entrevistado em tarja. Nada pula, tudo desliza.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "simples",
+    "legendas": [
+      {
+        "id": "simples",
+        "nome": "Simples (pequena, branca)"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#0C0C0C",
+      "#CC0000",
+      "#ffffff"
+    ]
+  }
+]

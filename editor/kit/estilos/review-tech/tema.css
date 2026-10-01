@@ -1,0 +1,57 @@
+      /* Review tech: vermelho #E5202B, grafite #27292A, branco. Raio zero em tudo. */
+      :root {
+        --void: #111111;
+        --void-img: none;
+        --card: #ffffff;
+        --card-borda: none;
+        --card-sombra: 0 20px 50px rgba(0, 0, 0, 0.5);
+        --card-raio: 0;
+        --texto: #f4f4f4;
+        --dim: #b9bbbd;
+        --apagado: #7d8082;
+        --acento: #E5202B;
+        --acento-tinta: #ffffff;
+        --acento2: #ffffff;
+        --ok: #2bb673;
+        --erro: #E5202B;
+        --brilho: 229, 32, 43;
+        --tinta-borda: none;
+        --chip-sombra: none;
+        --chip-raio: 0;
+        --f-titulo: "Din", sans-serif;
+        --titulo-estilo: italic;
+        --titulo-sombra: none;
+        --palavra-sombra: none;
+        --f-texto: "Din", sans-serif;
+        --f-numero: "Din", sans-serif;
+        --numero-peso: 900;
+        --logo-fundo: #ffffff;
+        --logo-sombra: none;
+        --mold: #1b1c1d;
+        --janela: #27292A;
+        --janela-borda: #3a3d3f;
+        --url: #111111;
+        --trilho: #E9EAED;
+        --barra-raio: 0;
+        --destaque-brilho: none;
+        --quadro-borda: none;
+        --cab-caixa: uppercase;
+      }
+      .cena-titulo, .lista-titulo, .palavra-linha, .ficha-titulo, .gr-titulo { font-weight: 900; font-style: italic; text-transform: uppercase; }
+      .card, .mold, .logo-caixa, .marca, .xp, .item.foco, .item-luz, .destaque-box, .notif, .bolha, .chip-titulo, .seguir, .icone-caixa { border-radius: 0; }
+      .card { color: #27292A; }
+      .card .rotulo, .card .detalhe, .ficha-linha span, .gr-fonte, .item-txt small { color: #6b6e70; }
+      .ficha-linha { border-bottom: 2px solid #E9EAED; font-weight: 500; }
+      .ficha-linha b { font-weight: 700; }
+      .gr-barra { background: #27292A; }
+      .gr-barra.destaque { background: #E5202B; }
+      .marca { background: #27292A; color: #ffffff; border: none; }
+      .chip-ouro, .chip-rotulo { background: #000000; color: #ffffff; border: none; font-family: "Din", sans-serif; font-weight: 700; }
+      .palavra-linha.ouro { color: #E5202B; }
+      .cab-l.l1, .cab-num { color: #E5202B; }
+      .cab-regua { background: #E5202B; height: 8px; border-radius: 0; }
+      /* nome: barra vermelha e caixa alta itálica */
+      .tarja-barra { width: 12px; border-radius: 0; background: #E5202B; }
+      .tarja-nome { font-family: "Din", sans-serif; font-weight: 900; font-style: italic; text-transform: uppercase; font-size: 50px; }
+      .tarja-cargo { font-family: "Din", sans-serif; font-weight: 500; }
+      .leg-tecnica .grupo { color: #ffffff; font-family: "Din", sans-serif; font-weight: 700; text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8); }

@@ -1,0 +1,81 @@
+{
+  "id": "manchete-clipe",
+  "nome": "Manchete + clipe (inspirado em GaryVee)",
+  "grupo": "virais",
+  "ordem": 32,
+  "descricao": "Tela preta, manchete de duas linhas no alto com a frase-chave em vermelho, o seu vídeo num clipe no meio e a legenda pequena dentro dele. Cru, sem efeito.",
+  "layout": {
+    "base": {
+      "x": 0,
+      "y": 501,
+      "w": 1080,
+      "h": 895,
+      "r": 0
+    },
+    "base_k": 0.62,
+    "painel": false
+  },
+  "manchete": {
+    "y": 322,
+    "tamanho": 82,
+    "largura": 860,
+    "fontes": [
+      "inter-leve",
+      "inter"
+    ],
+    "escalas": [
+      0.78,
+      1
+    ],
+    "entrada": "seco"
+  },
+  "legenda": {
+    "padrao": "clipe",
+    "tipos": {
+      "clipe": {
+        "max_chars": 20,
+        "max_palavras": 3,
+        "acende": "nenhum",
+        "entrada": "seco",
+        "fonte": "inter-leve",
+        "tamanho": 50,
+        "janela_y": 0.8,
+        "segura": 0.3
+      },
+      "caixa-amarela": {
+        "max_chars": 18,
+        "max_palavras": 3,
+        "caixa": "alta",
+        "acende": "nenhum",
+        "entrada": "seco",
+        "fonte": "din-condensada-italica",
+        "tamanho": 80,
+        "janela_y": 0.78,
+        "segura": 0.3
+      }
+    },
+    "clara": "#ffffff",
+    "acento": "#E52339"
+  },
+  "cores": {
+    "verde": "#2fd16b",
+    "vermelho": "#E52339",
+    "dourado": "#E52339",
+    "branco": "#ffffff"
+  },
+  "cortes": {
+    "estilo": "seco",
+    "som": null
+  },
+  "sons": {
+    "automaticos": false
+  },
+  "fontes": {
+    "manchete": "inter",
+    "titulo": "inter",
+    "cabecalho": "inter",
+    "lettering": "inter",
+    "palavra": "inter"
+  },
+  "escurecer": false
+}

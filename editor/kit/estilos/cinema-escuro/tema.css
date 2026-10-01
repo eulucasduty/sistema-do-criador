@@ -1,0 +1,50 @@
+      /* Cinema escuro: quase preto com grade fina, cartões de vidro, neon só em detalhe, grão em tudo. */
+      :root {
+        --void: #07080c;
+        --void-img: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px), radial-gradient(ellipse at 50% 28%, rgba(40, 60, 130, 0.5), transparent 62%);
+        --void-tam: 90px 90px, 90px 90px, auto;
+        --card: rgba(255, 255, 255, 0.055);
+        --card-borda: 1px solid rgba(255, 255, 255, 0.16);
+        --card-sombra: 0 30px 80px rgba(0, 0, 0, 0.6);
+        --card-raio: 26px;
+        --texto: #ffffff;
+        --dim: #a7adbb;
+        --apagado: #6c7280;
+        --acento: #4dff9a;
+        --acento-tinta: #04140b;
+        --acento2: #45d9ff;
+        --acento3: #9a6bff;
+        --ok: #4dff9a;
+        --erro: #ff5a5a;
+        --brilho: 77, 255, 154;
+        --tinta-borda: 1px solid rgba(255, 255, 255, 0.2);
+        --chip-sombra: 0 0 26px rgba(77, 255, 154, 0.3);
+        --chip-raio: 999px;
+        --f-titulo: "Montserrat", sans-serif;
+        --titulo-espaco: -0.02em;
+        --titulo-sombra: none;
+        --palavra-sombra: none;
+        --palavra-caixa: none;
+        --f-numero: "Montserrat", sans-serif;
+        --numero-peso: 800;
+        --mold: #0b0d12;
+        --janela: #12151c;
+        --janela-borda: rgba(255, 255, 255, 0.12);
+        --url: #0b0d12;
+        --trilho: rgba(255, 255, 255, 0.1);
+        --video-filtro: contrast(1.14) brightness(0.9) saturate(0.84) sepia(0.1);
+        --tom: rgba(255, 170, 90, 0.1);
+        --vinheta: 0.78;
+        --grao: 0.3;
+        --quadro-borda: 1px solid rgba(255, 255, 255, 0.3);
+        --cab-caixa: none;
+        --let-caixa: none;
+      }
+      .cena-titulo, .lista-titulo, .palavra-linha, .chip-titulo { font-weight: 800; }
+      /* o trecho em destaque do título vai em letra de assinatura, com contorno azul deslocado */
+      .cena-titulo em, .palavra-linha em, .cab-l em, .lista-titulo em { font-family: "Assinatura", cursive; font-weight: 400; font-size: 1.7em; line-height: 0.6; color: #ffffff; text-shadow: 3px 3px 0 #5b6dff; }
+      .palavra-linha.ouro { color: #ffffff; }
+      .cab-l.l1 { color: #ffffff; }
+      .chip-ouro, .chip-rotulo { background: rgba(77, 255, 154, 0.14); color: #b9ffd6; border: 1px solid rgba(77, 255, 154, 0.5); }
+      .leg-apertada .grupo { color: #ffffff; text-shadow: 0 2px 14px rgba(0, 0, 0, 0.85); }
+      .leg-leve-forte .grupo { color: #ffffff; text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8); }

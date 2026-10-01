@@ -4,8 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient, exigirEquipe } from "@/lib/supabase/server";
-import { configEditor, partesDe, type ArquivoPedido, type EnvioParte, type PedidoEdicao } from "@/lib/editor";
-import { estiloValido, lookValido } from "./opcoes";
+import { configEditor, estiloValido, legendaValida, partesDe, type ArquivoPedido, type EnvioParte, type PedidoEdicao } from "@/lib/editor";
+import { lookValido } from "./opcoes";
 
 /** "Quem edita os seus vídeos": salva a escolha (a estação lê a cada pedido, sem reiniciar). */
 export async function salvarMotor(formData: FormData) {
@@ -63,7 +63,7 @@ async function criar(p: PedidoEdicao): Promise<Criada> {
     .insert({
       titulo,
       roteiro: limpo(p.roteiro, 8000) || null,
-      opcoes: { legenda: estiloValido(p.legenda), ...(lookValido(p.cor) ? { cor: lookValido(p.cor) } : {}) },
+      opcoes: { estilo: estiloValido(p.estilo), legenda: legendaValida(p.estilo, p.legenda), ...(lookValido(p.cor) ? { cor: lookValido(p.cor) } : {}) },
       status: "subindo",
       criado_por: usuarioId,
     })

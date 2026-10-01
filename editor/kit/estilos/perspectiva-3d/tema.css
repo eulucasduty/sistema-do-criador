@@ -1,0 +1,4 @@
+      /* Perspectiva 3D: título de card em caixa normal, com a última palavra em lilás. */
+      .cena-titulo { font-size: 60px; text-align: left; align-self: flex-start; text-shadow: 0 0 34px rgba(145, 83, 248, 0.7); }
+      .cena-rotulo { align-self: flex-start; font-size: 22px; letter-spacing: 0.26em; }
+      .mold { border: 2px solid rgba(196, 166, 250, 0.6); box-shadow: 0 0 50px rgba(145, 83, 248, 0.45); }

@@ -1,0 +1,47 @@
+      /* Tech rápido: #16181D chapado, sem degradê nem sombra. Amarelo, azul, rosa, verde. */
+      :root {
+        --void: #16181D;
+        --void-img: none;
+        --card: #23292F;
+        --card-borda: none;
+        --card-sombra: 0 0 10px #000000;
+        --card-raio: 20px;
+        --texto: #ffffff;
+        --dim: #B2BECD;
+        --apagado: #6C7983;
+        --acento: #FCBA28;
+        --acento-tinta: #16181D;
+        --acento2: #12B5E5;
+        --acento3: #F38BA3;
+        --ok: #0BA95B;
+        --erro: #ED203D;
+        --brilho: 252, 186, 40;
+        --tinta-borda: none;
+        --chip-sombra: none;
+        --chip-raio: 14px;
+        --f-titulo: "Lilita", sans-serif;
+        --titulo-sombra: none;
+        --palavra-sombra: none;
+        --f-numero: "Lilita", sans-serif;
+        --logo-fundo: #F9F4DA;
+        --logo-sombra: none;
+        --mold: #0F0D0E;
+        --janela: #23292F;
+        --janela-borda: #454E56;
+        --url: #16181D;
+        --notif: #23292F;
+        --notif-borda: #454E56;
+        --notif-texto: #DBE1E8;
+        --trilho: #2A2E35;
+        --destaque-brilho: 0 0 80px rgba(252, 186, 40, 0.6);
+        --quadro-borda: 6px solid #FCBA28;
+        --cab-caixa: uppercase;
+      }
+      .cena-titulo, .lista-titulo, .palavra-linha { text-transform: uppercase; line-height: 1; }
+      .cena-titulo { font-size: 84px; }
+      .palavra-linha.ouro { color: #FCBA28; }
+      .rotulo { color: #B2BECD; }
+      .chip-ouro, .chip-rotulo { font-family: "Lilita", sans-serif; font-size: 30px; letter-spacing: 0.04em; }
+      .carimbo { box-shadow: none; border-radius: 6px; }
+      .card.terminal, .card.codigo { box-shadow: 0 0 10px #000000; border-radius: 25px; }
+      .leg-mono .grupo { color: #ffffff; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8); }

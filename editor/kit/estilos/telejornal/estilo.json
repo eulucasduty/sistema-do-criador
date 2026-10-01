@@ -1,0 +1,84 @@
+{
+  "id": "telejornal",
+  "nome": "Telejornal (plantão)",
+  "grupo": "tech",
+  "ordem": 62,
+  "descricao": "Cara de plantão: selo AO VIVO, faixa de manchete branca com a bandeira vermelha de URGENTE, letreiro correndo embaixo e nome do entrevistado em tarja. Nada pula, tudo desliza.",
+  "legenda": {
+    "padrao": "simples",
+    "tipos": {
+      "simples": {
+        "max_chars": 22,
+        "max_palavras": 4,
+        "acende": "nenhum",
+        "entrada": "seco",
+        "fonte": "inter",
+        "tamanho": 52,
+        "janela_y": 0.86,
+        "segura": 0.3
+      }
+    },
+    "clara": "#ffffff",
+    "acento": "#CC0000"
+  },
+  "cores": {
+    "verde": "#2bb673",
+    "vermelho": "#CC0000",
+    "dourado": "#CC0000",
+    "branco": "#ffffff"
+  },
+  "layout": {
+    "base": {
+      "x": 0,
+      "y": 0,
+      "w": 1080,
+      "h": 1180,
+      "r": 0
+    },
+    "base_k": 0.56,
+    "painel": false
+  },
+  "manchete": {
+    "y": 1192,
+    "tamanho": 62,
+    "largura": 940,
+    "fonte": "inter-preta",
+    "entrada": "esquerda"
+  },
+  "faixa": {
+    "y": 1470
+  },
+  "cenas_fixas": [
+    {
+      "tipo": "bug",
+      "texto": "AO VIVO"
+    }
+  ],
+  "fontes": {
+    "titulo": "inter-preta",
+    "cabecalho": "inter-preta",
+    "faixa": "condensada-media",
+    "palavra": "inter-preta",
+    "lettering": "inter-preta",
+    "carimbo": "inter-preta",
+    "manchete": "inter-preta"
+  },
+  "cortes": {
+    "estilo": "seco",
+    "som": null
+  },
+  "sons": {
+    "automaticos": [
+      "impacto"
+    ],
+    "volume": 0.8
+  },
+  "tarja": {
+    "y": 920
+  },
+  "palavra": {
+    "entrada": "seco",
+    "som": "impacto"
+  },
+  "escurecer": false
+}

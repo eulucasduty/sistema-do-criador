@@ -27,9 +27,11 @@ export type Perfil = {
   nicho: string | null; // "finanças pra jovens", "treino em casa"…
   publico: string | null; // pra quem você fala
   tom: string | null; // como você fala (gírias, bordões, jeito)
+  regras: string | null; // o que nunca pode aparecer nos vídeos (o editor segue)
   foto_url: string | null; // foto de perfil (vem do Instagram)
   cor: "natural" | "quente" | "contraste"; // look do vídeo no editor
-  legenda: "bangers" | "limpa"; // estilo de legenda padrão
+  estilo: string | null; // estilo de edição padrão (editor/kit/estilos/<id>); vazio = o padrão do kit
+  legenda: string; // tipo de legenda padrão (vale quando o estilo escolhido tem esse tipo)
   cores: { fundo: string; texto: string; destaque: string }; // sua marca (carrossel no visual "minha marca")
 };
 export const PERFIL_PADRAO: Perfil = {
@@ -38,8 +40,10 @@ export const PERFIL_PADRAO: Perfil = {
   nicho: null,
   publico: null,
   tom: null,
+  regras: null,
   foto_url: null,
   cor: "natural",
+  estilo: null,
   legenda: "bangers",
   cores: { fundo: "#0b0b0c", texto: "#f5f4f0", destaque: "#ffc93c" },
 };

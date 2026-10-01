@@ -1,0 +1,35 @@
+{
+  "id": "vlog",
+  "nome": "Vlog",
+  "grupo": "base",
+  "ordem": 2,
+  "descricao": "Dia a dia, com cara de gravado e postado: quase tudo é você e as suas imagens, corte seco, etiqueta de lugar e hora, polaroides. A edição quase não aparece.",
+  "legenda": {
+    "tipos": {
+      "padrao": {
+        "max_chars": 20,
+        "max_palavras": 4,
+        "caixa": "normal",
+        "acende": "caixa",
+        "entrada": "sobe"
+      }
+    },
+    "acento": "#ffffff",
+    "tinta": "#0b0b0c",
+    "clara": "#ffffff"
+  },
+  "cores": {
+    "verde": "#86efac",
+    "vermelho": "#fca5a5",
+    "dourado": "#ffffff",
+    "branco": "#ffffff"
+  },
+  "cortes": {
+    "estilo": "seco",
+    "som": null
+  },
+  "sons": {
+    "automaticos": false,
+    "volume": 0.8
+  }
+}

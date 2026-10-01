@@ -1,0 +1,50 @@
+      /* Tema do estilo "profissional": sóbrio, grafite azulado, linha fina, um azul só. */
+      :root {
+        --void: #0d1117;
+        --void-img: radial-gradient(ellipse at 14% -6%, rgba(108, 176, 255, 0.16), transparent 58%);
+        --void-tam: auto;
+        --card: #161b22;
+        --card-borda: 1px solid #2b3440;
+        --card-sombra: 0 18px 44px rgba(0, 0, 0, 0.45);
+        --card-raio: 18px;
+        --texto: #e9eef5;
+        --dim: #9aa7b6;
+        --apagado: #6f7b89;
+        --acento: #6cb0ff;
+        --acento-tinta: #06101c;
+        --ok: #56d39b;
+        --erro: #ff7a7a;
+        --tinta-borda: 1px solid rgba(108, 176, 255, 0.35);
+        --chip-sombra: none;
+        --chip-raio: 8px;
+        --f-titulo: "Jakarta", sans-serif;
+        --titulo-espaco: -0.02em;
+        --titulo-sombra: none;
+        --palavra-sombra: none;
+        --palavra-caixa: none;
+        --nome-sombra: none;
+        --f-numero: "Jakarta", sans-serif;
+        --numero-peso: 800;
+        --logo-fundo: #f3f6fa;
+        --logo-sombra: 0 10px 28px rgba(0, 0, 0, 0.35);
+        --mold: #0d1117;
+        --janela: #161b22;
+        --janela-borda: #2b3440;
+        --url: #0d1117;
+        --notif: #161b22;
+        --notif-borda: #2b3440;
+        --notif-texto: #c3ccd8;
+        --trilho: #222a35;
+        --destaque-brilho: 0 0 0 4px rgba(13, 17, 23, 0.5), 0 0 26px rgba(108, 176, 255, 0.5);
+      }
+      .cena-titulo, .lista-titulo, .palavra-linha, .chip-titulo, .cta-txt b, .logo-op { font-weight: 800; }
+      .cena-titulo { font-size: 62px; }
+      .chip-ouro, .chip-rotulo { background: rgba(108, 176, 255, 0.14); color: #b9d8ff; }
+      .logo-caixa { border-radius: 36px; }
+      .logo-caixa.pequena { border-radius: 26px; }
+      .marca { border-radius: 12px; }
+      .chip-titulo { font-size: 40px; text-transform: none; letter-spacing: 0; border: none; border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); padding: 12px 24px 14px; }
+      .seguir { border: none; }
+      .leg-padrao .grupo { font-family: "Jakarta", sans-serif; font-weight: 800; line-height: 1.15; color: #ffffff; font-size: 56px; text-shadow: 0 3px 16px rgba(0, 0, 0, 0.75); }
+      .leg-padrao .p.dest { font-family: "Jakarta", sans-serif; font-weight: 800; text-transform: none; color: #9cc9ff; font-size: 56px; }
+      .leg-padrao .p { padding: 0 10px 3px; border-radius: 12px; }

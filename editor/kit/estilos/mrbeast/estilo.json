@@ -1,0 +1,85 @@
+{
+  "id": "mrbeast",
+  "nome": "Desafio (inspirado em MrBeast)",
+  "grupo": "virais",
+  "ordem": 31,
+  "descricao": "Legenda de gibi inclinada, branca com contorno preto grosso, o bloco inteiro amarelo ou vermelho na hora do grito; etiqueta de preço, placar e corte a cada segundo.",
+  "legenda": {
+    "padrao": "gibi",
+    "tipos": {
+      "gibi": {
+        "max_chars": 14,
+        "max_palavras": 3,
+        "caixa": "alta",
+        "enfase": "bloco",
+        "acende": "nenhum",
+        "entrada": "mola",
+        "fonte": "bangers",
+        "tamanho": 100,
+        "entrelinha": 1,
+        "ancora": "auto",
+        "prefere_y": 0.5,
+        "segura": 0.2
+      }
+    },
+    "acento": "#FFFF00",
+    "clara": "#ffffff",
+    "tinta": "#000000",
+    "cores": {
+      "amarelo": "#FFFF00",
+      "vermelho": "#EA0003",
+      "verde": "#12FF0B"
+    }
+  },
+  "cores": {
+    "verde": "#12FF0B",
+    "vermelho": "#EA0003",
+    "dourado": "#FFFF00",
+    "branco": "#ffffff"
+  },
+  "camera": {
+    "planos": {
+      "medio": 1.18,
+      "fechado": 1.38
+    },
+    "auto": {
+      "alterna": [
+        "aberto",
+        "medio",
+        "aberto",
+        "fechado"
+      ],
+      "cada": [
+        1.6,
+        3.2
+      ]
+    }
+  },
+  "cortes": {
+    "estilo": "seco",
+    "som": "whoosh"
+  },
+  "sons": {
+    "automaticos": [
+      "whoosh",
+      "pop",
+      "impacto",
+      "ding",
+      "tecla",
+      "riser"
+    ],
+    "volume": 1
+  },
+  "fontes": {
+    "etiqueta": "bangers",
+    "carimbo": "bangers",
+    "cabecalho": "bangers",
+    "lettering": "bangers",
+    "palavra": "bangers",
+    "titulo": "bangers",
+    "manchete": "bangers",
+    "passo": "bangers",
+    "numero": "bangers"
+  },
+  "escurecer": false
+}

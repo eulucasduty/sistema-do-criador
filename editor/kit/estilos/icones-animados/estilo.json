@@ -1,0 +1,19 @@
+{
+  "id": "icones-animados",
+  "nome": "Ícones animados",
+  "base": "roxo",
+  "ordem": 19,
+  "descricao": "Você em tela cheia e, no alto, o passo da vez: ícone que se desenha, número grande e duas linhas. A cada passo o cabeçalho rola.",
+  "legenda": {
+    "padrao": "simples"
+  },
+  "icones": {
+    "desenha": true,
+    "traco": 1.8
+  },
+  "cabecalho": {
+    "alinhar": "centro",
+    "tamanho_passo": 78,
+    "y": 110
+  }
+}

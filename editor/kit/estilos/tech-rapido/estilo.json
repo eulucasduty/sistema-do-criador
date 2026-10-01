@@ -1,0 +1,75 @@
+{
+  "id": "tech-rapido",
+  "nome": "Tech rápido (inspirado em Fireship)",
+  "grupo": "tech",
+  "ordem": 60,
+  "descricao": "Fundo quase preto, títulos gordos em caixa alta, janela de código colorida, palavra carimbada num retângulo torto e meme a cada explicação. Você fica numa bolinha no canto. Sem legenda.",
+  "legenda": {
+    "padrao": "nenhuma",
+    "tipos": {
+      "mono": {
+        "max_chars": 22,
+        "max_palavras": 4,
+        "acende": "nenhum",
+        "entrada": "seco",
+        "fonte": "mono",
+        "tamanho": 44,
+        "ancora": "auto",
+        "segura": 0.3
+      }
+    },
+    "clara": "#ffffff",
+    "acento": "#FCBA28"
+  },
+  "cores": {
+    "verde": "#0BA95B",
+    "vermelho": "#ED203D",
+    "dourado": "#FCBA28",
+    "branco": "#ffffff"
+  },
+  "layout": {
+    "pip_padrao": "direita",
+    "pip": {
+      "direita": {
+        "x": 730,
+        "y": 1150,
+        "w": 290,
+        "h": 290,
+        "r": 145
+      },
+      "esquerda": {
+        "x": 60,
+        "y": 1150,
+        "w": 290,
+        "h": 290,
+        "r": 145
+      }
+    }
+  },
+  "fontes": {
+    "titulo": "lilita",
+    "cabecalho": "lilita",
+    "lettering": "lilita",
+    "palavra": "lilita",
+    "carimbo": "lilita",
+    "passo": "lilita",
+    "numero": "lilita",
+    "manchete": "lilita"
+  },
+  "cortes": {
+    "estilo": "seco",
+    "som": null
+  },
+  "sons": {
+    "automaticos": [
+      "pop",
+      "click",
+      "teclado",
+      "tecla"
+    ],
+    "volume": 0.7
+  },
+  "palavra": {
+    "teto": 230
+  }
+}

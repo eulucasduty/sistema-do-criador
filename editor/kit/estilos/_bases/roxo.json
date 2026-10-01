@@ -1,0 +1,124 @@
+{
+  "tema_base": "roxo",
+  "grupo": "roxo-3d",
+  "legenda": {
+    "padrao": "destaque",
+    "tipos": {
+      "destaque": {
+        "linhas": 2,
+        "max_chars": 18,
+        "max_palavras_linha": 3,
+        "enfase": "linha",
+        "enfase_auto": true,
+        "enfase_escala": 1.26,
+        "enfase_caixa": "alta",
+        "acende": "nenhum",
+        "entrada": "sobe",
+        "fonte": "texto",
+        "tamanho": 58,
+        "entrelinha": 1.12,
+        "ancora": "auto",
+        "prefere_y": 0.74
+      },
+      "frase": {
+        "linhas": 2,
+        "max_chars": 28,
+        "max_palavras_linha": 6,
+        "max_palavras_bloco": 10,
+        "quebra_virgula": false,
+        "acende": "nenhum",
+        "entrada": "seco",
+        "fonte": "inter",
+        "tamanho": 44,
+        "entrelinha": 1.24,
+        "ancora": "auto",
+        "prefere_y": 0.78
+      },
+      "simples": {
+        "linhas": 2,
+        "max_chars": 26,
+        "max_palavras_linha": 5,
+        "max_palavras_bloco": 8,
+        "acende": "nenhum",
+        "entrada": "fade",
+        "fonte": "texto",
+        "tamanho": 52,
+        "entrelinha": 1.14,
+        "ancora": "auto",
+        "prefere_y": 0.72
+      }
+    },
+    "acento": "#c4a6fa",
+    "tinta": "#150a2b",
+    "clara": "#ffffff",
+    "cores": {
+      "lilas": "#c4a6fa",
+      "violeta": "#9153f8",
+      "lima": "#d4f83a",
+      "rosa": "#d880b8",
+      "verde": "#7df0a8",
+      "vermelho": "#ff6b8b"
+    },
+    "sobre_fundo_claro": "#150a2b",
+    "acento_claro": "#6a2ee0"
+  },
+  "cores": {
+    "verde": "#7df0a8",
+    "vermelho": "#ff6b8b",
+    "dourado": "#c4a6fa",
+    "branco": "#f2eafc"
+  },
+  "cortes": {
+    "estilo": "seco",
+    "som": null
+  },
+  "sons": {
+    "automaticos": [
+      "pop",
+      "click",
+      "tecla",
+      "teclado",
+      "whoosh",
+      "ding"
+    ],
+    "volume": 0.8
+  },
+  "fontes": {
+    "titulo": "display",
+    "cabecalho": "larga-media",
+    "passo": "condensada-media",
+    "numero": "condensada-media",
+    "lettering": "larga",
+    "manchete": "texto"
+  },
+  "layout": {
+    "dividida": {
+      "x": 36,
+      "y": 906,
+      "w": 1008,
+      "h": 978,
+      "r": 46
+    },
+    "dividida_baixo": {
+      "x": 36,
+      "y": 150,
+      "w": 1008,
+      "h": 760,
+      "r": 46
+    }
+  },
+  "camadas": {
+    "cores": [
+      "#f2eafc",
+      "#7f95ff",
+      "#a78bfa",
+      "#9153f8",
+      "#f0a6d8",
+      "#7df0a8"
+    ]
+  },
+  "cenario": {
+    "brilho": "rgba(196,166,250,1)",
+    "brilho2": "rgba(145,83,248,0.9)"
+  }
+}

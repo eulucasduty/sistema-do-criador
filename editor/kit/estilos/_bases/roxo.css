@@ -1,0 +1,129 @@
+      /* Família "roxo 3D": violeta profundo com brilho, painéis de vidro e três acentos
+         (violeta, lilás e lima). Títulos largos em caixa baixa, rótulos pequenos em caixa alta. */
+      :root {
+        --void: #0b0716;
+        --void-img: radial-gradient(ellipse at 50% 34%, rgba(84, 46, 168, 0.6), transparent 64%), radial-gradient(ellipse at 104% 4%, rgba(145, 83, 248, 0.22), transparent 46%);
+        --void-tam: auto, auto;
+        --card: #191030;
+        --card-borda: 2px solid rgba(196, 166, 250, 0.3);
+        --card-sombra: 0 24px 60px rgba(6, 2, 20, 0.6), 0 0 60px rgba(145, 83, 248, 0.14);
+        --card-raio: 26px;
+        --texto: #f2eafc;
+        --dim: #b3a6d6;
+        --apagado: #8377a8;
+        --acento: #9153f8;
+        --acento-tinta: #ffffff;
+        --acento2: #c4a6fa;
+        --acento3: #d4f83a;
+        --ok: #7df0a8;
+        --erro: #ff6b8b;
+        --brilho: 145, 83, 248;
+        --tinta-borda: 2px solid rgba(196, 166, 250, 0.5);
+        --chip-sombra: 0 0 26px rgba(145, 83, 248, 0.4);
+        --chip-raio: 999px;
+        --f-titulo: "Jakarta", sans-serif;
+        --titulo-espaco: -0.02em;
+        --titulo-sombra: none;
+        --palavra-sombra: 0 0 70px rgba(145, 83, 248, 0.65);
+        --nome-sombra: none;
+        --f-numero: "Jakarta", sans-serif;
+        --numero-peso: 800;
+        --logo-fundo: #f2eafc;
+        --logo-sombra: 0 0 44px rgba(145, 83, 248, 0.32);
+        --mold: #120a22;
+        --janela: #1c1336;
+        --janela-borda: rgba(196, 166, 250, 0.25);
+        --url: #120a22;
+        --notif: #1c1336;
+        --notif-borda: rgba(196, 166, 250, 0.3);
+        --notif-texto: #cfc6ee;
+        --trilho: #241846;
+        --destaque-brilho: 0 0 0 4px rgba(13, 7, 22, 0.5), 0 0 34px rgba(196, 166, 250, 0.62);
+        --quadro-borda: 2px solid rgba(196, 166, 250, 0.6);
+        --quadro-sombra: 0 0 40px rgba(145, 83, 248, 0.35);
+        --escurece: 11, 7, 22;
+        --vidro: rgba(24, 14, 48, 0.88);
+        --vidro-borda: rgba(196, 166, 250, 0.42);
+        --grade: rgba(167, 139, 250, 0.4);
+        --cab-caixa: none;
+        --selo: #7038e3;
+        --selo-tinta: #ffffff;
+        --fita: rgba(167, 139, 250, 0.6);
+        --extrusao: #9153f8;
+        --eco: #c4a6fa;
+        --marcador: #d4f83a;
+      }
+      .cena-titulo, .lista-titulo, .palavra-linha, .chip-titulo, .cta-txt b, .logo-op { font-weight: 800; }
+      .cena-titulo { font-size: 68px; }
+      .palavra-linha { font-family: "Archivo", sans-serif; font-weight: 900; font-stretch: 125%; letter-spacing: 0; }
+      .palavra-linha.ouro { color: var(--acento2); }
+      .rotulo { color: var(--acento2); }
+      /* rótulo e chip: pílula de vidro violeta */
+      .chip-ouro, .chip-rotulo { background: rgba(145, 83, 248, 0.26); color: #e6dcff; }
+      .chip-titulo { font-family: "Jakarta", sans-serif; font-size: 40px; letter-spacing: 0.06em; padding: 14px 30px 16px; border: none; border-radius: 999px; box-shadow: 0 0 34px rgba(145, 83, 248, 0.6); }
+      .chip-titulo.branco { background: #f2eafc; color: #150a2b; }
+      .seguir { border: none; }
+      /* a janela do rosto: borda fina com brilho e quatro cantos brancos por dentro */
+      .janela-borda i { display: block; width: 44px; height: 44px; border: 3px solid rgba(255, 255, 255, 0.85); }
+      .janela-borda i:nth-child(1) { left: 18px; top: 18px; border-right: none; border-bottom: none; }
+      .janela-borda i:nth-child(2) { right: 18px; top: 18px; left: auto; border-left: none; border-bottom: none; }
+      .janela-borda i:nth-child(3) { left: 18px; bottom: 18px; top: auto; border-right: none; border-top: none; }
+      .janela-borda i:nth-child(4) { right: 18px; bottom: 18px; left: auto; top: auto; border-left: none; border-top: none; }
+      /* cabeçalho: selo de contorno, tracinhos e régua lilás */
+      .cab-selo { border: 2px solid rgba(196, 166, 250, 0.6); background: rgba(145, 83, 248, 0.12); font-family: var(--f-mono); font-weight: 500; font-size: 26px; letter-spacing: 0.18em; color: var(--acento2); padding: 7px 20px 8px 16px; }
+      .cab-rotulo { font-family: var(--f-mono); font-weight: 500; font-size: 24px; letter-spacing: 0.26em; color: var(--acento2); }
+      .cab-prog i { width: 58px; height: 7px; background: rgba(196, 166, 250, 0.24); }
+      .cab-l { text-shadow: 0 2px 24px rgba(11, 7, 22, 0.7); }
+      .cab-icone { background: rgba(24, 14, 48, 0.8); border: 2px solid rgba(196, 166, 250, 0.5); border-radius: 20px; }
+      /* cards de explicação: um painel só, com os passos lado a lado */
+      .fluxo { background: var(--card); border: var(--card-borda); border-radius: 24px; padding: 30px 20px 26px; box-sizing: border-box; box-shadow: var(--card-sombra); }
+      .fluxo .no { background: none; border: none; box-shadow: none; width: auto; flex: 1; padding: 0 6px; font-size: 28px; }
+      .fluxo .icone-caixa.pequena, .fluxo .logo-caixa.pequena { width: 96px; height: 96px; border-radius: 24px; font-size: 48px; background: linear-gradient(160deg, #a977ff, #7038e3); color: #ffffff; border: none; box-shadow: 0 0 30px rgba(145, 83, 248, 0.5); }
+      .liga { flex: 0 0 60px; }
+      .liga-linha { border-top: 3px solid rgba(196, 166, 250, 0.8); }
+      .liga-linha::after { content: ""; position: absolute; right: 0; top: -9px; width: 12px; height: 12px; border-top: 3px solid rgba(196, 166, 250, 0.8); border-right: 3px solid rgba(196, 166, 250, 0.8); transform: rotate(45deg); }
+      .cheia-zoom .fluxo { background: none; border: none; box-shadow: none; }
+      /* grade de cards: rótulo em caixa alta com ícone */
+      .grade-titulo { font-size: 50px; }
+      .grade-rotulo { font-size: 23px; }
+      /* lista em foco: linhas soltas, a da vez com borda lilás */
+      .lista-foco { background: none; border: none; box-shadow: none; padding: 0; gap: 16px; }
+      .lista-foco .rotulo { font-size: 22px; letter-spacing: 0.24em; }
+      .lista-foco .lista-titulo { font-family: "Archivo", sans-serif; font-weight: 700; font-stretch: 62%; font-size: 104px; line-height: 0.98; text-transform: uppercase; letter-spacing: 0; display: block; margin-bottom: 10px; }
+      .lista-foco .lista-titulo .l0, .lista-foco .lista-titulo .l1 { display: block; }
+      .lista-foco .lista-titulo .l1 { color: var(--acento2); }
+      .item.foco { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(196, 166, 250, 0.16); border-radius: 14px; padding: 20px 22px; box-sizing: border-box; }
+      .item-luz { border-radius: 14px; border: 2px solid var(--acento2); background: linear-gradient(90deg, rgba(145, 83, 248, 0.4), rgba(145, 83, 248, 0.1)); }
+      .lista-foco .marca { width: 84px; height: 84px; border-radius: 18px; background: rgba(24, 14, 48, 0.6); border: 2px solid rgba(196, 166, 250, 0.6); color: var(--acento2); font-size: 46px; }
+      .lista-foco .item-txt > span { font-family: "Archivo", sans-serif; font-weight: 700; font-stretch: 62%; font-size: 56px; line-height: 1; text-transform: uppercase; }
+      .lista-foco .item-txt small { font-family: var(--f-texto); font-weight: 500; font-size: 30px; color: var(--dim); }
+      .lista-foco .item em { font-size: 18px; color: var(--apagado); }
+      .marca { border: none; }
+      /* resumo por cima do vídeo: linhas escuras com miniatura, número lilás e nome em caixa alta larga */
+      .sobre-centro .lista { background: none; border: none; box-shadow: none; padding: 0; gap: 14px; align-items: flex-start; }
+      .sobre-centro .item { background: rgba(13, 8, 23, 0.84); border: 2px solid rgba(196, 166, 250, 0.36); border-radius: 16px; padding: 12px 26px 12px 12px; font-family: "Archivo", sans-serif; font-weight: 700; font-stretch: 125%; font-size: 34px; text-transform: uppercase; }
+      .sobre-centro .marca { width: 64px; height: 64px; border-radius: 12px; }
+      /* fotos e inserts */
+      .foto-card { border: 2px solid var(--acento2); }
+      .foto-etiqueta { background: var(--acento); color: #ffffff; }
+      .polaroid-leg { font-weight: 500; }
+      /* chips e etiquetas: violeta cheio */
+      .cel-chip, .chamada span { background: linear-gradient(180deg, #a977ff, #7b45ea); border: none; box-shadow: 0 0 34px rgba(145, 83, 248, 0.6), 0 10px 26px rgba(0, 0, 0, 0.4); }
+      .cel-chip .ic, .chamada .ic { color: #ffffff; }
+      .cel-moldura { border-color: #140c26; box-shadow: 0 0 0 2px rgba(196, 166, 250, 0.6), 0 40px 90px rgba(0, 0, 0, 0.55), 0 0 80px rgba(145, 83, 248, 0.45); }
+      /* aviso do cenário: pílula escura grande, com o ponto violeta */
+      .cen-rotulo span { min-width: 700px; justify-content: center; padding: 22px 44px 24px; font-size: 40px; font-weight: 500; background: rgba(13, 8, 23, 0.84); border: 2px solid rgba(196, 166, 250, 0.4); position: relative; }
+      .cen-rotulo i { position: absolute; left: 34px; background: var(--acento); box-shadow: 0 0 14px var(--acento); }
+      /* tutorial em janela: rótulo do passo em caixa alta, sem serifa */
+      .jia-rotulo { font-family: var(--f-texto); font-weight: 500; font-size: 30px; letter-spacing: 0.14em; }
+      .cena-olho { font-family: var(--f-texto); font-weight: 800; font-size: 22px; letter-spacing: 0.26em; }
+      /* visor de câmera */
+      .vs-canto { border-width: 3px; }
+      /* legendas da família */
+      .leg-destaque .grupo { color: #ffffff; text-shadow: 0 3px 16px rgba(0, 0, 0, 0.78); }
+      .leg-destaque .ln.enf { text-shadow: 0 0 34px rgba(145, 83, 248, 0.95), 0 3px 16px rgba(0, 0, 0, 0.7); }
+      .leg-destaque .grupo.no-claro, .leg-simples .grupo.no-claro { color: #150a2b; text-shadow: 0 0 14px rgba(255, 255, 255, 0.9); }
+      .leg-destaque .grupo.no-claro .ln.enf { text-shadow: 0 0 14px rgba(255, 255, 255, 0.9); }
+      .leg-frase .grupo { color: #ffffff; }
+      .leg-frase .bl { background: rgba(8, 6, 14, 0.88); padding: 12px 28px 14px; border-radius: 12px; }
+      .leg-simples .grupo { color: #ffffff; letter-spacing: -0.01em; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9), 0 0 22px rgba(0, 0, 0, 0.7); }

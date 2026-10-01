@@ -1,0 +1,101 @@
+{
+  "id": "nativo",
+  "nome": "Nativo (texto do próprio TikTok)",
+  "grupo": "virais",
+  "ordem": 35,
+  "descricao": "Parece post gravado e escrito no próprio app: texto com as caixas arredondadas do TikTok, balão de resposta a comentário, sem cor, sem efeito. Feito pra não ter cara de anúncio.",
+  "legenda": {
+    "padrao": "caixa",
+    "tipos": {
+      "caixa": {
+        "linhas": 2,
+        "max_chars": 22,
+        "max_palavras_linha": 5,
+        "max_palavras_bloco": 8,
+        "equilibra_de": 99,
+        "quebra_virgula": false,
+        "acende": "nenhum",
+        "entrada": "seco",
+        "fonte": "tiktok",
+        "tamanho": 60,
+        "caixas": {
+          "cor": "#000000"
+        },
+        "ancora": "auto",
+        "prefere_y": 0.58,
+        "limite_y": 1250,
+        "segura": 0.5
+      },
+      "branca": {
+        "linhas": 2,
+        "max_chars": 22,
+        "max_palavras_linha": 5,
+        "max_palavras_bloco": 8,
+        "equilibra_de": 99,
+        "quebra_virgula": false,
+        "acende": "nenhum",
+        "entrada": "seco",
+        "fonte": "tiktok",
+        "tamanho": 60,
+        "caixas": {
+          "cor": "#ffffff"
+        },
+        "ancora": "auto",
+        "prefere_y": 0.58,
+        "limite_y": 1250,
+        "segura": 0.5
+      },
+      "contorno": {
+        "linhas": 2,
+        "max_chars": 22,
+        "max_palavras_linha": 5,
+        "max_palavras_bloco": 8,
+        "equilibra_de": 99,
+        "quebra_virgula": false,
+        "acende": "nenhum",
+        "entrada": "seco",
+        "fonte": "tiktok-forte",
+        "tamanho": 60,
+        "entrelinha": 1.208,
+        "ancora": "auto",
+        "prefere_y": 0.58,
+        "limite_y": 1250,
+        "segura": 0.5
+      }
+    },
+    "clara": "#ffffff"
+  },
+  "cores": {
+    "verde": "#77C25D",
+    "vermelho": "#EA4040",
+    "dourado": "#F2CE46",
+    "branco": "#ffffff"
+  },
+  "manchete": {
+    "y": 250,
+    "tamanho": 62,
+    "largura": 760,
+    "fonte": "tiktok",
+    "caixas": {
+      "cor": "#ffffff",
+      "texto": "#000000"
+    },
+    "entrada": "seco"
+  },
+  "cortes": {
+    "estilo": "seco",
+    "som": null
+  },
+  "sons": {
+    "automaticos": false
+  },
+  "fontes": {
+    "manchete": "tiktok",
+    "titulo": "tiktok-preta",
+    "cabecalho": "tiktok-preta",
+    "palavra": "tiktok-preta",
+    "lettering": "tiktok-preta",
+    "carimbo": "tiktok-preta"
+  },
+  "escurecer": false
+}

@@ -1,0 +1,55 @@
+{
+  "id": "minimalista",
+  "nome": "Minimalista (inspirado em Dan Koe)",
+  "grupo": "cinema",
+  "ordem": 41,
+  "descricao": "Só você falando, takes longos, uma linha de legenda em serifa minúscula âmbar e um cartão preto com a frase de abertura. Sem música, sem efeito, sem zoom.",
+  "legenda": {
+    "padrao": "serifa",
+    "tipos": {
+      "serifa": {
+        "max_chars": 30,
+        "max_palavras": 6,
+        "caixa": "baixa",
+        "quebra_virgula": false,
+        "acende": "nenhum",
+        "entrada": "seco",
+        "fonte": "garamond",
+        "tamanho": 58,
+        "ancora": "auto",
+        "prefere_y": 0.7,
+        "segura": 0.6
+      }
+    },
+    "clara": "#F0B419",
+    "acento": "#F0B419"
+  },
+  "cores": {
+    "verde": "#b7d9a8",
+    "vermelho": "#e08a7a",
+    "dourado": "#F0B419",
+    "branco": "#ffffff"
+  },
+  "cortes": {
+    "estilo": "seco",
+    "som": null
+  },
+  "sons": {
+    "automaticos": false
+  },
+  "fontes": {
+    "citacao": "garamond",
+    "palavra": "garamond",
+    "titulo": "garamond",
+    "cabecalho": "garamond",
+    "lettering": "garamond",
+    "manchete": "garamond",
+    "local": "garamond"
+  },
+  "palavra": {
+    "entrada": "seco",
+    "som": false,
+    "teto": 104
+  },
+  "escurecer": false
+}

@@ -174,8 +174,11 @@ sua conta no ChatGPT e `anthropic/claude-sonnet-5.5` na OpenRouter.
 Pra ver o editor funcionando com um vídeo do seu computador, sem mandar pelo painel:
 
 ```
-npm run editor:testar -- "caminho/do/video.mp4" --motor claude --usuario @seuperfil --cor natural --legenda bangers
+npm run editor:testar -- "caminho/do/video.mp4" --motor claude --usuario @seuperfil --cor natural --estilo classico
 ```
+
+`--estilo` é o estilo de edição (o nome da pasta em `editor/kit/estilos`; `npm run editor:catalogo`
+mostra a lista com as legendas de cada um). Sem ele, vale o estilo padrão.
 
 (`--motor codex` ou `--motor openrouter` também valem; na OpenRouter, com `OPENROUTER_API_KEY` no
 `.env.local`.) O resultado fica em `editor/oficina/teste-<data>/renders/final.mp4`.

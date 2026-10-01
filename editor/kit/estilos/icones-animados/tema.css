@@ -1,0 +1,6 @@
+      /* Ícones animados: cabeçalho condensado centralizado, traço embaixo. */
+      :root { --cab-caixa: uppercase; }
+      .cabecalho.passo .cab-linhas { align-items: flex-start; }
+      .cabecalho.centro .cab-regua { width: 150px; height: 4px; }
+      .cab-icone { width: 92px; height: 92px; font-size: 52px; }
+      .cabecalho.centro .cab-rotulo { font-family: var(--f-texto); font-weight: 800; font-size: 22px; letter-spacing: 0.24em; }

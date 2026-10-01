@@ -1,0 +1,38 @@
+{
+  "id": "profissional",
+  "nome": "Profissional",
+  "grupo": "base",
+  "ordem": 3,
+  "descricao": "Sóbrio, pra falar com empresa e cliente: grafite com um azul só, cards retos de dado e de prova, nada pulando na tela.",
+  "legenda": {
+    "tipos": {
+      "padrao": {
+        "max_chars": 20,
+        "max_palavras": 4,
+        "caixa": "normal",
+        "acende": "caixa",
+        "entrada": "sobe"
+      }
+    },
+    "acento": "#6cb0ff",
+    "tinta": "#06101c",
+    "clara": "#ffffff"
+  },
+  "cores": {
+    "verde": "#56d39b",
+    "vermelho": "#ff7a7a",
+    "dourado": "#6cb0ff",
+    "branco": "#e9eef5"
+  },
+  "cortes": {
+    "estilo": "seco",
+    "som": null
+  },
+  "sons": {
+    "automaticos": [
+      "click",
+      "pop"
+    ],
+    "volume": 0.7
+  }
+}

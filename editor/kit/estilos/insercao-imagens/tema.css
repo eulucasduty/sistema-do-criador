@@ -1,0 +1,4 @@
+      /* Inserção de imagens: o cabeçalho em caixa alta larga, sobre o topo escurecido. */
+      :root { --cab-caixa: uppercase; }
+      .cab-regua { display: none; }
+      .cab-l { line-height: 1.08; letter-spacing: 0.01em; }

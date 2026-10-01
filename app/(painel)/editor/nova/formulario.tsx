@@ -2,13 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { partesDe, type PedidoEdicao } from "@/lib/editor";
+import { ESTILOS_EDICAO, GRUPOS_ESTILO, estiloDe, partesDe, type PedidoEdicao } from "@/lib/editor";
 import { confirmarEdicao, criarEdicao } from "../acoes";
 import { BarraEnvio, mb, subirArquivo, type Andamento } from "../envio";
-import { ESTILOS_LEGENDA, LOOKS_VIDEO, type EstiloLegenda, type LookVideo } from "../opcoes";
+import { LOOKS_VIDEO, type LookVideo } from "../opcoes";
 
 type Material = { chave: number; tipo: "arquivo" | "link"; arquivo: File | null; url: string; descricao: string };
-export type Inicial = { titulo: string; roteiro: string; legenda: EstiloLegenda; cor: LookVideo };
+export type Inicial = { titulo: string; roteiro: string; estilo: string; legenda: string; cor: LookVideo };
 
 const escolha = (ativo: boolean) =>
   `rounded-xl border-2 px-3 py-2 text-left text-sm ${ativo ? "border-tinta bg-marca text-[#05070e] shadow-[0_3px_0_#000]" : "border-linha text-suave"}`;
@@ -18,7 +18,9 @@ export function FormularioEdicao({ inicial }: { inicial: Inicial }) {
   const [titulo, setTitulo] = useState(inicial.titulo);
   const [video, setVideo] = useState<File | null>(null);
   const [roteiro, setRoteiro] = useState(inicial.roteiro);
-  const [legenda, setLegenda] = useState<EstiloLegenda>(inicial.legenda);
+  const [estilo, setEstilo] = useState<string>(inicial.estilo);
+  const [legenda, setLegenda] = useState<string>(inicial.legenda);
+  const escolhido = estiloDe(estilo);
   const [cor, setCor] = useState<LookVideo>(inicial.cor);
   const [materiais, setMateriais] = useState<Material[]>([]);
   const [envio, setEnvio] = useState<Andamento | null>(null);
@@ -37,6 +39,7 @@ export function FormularioEdicao({ inicial }: { inicial: Inicial }) {
     const pedido: PedidoEdicao = {
       titulo,
       roteiro,
+      estilo,
       legenda,
       cor,
       video: { nome: video.name, tamanho: video.size, tipo: video.type, partes: partesDe(video.size) },
@@ -87,6 +90,57 @@ export function FormularioEdicao({ inicial }: { inicial: Inicial }) {
             {video ? `${video.name} · ${mb(video.size)}` : "Do jeito que saiu do celular (pode ser a junção das tomadas). Vídeo do iPhone em HDR é convertido sozinho."}
           </span>
         </label>
+      </section>
+
+      <section className="card space-y-4 p-4">
+        <div>
+          <h2 className="rotulo">Estilo de edição</h2>
+          <p className="mt-1 text-sm text-suave">Como o vídeo vai ser editado. O mesmo vídeo cru sai diferente em cada um. O padrão vem do seu Perfil.</p>
+        </div>
+        {GRUPOS_ESTILO.map((g) => {
+          const doGrupo = ESTILOS_EDICAO.filter((e) => e.grupo === g.id);
+          if (!doGrupo.length) return null;
+          return (
+            <div key={g.id} className="space-y-2">
+              <div>
+                <h3 className="text-sm font-bold">{g.nome}</h3>
+                <p className="text-xs text-apagado">{g.resumo}</p>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {doGrupo.map((e) => {
+                  const ativo = estilo === e.id;
+                  return (
+                    <button
+                      type="button"
+                      key={e.id}
+                      aria-pressed={ativo}
+                      disabled={ocupado}
+                      onClick={() => {
+                        setEstilo(e.id);
+                        setLegenda(e.legenda);
+                      }}
+                      className={`flex gap-3 rounded-xl border-2 p-3 text-left ${ativo ? "border-marca bg-marca-fundo" : "border-linha"}`}
+                    >
+                      <span className="mt-0.5 flex h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-linha" aria-hidden>
+                        {e.cores.map((c, k) => (
+                          <span key={k} className="h-full flex-1" style={{ background: c }} />
+                        ))}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="flex flex-wrap items-center gap-x-2">
+                          <span className="font-bold leading-tight">{e.nome}</span>
+                          {ativo && <span className="font-mono text-xs text-marca">escolhido</span>}
+                        </span>
+                        <span className="mt-1 block text-xs leading-snug text-suave">{e.descricao}</span>
+                        {e.recorte && <span className="mt-1 block text-xs text-apagado">recorta você do fundo: o render demora mais</span>}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
       </section>
 
       <section className="card space-y-3 p-4">
@@ -146,12 +200,11 @@ export function FormularioEdicao({ inicial }: { inicial: Inicial }) {
           />
         </label>
         <div>
-          <span className="rotulo">Legenda</span>
+          <span className="rotulo">Legenda do estilo {escolhido.nome}</span>
           <div className="mt-2 flex flex-wrap gap-2">
-            {ESTILOS_LEGENDA.map((l) => (
-              <button type="button" key={l.valor} onClick={() => setLegenda(l.valor)} disabled={ocupado} className={escolha(legenda === l.valor)}>
+            {escolhido.legendas.map((l) => (
+              <button type="button" key={l.id} onClick={() => setLegenda(l.id)} disabled={ocupado} className={escolha(legenda === l.id)}>
                 <span className="block font-bold">{l.nome}</span>
-                <span className="block text-xs opacity-80">{l.detalhe}</span>
               </button>
             ))}
           </div>
@@ -165,7 +218,7 @@ export function FormularioEdicao({ inicial }: { inicial: Inicial }) {
               </option>
             ))}
           </select>
-          <span className="mt-1 block text-xs text-apagado">O padrão de legenda e de look vem do seu Perfil.</span>
+          <span className="mt-1 block text-xs text-apagado">O padrão de estilo e de look vem do seu Perfil.</span>
         </label>
       </section>
 

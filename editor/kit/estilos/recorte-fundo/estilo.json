@@ -1,0 +1,11 @@
+{
+  "id": "recorte-fundo",
+  "nome": "Recorte de fundo",
+  "base": "roxo",
+  "ordem": 16,
+  "usa_recorte": true,
+  "descricao": "A IA recorta você do fundo e troca o cenário atrás: cidade à noite, neon, cor sólida, com palavra gigante atrás da cabeça.",
+  "fontes": {
+    "lettering": "larga"
+  }
+}

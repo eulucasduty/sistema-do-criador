@@ -1,0 +1,159 @@
+      /* Mais componentes: janela em 3D (tutorial), celular, modelo isométrico, etiqueta, placar,
+         banho de cor, lugar e hora, documento, selo "ao vivo", moldura e chamadas. */
+
+      /* ── texto que se digita ── */
+      .dg-p { display: inline-block; white-space: nowrap; }
+      .dg-p i { font-style: normal; opacity: 0; }
+      .dg-p.realce i { background: rgba(var(--brilho), 0.34); color: var(--acento2); }
+
+      /* ── janela em 3D ── */
+      .jia { overflow: hidden; }
+      .jia-fundo { position: absolute; inset: 0; overflow: hidden; }
+      .jia-chao { position: absolute; left: -60%; bottom: -30%; width: 220%; height: 70%; background-image: linear-gradient(var(--grade, rgba(167, 139, 250, 0.4)) 2px, transparent 2px), linear-gradient(90deg, var(--grade, rgba(167, 139, 250, 0.4)) 2px, transparent 2px); background-size: 110px 110px; transform: perspective(900px) rotateX(74deg); -webkit-mask-image: linear-gradient(to top, #000 0, #000 40%, transparent 90%); mask-image: linear-gradient(to top, #000 0, #000 40%, transparent 90%); display: block; }
+      .jia-estrela { position: absolute; display: block; background: var(--acento2); clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
+      .jia-cab { position: absolute; left: 0; top: 150px; width: 1080px; padding: 0 60px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px; }
+      .jia-topo { display: flex; align-items: center; gap: 18px; margin-bottom: 14px; }
+      .jia-num { min-width: 76px; height: 76px; padding: 0 14px; border-radius: 20px; background: var(--selo, var(--acento)); color: var(--selo-tinta, var(--acento-tinta)); display: grid; place-items: center; font-family: var(--f-texto); font-weight: 800; font-size: 40px; box-sizing: border-box; box-shadow: 0 0 34px rgba(var(--brilho), 0.5); }
+      .jia-rotulo { font-family: var(--f-mono); font-size: 27px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--acento2); }
+      .jia-t { line-height: 1.06; color: var(--texto); white-space: nowrap; }
+      .jia-t.l1 { color: var(--acento2); }
+      .jia-cab-solto { position: absolute; inset: 0; z-index: 9; pointer-events: none; }
+      .jia-palco { position: absolute; left: 0; top: 520px; width: 1080px; display: flex; justify-content: center; perspective: 1700px; }
+      .jia-janela { width: 900px; border-radius: 30px; background: var(--vidro, rgba(24, 14, 48, 0.86)); border: 2px solid var(--vidro-borda, rgba(196, 181, 253, 0.42)); box-shadow: 0 0 80px rgba(var(--brilho), 0.3), 0 40px 90px rgba(0, 0, 0, 0.5); overflow: hidden; box-sizing: border-box; }
+      .jia-barra-topo { display: flex; align-items: center; gap: 12px; padding: 22px 28px; border-bottom: 1px solid rgba(128, 128, 128, 0.25); font-family: var(--f-texto); font-weight: 800; font-size: 28px; color: var(--texto); }
+      .jia-barra-topo i { width: 16px; height: 16px; border-radius: 50%; background: #ff5f57; display: block; }
+      .jia-barra-topo i:nth-child(2) { background: #febc2e; }
+      .jia-barra-topo i:nth-child(3) { background: #28c840; }
+      .jia-barra-topo span { flex: 1; display: flex; justify-content: center; align-items: center; gap: 10px; margin-right: 70px; }
+      .jia-barra-topo .ic { font-size: 28px; color: var(--acento2); }
+      .jia-corpo { padding: 28px 32px 34px; display: flex; flex-direction: column; gap: 22px; }
+      .jia-campo { font-family: var(--f-mono); font-size: 23px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); }
+      .jia-texto { min-height: 300px; padding: 26px 28px 22px; border-radius: 22px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.14); font-family: var(--f-texto); font-weight: 500; font-size: 44px; line-height: 1.34; color: #ffffff; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; gap: 22px; }
+      .jia-texto.curto { min-height: 0; font-size: 38px; }
+      .dg-p.pronto.realce { background: rgba(var(--brilho), 0.34); color: var(--acento2); }
+      .jia-acoes { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+      .jia-anexo { display: inline-flex; align-items: center; gap: 12px; padding: 12px 22px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); font-size: 27px; font-weight: 500; color: var(--texto); }
+      .jia-enviar { width: 78px; height: 78px; border-radius: 50%; background: var(--acento); color: var(--acento-tinta); display: grid; place-items: center; font-size: 40px; box-shadow: 0 0 34px rgba(var(--brilho), 0.6); }
+      .jia-lista { display: flex; flex-direction: column; gap: 18px; }
+      .jia-item { display: flex; align-items: center; gap: 20px; font-size: 38px; font-weight: 800; color: var(--texto); opacity: 0.55; }
+      .jia-check { width: 52px; height: 52px; border-radius: 50%; border: 2px solid rgba(128, 128, 128, 0.5); display: grid; place-items: center; flex: none; box-sizing: border-box; }
+      .jia-check b { width: 52px; height: 52px; border-radius: 50%; background: var(--ok); color: #06140b; display: grid; place-items: center; font-size: 32px; }
+      .jia-prog { display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
+      .jia-prog-topo { display: flex; justify-content: space-between; font-size: 30px; font-weight: 800; color: var(--texto); }
+      .jia-prog-topo b { color: var(--acento2); font-variant-numeric: tabular-nums; }
+      .jia-barra { height: 18px; border-radius: 999px; background: rgba(128, 128, 128, 0.25); overflow: hidden; }
+      .jia-barra i { display: block; width: 100%; height: 100%; background: linear-gradient(90deg, var(--acento), var(--acento2)); transform-origin: 0 50%; }
+      .jia-tira { position: absolute; left: 90px; top: 1200px; width: 900px; padding: 18px 20px; border-radius: 24px; background: var(--vidro, rgba(24, 14, 48, 0.86)); border: 2px solid var(--vidro-borda, rgba(196, 181, 253, 0.42)); display: flex; flex-direction: column; gap: 12px; box-sizing: border-box; }
+      .jia.com-pip .jia-tira { display: none; }
+      .jia.sem-tira .jia-palco { top: 600px; }
+      .jia.sem-tira .jia-janela { zoom: 1.14; }
+      .jia.sem-tira.com-pip .jia-palco { top: 520px; }
+      .jia.sem-tira.com-pip .jia-janela { zoom: 1; }
+      .jia-clipes { display: flex; gap: 6px; height: 96px; }
+      .jia-clipe { display: block; border-radius: 12px; overflow: hidden; background: linear-gradient(135deg, var(--acento), color-mix(in srgb, var(--acento) 40%, #000)); border: 1px solid rgba(255, 255, 255, 0.3); box-sizing: border-box; }
+      .jia-clipe.b { background: linear-gradient(135deg, var(--acento2), color-mix(in srgb, var(--acento2) 40%, #000)); }
+      .jia-clipe b { display: block; width: 100%; height: 100%; background-size: cover; background-position: 50% 30%; }
+      .jia-pausa { display: block; border-radius: 6px; background: repeating-linear-gradient(135deg, rgba(255, 90, 110, 0.75) 0 8px, rgba(255, 90, 110, 0.2) 8px 16px); }
+      .jia-legs { display: flex; gap: 10px; height: 16px; }
+      .jia-legs i { display: block; border-radius: 8px; background: var(--acento2); }
+      .jia-onda { display: flex; align-items: center; gap: 5px; height: 46px; }
+      .jia-onda i { flex: 1; display: block; border-radius: 2px; background: rgba(128, 128, 128, 0.6); }
+      .jia-agulha { position: absolute; left: 22px; top: 8px; bottom: 8px; width: 4px; border-radius: 2px; background: #ffffff; display: block; box-shadow: 0 0 14px #ffffff; }
+
+      /* ── celular ── */
+      .cel-camada { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; pointer-events: none; }
+      .cel-moldura { position: absolute; box-sizing: border-box; border: 16px solid #0c0c12; border-radius: 66px; box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.22), 0 40px 90px rgba(0, 0, 0, 0.55), 0 0 70px rgba(var(--brilho), 0.3); overflow: hidden; }
+      .cel-moldura img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+      .cel-ilha { position: absolute; left: 50%; top: 16px; width: 130px; height: 34px; margin-left: -65px; border-radius: 999px; background: #0c0c12; display: block; }
+      .cel-reflexo { position: absolute; inset: 0; background: linear-gradient(115deg, rgba(255, 255, 255, 0.16) 0, transparent 34%); display: block; }
+      .cel-chip { position: absolute; display: inline-flex; align-items: center; gap: 10px; padding: 14px 24px 15px; border-radius: 999px; background: var(--vidro, rgba(16, 16, 20, 0.88)); border: 2px solid var(--vidro-borda, rgba(255, 255, 255, 0.3)); color: #ffffff; font-family: var(--f-texto); font-weight: 800; font-size: 30px; white-space: nowrap; box-shadow: 0 0 34px rgba(var(--brilho), 0.4), 0 12px 30px rgba(0, 0, 0, 0.45); }
+      .cel-chip .ic { color: var(--acento2); font-size: 30px; }
+      .celular .cel-palco { position: absolute; inset: 0; perspective: 1700px; }
+      .cel-gira { position: absolute; inset: 0; transform-style: preserve-3d; transform-origin: 540px 900px; }
+
+      /* ── modelo isométrico ── */
+      .iso-cab { position: absolute; left: 0; top: 150px; width: 1080px; padding: 0 60px; box-sizing: border-box; }
+      .iso-olho { font-family: var(--f-mono); font-size: 26px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--acento2); margin-bottom: 10px; }
+      .iso-t { line-height: 0.98; text-transform: uppercase; color: var(--texto); white-space: nowrap; }
+      .iso-t.l1 { color: var(--acento2); }
+      .iso-cena { position: absolute; width: 0; height: 0; }
+      .iso-incl { position: absolute; left: 0; top: 0; width: 0; height: 0; transform: rotateX(58deg); transform-style: preserve-3d; }
+      .iso-giro { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-style: preserve-3d; }
+      .iso-placa { position: absolute; left: -190px; top: -190px; width: 380px; height: 380px; transform-style: preserve-3d; }
+      .iso-topo { position: absolute; inset: 0; background: var(--cor); transform: translateZ(44px); display: grid; place-items: center; font-size: 150px; color: rgba(0, 0, 0, 0.4); box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.28); }
+      .iso-topo { transform-style: preserve-3d; }
+      .iso-cubo { position: absolute; display: block; background: var(--iso-objeto, #ffffff); }
+      .iso-cubo.a { transform-origin: 50% 0; transform: rotateX(90deg); background: color-mix(in srgb, var(--iso-objeto, #ffffff) 70%, #000); }
+      .iso-cubo.b { transform-origin: 0 50%; transform: rotateY(-90deg); background: color-mix(in srgb, var(--iso-objeto, #ffffff) 50%, #000); }
+      .iso-caminho { position: absolute; inset: 0; width: 100%; height: 100%; }
+      .iso-caminho path { stroke: var(--iso-traco, var(--acento3)); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+      .iso-luz { position: absolute; left: 8%; top: 14%; width: 84%; height: 60%; display: block; transform-origin: 0 50%; background: linear-gradient(100deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0) 80%); clip-path: polygon(0 30%, 100% 0, 100% 100%, 0 62%); }
+      .iso-grade { position: absolute; inset: 0; display: block; background-image: linear-gradient(rgba(0, 0, 0, 0.22) 3px, transparent 3px), linear-gradient(90deg, rgba(0, 0, 0, 0.22) 3px, transparent 3px); background-size: 76px 76px; }
+      .iso-lado { position: absolute; display: block; }
+      .iso-lado.a { left: 0; top: 100%; width: 100%; height: 44px; transform-origin: 50% 0; transform: rotateX(90deg); background: color-mix(in srgb, var(--cor) 64%, #000); }
+      .iso-lado.b { left: 100%; top: 0; width: 44px; height: 100%; transform-origin: 0 50%; transform: rotateY(-90deg); background: color-mix(in srgb, var(--cor) 44%, #000); }
+      .iso-rotulo { position: absolute; display: flex; align-items: center; gap: 16px; opacity: 0; }
+      .iso-rotulo > i { position: relative; width: 64px; height: 3px; background: var(--cor); display: block; flex: none; }
+      .iso-rotulo > i::before { content: ""; position: absolute; left: -7px; top: -5px; width: 13px; height: 13px; border-radius: 50%; background: var(--cor); }
+      .iso-rotulo span { display: block; font-family: var(--f-mono); font-size: 22px; letter-spacing: 0.2em; color: var(--cor); }
+      .iso-rotulo b { display: block; line-height: 1; text-transform: uppercase; color: var(--texto); white-space: nowrap; }
+      .iso-bloco { position: absolute; display: flex; flex-direction: column; gap: 22px; }
+      .iso-icones { display: flex; gap: 16px; }
+      .iso-icones span { width: 84px; height: 84px; border-radius: 20px; display: grid; place-items: center; font-size: 44px; color: var(--cor); border: 2px solid var(--cor); box-sizing: border-box; opacity: 0.3; }
+      .iso-textos { position: relative; height: 220px; }
+      .iso-tx { position: absolute; left: 0; top: 0; line-height: 1.02; text-transform: uppercase; color: var(--texto); white-space: nowrap; opacity: 0; }
+
+      /* ── etiqueta, placar e banho de cor ── */
+      .etiqueta { position: absolute; width: 900px; display: flex; justify-content: center; z-index: 9; pointer-events: none; }
+      .etiqueta span { display: inline-block; line-height: 1; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.02em; -webkit-text-stroke: 12px #000; paint-order: stroke fill; text-shadow: 0 8px 0 #000, 0 0 44px var(--brilho); }
+      .placar { position: absolute; left: 0; width: 1080px; display: flex; justify-content: center; z-index: 9; pointer-events: none; }
+      .placar-in { min-width: 480px; height: 172px; padding: 0 44px; border-radius: 44px; background: #f6f6f1; border: 6px solid #000; box-shadow: 0 10px 0 #000; display: flex; align-items: center; justify-content: center; gap: 22px; box-sizing: border-box; }
+      .placar-ic { font-size: 84px; color: #ff2a2a; display: block; }
+      .placar-num { line-height: 1; color: #ffffff; -webkit-text-stroke: 10px #000; paint-order: stroke fill; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+      .placar-rot { font-family: var(--f-texto); font-weight: 800; font-size: 30px; line-height: 1.05; color: #111111; text-transform: uppercase; max-width: 170px; }
+      .tinta { position: absolute; inset: 0; z-index: 27; pointer-events: none; }
+      .tinta i { position: absolute; inset: 0; display: block; opacity: 0; mix-blend-mode: screen; }
+
+      /* ── lugar e hora datilografados ── */
+      .local { position: absolute; left: 0; width: 1080px; z-index: 9; pointer-events: none; }
+      .local-in { position: relative; display: inline-flex; flex-direction: column; gap: 8px; margin-left: 70px; }
+      .local.pos-centro .local-in { display: flex; margin-left: 0; width: 1080px; align-items: center; }
+      .local-l { line-height: 1.2; letter-spacing: 0.12em; text-transform: uppercase; color: #ffffff; text-shadow: 0 2px 14px rgba(0, 0, 0, 0.75); white-space: nowrap; }
+      .local-l:not(.l0) { color: rgba(255, 255, 255, 0.82); }
+      .local-cursor { position: absolute; right: -26px; bottom: 10px; width: 14px; height: 40px; background: #ffffff; display: block; }
+      .local.pos-centro .local-cursor { display: none; }
+
+      /* ── documento com marca-texto ── */
+      .doc { width: 900px; padding: 44px 50px 46px; background: #f3efe4 url("assets/texturas/papel.jpg") center / cover; color: #1b1a18; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5); box-sizing: border-box; display: flex; flex-direction: column; gap: 18px; }
+      .doc-cab { display: flex; justify-content: space-between; align-items: baseline; gap: 20px; padding-bottom: 12px; border-bottom: 3px double #1b1a18; }
+      .doc-cab b { font-family: "Editorial", serif; font-size: 34px; font-weight: 800; letter-spacing: 0.02em; }
+      .doc-cab span { font-family: var(--f-mono); font-size: 20px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+      .doc-titulo { font-family: "Editorial", serif; font-weight: 700; font-size: 58px; line-height: 1.06; }
+      .doc-titulo em { font-style: italic; }
+      .doc-texto { margin: 0; font-family: "SerifaReta", serif; font-size: 36px; line-height: 1.42; }
+      .doc-texto mark { color: inherit; padding: 0 4px; background-image: linear-gradient(var(--marcador, #fff200), var(--marcador, #fff200)); background-repeat: no-repeat; background-position: 0 60%; background-size: 0% 82%; }
+      .doc-fonte { font-family: var(--f-mono); font-size: 20px; letter-spacing: 0.08em; text-transform: uppercase; color: #6b665c; }
+      .cheia-zoom .doc { width: 760px; }
+      .sobre-centro .doc { width: 860px; }
+
+      /* ── selo de canto ("ao vivo") ── */
+      .bug { position: absolute; top: 150px; z-index: 34; display: flex; align-items: stretch; font-family: var(--f-texto); font-weight: 800; pointer-events: none; }
+      .bug.topo-esquerda { left: 60px; }
+      .bug.topo-direita { right: 60px; }
+      .bug-vivo { display: inline-flex; align-items: center; gap: 10px; padding: 8px 18px; background: var(--erro, #cc0000); color: #ffffff; font-size: 28px; letter-spacing: 0.06em; text-transform: uppercase; }
+      .bug-vivo i { width: 14px; height: 14px; border-radius: 50%; background: #ffffff; display: block; }
+      .bug-hora { padding: 8px 16px; background: #ffffff; color: #111111; font-size: 28px; font-variant-numeric: tabular-nums; }
+      .bug-canal { padding: 8px 16px; background: #111111; color: #ffffff; font-size: 28px; letter-spacing: 0.06em; text-transform: uppercase; }
+
+      /* ── moldura e chamadas ── */
+      .moldura-cena { position: absolute; inset: 0; z-index: 9; pointer-events: none; }
+      .mol-quadro { position: absolute; inset: 22px; border: var(--moldura-borda, 3px solid var(--acento2)); border-radius: var(--moldura-raio, 44px); box-shadow: 0 0 40px rgba(var(--brilho), 0.4), inset 0 0 40px rgba(var(--brilho), 0.18); display: block; }
+      .mol-linha { position: absolute; left: 0; bottom: 420px; width: 1080px; display: flex; justify-content: center; }
+      .mol-pilula { display: inline-flex; align-items: center; gap: 12px; padding: 16px 34px 17px; border-radius: 999px; background: var(--acento); color: var(--acento-tinta); font-family: var(--f-texto); font-weight: 800; font-size: 34px; letter-spacing: 0.12em; text-transform: uppercase; box-shadow: 0 0 44px rgba(var(--brilho), 0.6); white-space: nowrap; }
+      .chamadas { position: absolute; inset: 0; z-index: 9; pointer-events: none; }
+      .chamadas svg { position: absolute; left: 0; top: 0; }
+      .chamadas path { stroke: var(--acento2); stroke-width: 3; }
+      .chamadas circle { fill: var(--acento2); }
+      .chamada { position: absolute; width: 0; height: 0; display: flex; justify-content: center; align-items: center; }
+      .chamada span { display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px 13px; border-radius: 999px; background: var(--vidro, rgba(16, 16, 20, 0.88)); border: 2px solid var(--vidro-borda, rgba(255, 255, 255, 0.3)); font-family: var(--f-texto); font-weight: 800; font-size: 30px; color: #ffffff; white-space: nowrap; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); }
+      .chamada .ic { color: var(--acento2); font-size: 30px; }

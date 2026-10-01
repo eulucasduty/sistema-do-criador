@@ -1,6 +1,7 @@
 // Preparação da oficina de uma edição, no PC do criador (a estação).
 // Vídeo bruto → look de cor + SDR + 30 fps + voz nivelada, emendas das tomadas,
-// transcrição palavra a palavra, folhas de quadros pro Claude "ver" o vídeo, materiais e perfil.
+// transcrição palavra a palavra, folhas de quadros pra IA "ver" o vídeo, materiais, perfil e o
+// kit do estilo de edição escolhido.
 
 import { spawn } from "node:child_process";
 import fs from "node:fs";
@@ -46,8 +47,12 @@ export function corDoLook(nome) {
 }
 /** O primeiro nome de look válido da lista (o do pedido, depois o do perfil); senão natural. */
 export const lookValido = (...nomes) => nomes.map(atual).find((n) => LOOKS[n]) ?? "natural";
-/** O primeiro estilo de legenda válido da lista (bangers ou limpa); senão bangers. */
-export const legendaValida = (...nomes) => nomes.map(atual).find((n) => n === "bangers" || n === "limpa") ?? "bangers";
+/**
+ * O primeiro tipo de legenda pedido (o do pedido, depois o do perfil) com nome válido; senão null
+ * (vale a legenda padrão do estilo de edição). Se o estilo não tiver esse tipo, o montador também
+ * cai na padrão dele.
+ */
+export const legendaValida = (...nomes) => nomes.map(atual).find((n) => /^[a-z0-9-]{1,40}$/.test(n)) ?? null;
 // iPhone grava em HDR (HLG): sem isso o vídeo fica lavado
 const TOM_HDR = "zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=yuv420p";
 const FONTE = fonteDrawtext(); // "fontfile='…':" ou "" (aí o ffmpeg usa a fonte padrão)
@@ -298,22 +303,62 @@ function copiar(de, para) {
   fs.cpSync(de, para, { recursive: true });
 }
 
-/** Cria a oficina com o kit (montador, estilo, sons, fontes, manual, GSAP local). */
-export function prepararPasta(pasta) {
-  for (const p of ["assets", "dados", "materiais", "logos", "prints", "cenas"]) fs.mkdirSync(path.join(pasta, p), { recursive: true });
-  for (const f of ["montar.mjs", "estilo.css", "print.mjs", "logo.mjs", "hf.mjs", "EDITOR.md", "DESIGN.md"]) copiar(path.join(KIT, f), path.join(pasta, "kit", f));
-  copiar(path.join(KIT, "DESIGN.md"), path.join(pasta, "DESIGN.md"));
+const lerJson = (arquivo, padrao) => {
+  try {
+    return JSON.parse(fs.readFileSync(arquivo, "utf8"));
+  } catch {
+    return padrao;
+  }
+};
+/** Os estilos de edição do kit (as pastas de kit/estilos, menos as famílias em _bases). */
+export const estilosDoKit = () => fs.readdirSync(path.join(KIT, "estilos")).filter((d) => !d.startsWith("_") && fs.existsSync(path.join(KIT, "estilos", d, "estilo.json"))).sort();
+/** O estilo padrão: o que tem "padrao": true no estilo.json (senão, o primeiro). */
+export const estiloPadrao = () => estilosDoKit().find((d) => lerJson(path.join(KIT, "estilos", d, "estilo.json"), {}).padrao === true) ?? estilosDoKit()[0];
+/** O primeiro estilo de edição da lista (o do pedido, depois o do perfil) que existe no kit; senão, o padrão. */
+export const estiloValido = (...ids) => ids.find((id) => typeof id === "string" && /^[a-z0-9-]{1,40}$/.test(id) && fs.existsSync(path.join(KIT, "estilos", id, "estilo.json"))) ?? estiloPadrao();
+/** Oficina feita com o kit antigo (antes dos estilos de edição): os ajustes dela continuam nele. */
+export const kitAntigo = (pasta) => fs.existsSync(path.join(pasta, "kit", "montar.mjs")) && !fs.existsSync(path.join(pasta, "kit", "motor"));
+
+/**
+ * Cria a oficina com o kit: o montador (motor, css, ícones), o estilo desta edição (com a família
+ * dele), os três manuais (EDITOR, ESTILO, COMPONENTES), sons, fontes, texturas e o GSAP local.
+ * Devolve o id do estilo.
+ */
+export function prepararPasta(pasta, estilo) {
+  const id = estiloValido(estilo);
+  for (const p of ["assets", "dados", "materiais", "logos", "prints", "cenas", "recortes"]) fs.mkdirSync(path.join(pasta, p), { recursive: true });
+  fs.rmSync(path.join(pasta, "kit"), { recursive: true, force: true });
+  for (const f of ["montar.mjs", "motor", "css", "icones", "print.mjs", "logo.mjs", "hf.mjs", "EDITOR.md", "COMPONENTES.md"]) copiar(path.join(KIT, f), path.join(pasta, "kit", f));
+  // só o estilo escolhido vai pra oficina (e a família de que ele herda): é o que o montador lê
+  if (fs.existsSync(path.join(KIT, "estilos", "_bases"))) copiar(path.join(KIT, "estilos", "_bases"), path.join(pasta, "kit", "estilos", "_bases"));
+  for (const f of ["estilo.json", "tema.css"]) copiar(path.join(KIT, "estilos", id, f), path.join(pasta, "kit", "estilos", id, f));
+  copiar(path.join(KIT, "fontes", "metricas.json"), path.join(pasta, "kit", "fontes", "metricas.json"));
+  // o manual do estilo desta edição: é ele que a IA lê (e é o DESIGN.md que o HyperFrames procura)
+  copiar(path.join(KIT, "estilos", id, "ESTILO.md"), path.join(pasta, "kit", "ESTILO.md"));
+  copiar(path.join(KIT, "estilos", id, "ESTILO.md"), path.join(pasta, "DESIGN.md"));
   copiar(path.join(KIT, "sons"), path.join(pasta, "assets", "sons"));
-  copiar(path.join(KIT, "fontes"), path.join(pasta, "assets", "fontes"));
+  for (const f of fs.readdirSync(path.join(KIT, "fontes"))) if (/\.woff2?$/.test(f)) copiar(path.join(KIT, "fontes", f), path.join(pasta, "assets", "fontes", f));
+  copiar(path.join(KIT, "texturas"), path.join(pasta, "assets", "texturas"));
   if (fs.existsSync(GSAP_LOCAL)) copiar(GSAP_LOCAL, path.join(pasta, "assets", "gsap.min.js"));
   const nome = path.basename(pasta);
   fs.writeFileSync(path.join(pasta, "hyperframes.json"), JSON.stringify({ $schema: "https://hyperframes.heygen.com/schema/hyperframes.json", registry: "https://raw.githubusercontent.com/heygen-com/hyperframes/main/registry", paths: { blocks: "compositions", components: "compositions/components", assets: "assets" }, media: { autoProxy: true } }, null, 2));
   fs.writeFileSync(path.join(pasta, "meta.json"), JSON.stringify({ id: nome, name: nome, createdAt: new Date().toISOString() }, null, 2));
+  return id;
+}
+
+/** Seis quadros pequenos do vídeo (assets/miniaturas/m0…m5.jpg): a tira de linha do tempo dos estilos de tutorial. */
+export async function miniaturas(video, pasta, duracao) {
+  const destino = path.join(pasta, "assets", "miniaturas");
+  fs.mkdirSync(destino, { recursive: true });
+  for (let k = 0; k < 6; k++) {
+    const t = Math.max(0, Math.min(duracao - 0.2, ((k + 0.5) / 6) * duracao));
+    await rodar(FERRAMENTAS.ffmpeg, ["-y", "-v", "error", "-ss", t.toFixed(2), "-i", video, "-frames:v", "1", "-vf", "scale=200:-2", "-q:v", "5", path.join(destino, `m${k}.jpg`)]);
+  }
 }
 
 /**
  * O perfil do criador (criador.configuracao, chave "perfil") limpo: qualquer campo pode faltar.
- * { nome, usuario (sem @), nicho, publico, tom, foto_url, cor (look), legenda (estilo) }
+ * { nome, usuario (sem @), nicho, publico, tom, regras, foto_url, cor (look), estilo (de edição), legenda (tipo) }
  */
 export function perfilLimpo(p) {
   const txt = (v, max = 300) => (typeof v === "string" && v.trim() ? v.trim().slice(0, max) : null);
@@ -323,8 +368,10 @@ export function perfilLimpo(p) {
     nicho: txt(p?.nicho),
     publico: txt(p?.publico),
     tom: txt(p?.tom, 800),
+    regras: txt(p?.regras, 1500),
     foto_url: txt(p?.foto_url, 3000),
     cor: lookValido(p?.cor),
+    estilo: txt(p?.estilo, 40),
     legenda: legendaValida(p?.legenda),
   };
 }
@@ -357,7 +404,7 @@ export async function gravarPerfil(pasta, perfil, { aviso = () => {} } = {}) {
     }
   }
   const temFoto = fs.existsSync(foto);
-  const dados = { nome: p.nome, usuario: p.usuario, nicho: p.nicho, publico: p.publico, tom: p.tom, foto: temFoto ? "assets/perfil.jpg" : null };
+  const dados = { nome: p.nome, usuario: p.usuario, nicho: p.nicho, publico: p.publico, tom: p.tom, regras: p.regras, foto: temFoto ? "assets/perfil.jpg" : null };
   fs.writeFileSync(path.join(pasta, "dados", "perfil.json"), JSON.stringify(dados, null, 2));
   return { ...p, foto: dados.foto };
 }
@@ -367,13 +414,15 @@ export async function gravarPerfil(pasta, perfil, { aviso = () => {} } = {}) {
  * materiais: [{ id, tipo: "imagem"|"video"|"link", entrada (arquivo local), url, descricao }]
  */
 export async function prepararOficina({ pasta, bruto, materiais = [], pedido, aviso = () => {} }) {
-  prepararPasta(pasta);
+  const estilo = prepararPasta(pasta, pedido?.opcoes?.estilo);
+  pedido = { ...pedido, opcoes: { ...(pedido?.opcoes ?? {}), estilo } };
   const dados = (f) => path.join(pasta, "dados", f);
 
   const look = lookValido(pedido?.opcoes?.cor);
   aviso(`tratando o vídeo (look ${look}, HDR → SDR, 30 fps, volume da voz)`);
   const video = await tratarVideo(bruto, path.join(pasta, "assets", "video.mp4"), { cor: corDoLook(look) });
   fs.writeFileSync(dados("video.json"), JSON.stringify({ duracao: video.duracao, largura: video.largura, altura: video.altura, temAudio: video.temAudio, hdr: video.hdr }, null, 2));
+  await miniaturas(path.join(pasta, "assets", "video.mp4"), pasta, video.duracao);
 
   aviso("achando as emendas das tomadas");
   const candidatas = await detectarCortes(path.join(pasta, "assets", "video.mp4"));

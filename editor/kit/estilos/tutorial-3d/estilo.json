@@ -1,0 +1,10 @@
+{
+  "id": "tutorial-3d",
+  "nome": "Tutorial em 3D",
+  "base": "roxo",
+  "ordem": 13,
+  "descricao": "Tutorial em tela cheia, sem o seu rosto: uma janela em 3D recebe o comando, a lista de tarefas vai marcando e o resultado aparece num celular.",
+  "legenda": {
+    "padrao": "frase"
+  }
+}

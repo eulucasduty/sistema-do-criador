@@ -1,0 +1,45 @@
+      /* Tema do estilo "vlog": quase sem card. Preto, branco e o vídeo dele. */
+      :root {
+        --void: #0b0b0c;
+        --void-img: none;
+        --void-tam: auto;
+        --card: #17171a;
+        --card-borda: 1px solid rgba(255, 255, 255, 0.14);
+        --card-sombra: 0 20px 50px rgba(0, 0, 0, 0.5);
+        --card-raio: 22px;
+        --texto: #ffffff;
+        --dim: #b8b8bd;
+        --apagado: #8a8a90;
+        --acento: #ffffff;
+        --acento-tinta: #0b0b0c;
+        --ok: #86efac;
+        --erro: #fca5a5;
+        --tinta-borda: 1px solid rgba(255, 255, 255, 0.18);
+        --chip-sombra: 0 8px 24px rgba(0, 0, 0, 0.35);
+        --chip-raio: 8px;
+        --f-titulo: "Jakarta", sans-serif;
+        --titulo-espaco: -0.02em;
+        --titulo-sombra: 0 2px 18px rgba(0, 0, 0, 0.6);
+        --palavra-sombra: 0 4px 30px rgba(0, 0, 0, 0.6);
+        --palavra-caixa: none;
+        --nome-sombra: none;
+        --f-numero: "Jakarta", sans-serif;
+        --numero-peso: 800;
+        --logo-fundo: #ffffff;
+        --logo-sombra: 0 10px 30px rgba(0, 0, 0, 0.4);
+        --mold: #0b0b0c;
+        --janela: #17171a;
+        --janela-borda: rgba(255, 255, 255, 0.12);
+        --url: #0b0b0c;
+        --trilho: #26262a;
+        --destaque-brilho: 0 0 0 4px rgba(0, 0, 0, 0.45), 0 0 26px rgba(255, 255, 255, 0.4);
+      }
+      .cena-titulo, .lista-titulo, .palavra-linha, .chip-titulo, .cta-txt b, .logo-op { font-weight: 800; }
+      .cena-titulo { font-size: 64px; }
+      /* o chip de título vira etiqueta de vlog: lugar, hora, "dia 3" */
+      .chip-titulo { font-size: 40px; text-transform: none; border: none; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); padding: 12px 24px 14px; }
+      .seguir { border: none; }
+      /* legenda pequena, sem gritar */
+      .leg-padrao .grupo { font-family: "Jakarta", sans-serif; font-weight: 800; line-height: 1.15; color: #ffffff; font-size: 54px; text-shadow: 0 3px 16px rgba(0, 0, 0, 0.75); }
+      .leg-padrao .p.dest { font-family: "Jakarta", sans-serif; font-weight: 800; text-transform: none; color: #ffffff; font-size: 54px; }
+      .leg-padrao .p { padding: 0 10px 3px; border-radius: 12px; }

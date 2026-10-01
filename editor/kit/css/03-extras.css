@@ -1,0 +1,215 @@
+      /* Componentes por cima do vídeo e cards novos: cabeçalho, letreiro, fotos, prompt, grade,
+         carrossel, anotação, emoji, carimbo, tarja, manchete, faixa de notícias, citação, visor,
+         código, ficha e gráfico. As cores vêm das variáveis (--acento, --acento2, --acento3…). */
+
+      /* ── cabeçalho ── */
+      .cabecalho { position: absolute; left: 0; width: 1080px; z-index: 8; pointer-events: none; }
+      .cab-in { display: flex; flex-direction: column; gap: 14px; padding: 0 40px; box-sizing: border-box; }
+      .cabecalho.centro .cab-in { align-items: center; text-align: center; }
+      .cab-topo { display: flex; align-items: center; gap: 18px; }
+      .cab-selo { display: inline-flex; align-items: center; gap: 10px; padding: 8px 20px 9px 16px; border-radius: 999px; border: 2px solid rgba(255, 255, 255, 0.34); background: rgba(255, 255, 255, 0.07); font-family: var(--f-texto); font-weight: 800; font-size: 27px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--acento2); white-space: nowrap; }
+      .cab-selo i { width: 9px; height: 9px; border-radius: 50%; background: currentColor; display: block; }
+      .cab-prog { display: flex; gap: 12px; }
+      .cab-prog i { width: 70px; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.2); display: block; overflow: hidden; }
+      .cab-prog i.feito { background: var(--acento2); }
+      .cab-prog i b { display: block; width: 100%; height: 100%; background: var(--acento2); transform-origin: 0 50%; }
+      .cab-rotulo { font-family: var(--f-texto); font-weight: 800; font-size: 24px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--acento2); }
+      .cab-corpo { display: flex; align-items: center; gap: 22px; }
+      .cab-icone { width: 96px; height: 96px; border-radius: 22px; display: grid; place-items: center; font-size: 50px; color: var(--acento2); background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(255, 255, 255, 0.2); flex: none; box-sizing: border-box; }
+      .cab-num { color: var(--acento2); line-height: 0.9; }
+      .cab-linhas { display: flex; flex-direction: column; }
+      .cabecalho.passo .cab-linhas { align-items: center; }
+      .cab-l { line-height: 1.04; text-transform: var(--cab-caixa, uppercase); color: var(--texto); white-space: nowrap; text-shadow: 0 2px 18px rgba(0, 0, 0, 0.45); }
+      .cab-l.l1 { color: var(--acento2); }
+      .cab-l em { font-style: normal; color: var(--acento2); }
+      .cab-l.l1 em { color: var(--acento3); }
+      .cab-regua { display: block; width: 150px; height: 4px; border-radius: 2px; background: var(--acento2); transform-origin: 0 50%; }
+      .cabecalho.centro .cab-regua { transform-origin: 50% 50%; }
+      .cab-c { display: inline-block; }
+      .cab-mao { display: block; overflow: visible; margin-top: -8px; stroke: var(--cab-mao, var(--erro)); stroke-width: 7px; }
+
+      /* ── letreiro (tipografia que acompanha a fala) ── */
+      .lettering { position: absolute; left: 0; width: 1080px; z-index: 8; pointer-events: none; }
+      .lettering.area-atras { z-index: auto; }
+      .let-in { display: flex; flex-direction: column; align-items: center; }
+      .let-linha { display: flex; justify-content: center; width: 1080px; }
+      .let-l { position: relative; white-space: nowrap; text-transform: var(--let-caixa, uppercase); text-align: center; }
+      .let-p, .let-c { display: inline-block; }
+      .let-l em { font-style: normal; color: var(--acento3); }
+      .let-l.dupla { text-shadow: -7px 5px 0 var(--acento3), 7px -4px 0 rgba(255, 255, 255, 0.35); }
+      .let-cursor { display: inline-block; width: 0.07em; height: 0.82em; margin-left: 0.06em; vertical-align: -0.04em; background: var(--acento3); }
+      .let-l.contorno { -webkit-text-fill-color: transparent; -webkit-text-stroke: 3px currentColor; }
+      .let-l.extrusao { text-shadow: 0 5px 0 var(--extrusao, var(--acento)), 0 10px 0 var(--extrusao, var(--acento)), 0 15px 0 var(--extrusao, var(--acento)), 0 20px 0 var(--extrusao, var(--acento)); }
+      .let-l.eco::after { content: attr(data-t); position: absolute; left: 7px; top: 7px; -webkit-text-fill-color: transparent; -webkit-text-stroke: 2px var(--eco, currentColor); z-index: -1; opacity: 0.85; }
+      .let-l.pilula { background: var(--acento3); color: var(--acento-tinta) !important; padding: 0 44px; border-radius: 999px; }
+      .let-l.gradiente:not(.por-letra), .let-l.gradiente.por-letra .let-c { background: linear-gradient(to bottom, #ffffff 28%, var(--gradiente, var(--acento2))); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+      .let-l.colchetes::before { content: ""; position: absolute; inset: -12px -26px; border: 5px solid currentColor; -webkit-mask: linear-gradient(#000 0 0) top left / 34px 34px no-repeat, linear-gradient(#000 0 0) top right / 34px 34px no-repeat, linear-gradient(#000 0 0) bottom left / 34px 34px no-repeat, linear-gradient(#000 0 0) bottom right / 34px 34px no-repeat; mask: linear-gradient(#000 0 0) top left / 34px 34px no-repeat, linear-gradient(#000 0 0) top right / 34px 34px no-repeat, linear-gradient(#000 0 0) bottom left / 34px 34px no-repeat, linear-gradient(#000 0 0) bottom right / 34px 34px no-repeat; }
+      .let-regua { position: relative; display: flex; gap: 8px; width: 880px; height: 46px; margin-top: 26px; padding: 8px; border-radius: 16px; border: 2px solid rgba(255, 255, 255, 0.22); background: rgba(255, 255, 255, 0.05); box-sizing: border-box; }
+      .let-regua i { flex: 1; display: block; border-radius: 9px; background: var(--acento); transform-origin: 0 50%; }
+      .let-regua i:nth-child(even) { background: var(--acento2); }
+      .let-regua i.fim { background: var(--acento3); }
+      .let-regua b { position: absolute; left: 6px; top: -18px; bottom: -10px; width: 4px; background: #ffffff; border-radius: 2px; display: block; }
+      .let-regua b::before { content: ""; position: absolute; left: -7px; top: -10px; width: 18px; height: 18px; border-radius: 50%; background: #ffffff; }
+      .letreiro { position: absolute; left: 0; width: 1080px; overflow: hidden; pointer-events: none; z-index: 8; }
+      #palco .letreiro, #palco .lettering, #palco .palavra-atras { z-index: auto; }
+      .letreiro-faixa { position: absolute; left: 0; width: 1080px; }
+      .let-l.corre { text-align: left; display: block; }
+
+      /* ── fotos por cima do vídeo ── */
+      .fotos { position: absolute; inset: 0; z-index: 8; pointer-events: none; }
+      .fotos.na-faixa { z-index: 10; }
+      .polaroid { position: absolute; background: #fbfaf7; padding: 14px 14px 10px; box-sizing: border-box; border-radius: 6px; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; gap: 8px; }
+      .polaroid-foto { overflow: hidden; background: #dddddd; }
+      .polaroid-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .polaroid-leg { font-family: var(--f-texto); font-weight: 500; font-size: 30px; color: #1c1b1f; text-align: center; padding: 4px 0 8px; }
+      .fita { position: absolute; left: 50%; top: -18px; width: 120px; height: 36px; margin-left: -60px; background: var(--fita, rgba(255, 255, 255, 0.55)); display: block; }
+      .foto-palco { position: absolute; left: 0; width: 1080px; display: flex; justify-content: center; perspective: 1400px; }
+      .foto-solta { position: absolute; filter: drop-shadow(0 16px 30px rgba(0, 0, 0, 0.55)); }
+      .foto-solta img { width: 100%; height: 100%; object-fit: contain; display: block; }
+      .foto-card { position: relative; border-radius: 28px; border: 3px solid var(--acento2); box-shadow: 0 0 60px rgba(var(--brilho, 255, 201, 60), 0.4), 0 24px 60px rgba(0, 0, 0, 0.5); background: #111111; box-sizing: border-box; }
+      .foto-card img { width: 100%; height: 100%; object-fit: cover; border-radius: 25px; display: block; }
+      .foto-etiqueta { position: absolute; left: -14px; top: -34px; padding: 8px 22px; border-radius: 14px; background: var(--acento2); color: var(--acento-tinta); font-weight: 800; font-size: 32px; white-space: nowrap; }
+      .foto-brilho { position: absolute; left: 50%; top: 50%; width: 640px; height: 640px; margin: -320px 0 0 -320px; border-radius: 50%; border: 4px solid var(--acento2); box-shadow: 0 0 80px rgba(var(--brilho, 255, 201, 60), 0.7), inset 0 0 80px rgba(var(--brilho, 255, 201, 60), 0.4); opacity: 0; display: block; }
+      .foto-janela { position: relative; border-radius: 22px; overflow: hidden; background: var(--mold); border: var(--card-borda); box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6); }
+      .foto-janela .janela { position: relative; }
+      .foto-janela-midia { position: relative; overflow: hidden; }
+      .foto-janela-midia img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+      .cursor { position: absolute; left: 0; top: 0; width: 46px; height: 46px; opacity: 0; z-index: 3; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5)); }
+
+      /* ── barra de prompt ── */
+      .prompt { position: absolute; left: 0; width: 1080px; z-index: 8; display: flex; flex-direction: column; align-items: center; gap: 16px; pointer-events: none; }
+      .pr-rotulo { font-family: var(--f-texto); font-weight: 800; font-size: 23px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--acento2); text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7); }
+      .pr-barra { width: 960px; box-sizing: border-box; display: flex; align-items: center; gap: 18px; padding: 26px 26px 26px 30px; border-radius: 26px; background: var(--vidro, rgba(16, 16, 20, 0.84)); border: 2px solid var(--vidro-borda, rgba(255, 255, 255, 0.28)); box-shadow: 0 0 44px rgba(var(--brilho, 255, 201, 60), 0.22), 0 20px 50px rgba(0, 0, 0, 0.45); }
+      .pr-ic { font-size: 38px; color: var(--dim); flex: none; }
+      .pr-txt { flex: 1; font-family: var(--f-texto); font-weight: 800; font-size: 34px; line-height: 1.3; color: #ffffff; }
+      .pr-p { display: inline-block; white-space: nowrap; }
+      .pr-p i { font-style: normal; opacity: 0; }
+      .pr-p.realce i { background: rgba(var(--brilho, 255, 201, 60), 0.3); color: var(--acento2); }
+      .pr-envia { width: 64px; height: 64px; border-radius: 50%; background: var(--acento); color: var(--acento-tinta); display: grid; place-items: center; font-size: 34px; flex: none; }
+
+      /* ── grade de cards ── */
+      .topo-centro.grade-centro { justify-content: flex-start; align-items: stretch; padding: 50px 40px 30px; gap: 18px; }
+      .cheia-zoom.grade-centro { align-items: stretch; width: 760px; }
+      .grade-cab { display: flex; flex-direction: column; gap: 6px; }
+      .grade-titulo { font-family: var(--f-texto); font-weight: 800; font-size: 46px; line-height: 1.1; }
+      .grade-titulo em { font-style: normal; color: var(--acento2); }
+      .grade { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .grade-item { overflow: hidden; display: flex; flex-direction: column; border-radius: 22px; }
+      .grade-foto { height: 200px; overflow: hidden; background: rgba(255, 255, 255, 0.06); }
+      .grade-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .grade-foto.icone { display: grid; place-items: center; font-size: 96px; color: var(--acento2); }
+      .grade-foto.logo { display: grid; place-items: center; background: var(--logo-fundo, #ffffff); }
+      .grade-foto.logo img { width: auto; height: 62%; max-width: 70%; object-fit: contain; }
+      .grade-rotulo { display: flex; align-items: center; gap: 12px; padding: 14px 18px 16px; font-weight: 800; font-size: 24px; letter-spacing: 0.04em; text-transform: uppercase; }
+      .grade-rotulo .ic { font-size: 26px; color: var(--acento2); }
+
+      /* ── carrossel (roda de imagens) ── */
+      .topo-centro.car-centro { padding: 60px 0 20px; overflow: hidden; }
+      .car { width: 1080px; height: 470px; perspective: 1500px; perspective-origin: 50% 50%; }
+      .car-pista { position: relative; width: 1080px; height: 470px; transform-style: preserve-3d; }
+      .car-card { position: absolute; left: 50%; top: 20px; width: 240px; height: 426px; margin-left: -120px; border-radius: 22px; overflow: hidden; border: 2px solid rgba(255, 255, 255, 0.3); box-shadow: 0 20px 44px rgba(0, 0, 0, 0.5); backface-visibility: hidden; background: #111111; box-sizing: border-box; }
+      .car-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+      /* ── anotação à mão, emoji e carimbo ── */
+      .anotacao { position: absolute; inset: 0; z-index: 9; pointer-events: none; }
+      .anotacao svg { position: absolute; left: 0; top: 0; filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.3)); }
+      .anot-rot { position: absolute; width: 0; height: 0; display: flex; justify-content: center; align-items: flex-end; }
+      .anot-texto { font-family: "Manuscrita", cursive; font-weight: 700; font-size: 66px; line-height: 1; white-space: nowrap; text-shadow: 0 3px 0 rgba(0, 0, 0, 0.4); }
+      .emoji-solto { position: absolute; z-index: 9; display: grid; place-items: center; line-height: 1; pointer-events: none; }
+      .carimbo-linha { position: absolute; width: 1080px; display: flex; justify-content: center; z-index: 27; pointer-events: none; }
+      .carimbo { padding: 6px 30px 10px; text-transform: uppercase; line-height: 1.1; white-space: nowrap; box-shadow: 0 10px 0 rgba(0, 0, 0, 0.35); }
+
+      /* ── tarja de nome ── */
+      .tarja { position: absolute; left: 48px; z-index: 9; display: flex; align-items: stretch; gap: 18px; pointer-events: none; }
+      .tarja.direita { left: auto; right: 48px; flex-direction: row-reverse; text-align: right; }
+      .tarja-barra { width: 8px; background: var(--acento); display: block; transform-origin: 50% 0; border-radius: 2px; }
+      .tarja-txt { display: flex; flex-direction: column; gap: 2px; padding: 4px 0; }
+      .tarja-nome { font-family: var(--f-texto); font-weight: 800; font-size: 44px; line-height: 1.1; color: #ffffff; text-shadow: 0 2px 14px rgba(0, 0, 0, 0.6); }
+      .tarja-cargo { font-family: var(--f-texto); font-weight: 500; font-size: 30px; color: rgba(255, 255, 255, 0.86); text-shadow: 0 2px 14px rgba(0, 0, 0, 0.6); }
+
+      /* ── manchete (o tema do estilo redesenha) ── */
+      .manchete { position: absolute; left: 0; width: 1080px; z-index: 23; display: flex; justify-content: center; pointer-events: none; }
+      .man-txt em { font-style: normal; color: var(--acento); }
+      .man-caixas { position: relative; }
+      .man-caixas .man-txt { position: relative; text-shadow: none; }
+      .man-in { max-width: 1000px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+      .man-txt { display: flex; flex-direction: column; align-items: center; text-align: center; line-height: 1.12; color: #ffffff; text-shadow: 0 3px 16px rgba(0, 0, 0, 0.7); }
+      .man-l { display: block; }
+      .man-emoji { display: block; font-size: 1.3em; line-height: 1; margin-bottom: 6px; text-shadow: none; }
+      .man-sub { font-size: 30px; font-weight: 500; color: rgba(255, 255, 255, 0.86); text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7); }
+      .man-selo { display: inline-flex; align-items: center; gap: 10px; padding: 6px 16px; background: var(--erro); color: #ffffff; font-weight: 800; font-size: 26px; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 6px; }
+      .man-selo i { width: 12px; height: 12px; border-radius: 50%; background: #ffffff; display: block; }
+      /* balão de "responder ao comentário" (TikTok): branco, com rabinho embaixo à esquerda */
+      .manchete.resposta { justify-content: flex-start; }
+      .manchete.resposta .man-in { align-items: flex-start; margin-left: 44px; }
+      .man-balao { position: relative; display: flex; align-items: flex-start; gap: 14px; width: 552px; padding: 18px 22px 20px 18px; border-radius: 18px; background: #ffffff; box-sizing: border-box; box-shadow: 0 6px 22px rgba(0, 0, 0, 0.25); font-family: var(--f-legenda, var(--f-texto)); }
+      .man-balao::after { content: ""; position: absolute; left: 26px; bottom: -14px; width: 28px; height: 28px; background: #ffffff; border-radius: 0 0 0 20px; transform: skewX(-24deg); }
+      .man-balao .av { width: 52px; height: 52px; font-size: 26px; }
+      .man-balao small { display: block; font-size: 24px; font-weight: 500; color: #909092; line-height: 1.3; }
+      .man-balao b { display: block; font-size: 32px; font-weight: 800; color: #161823; line-height: 1.25; }
+
+      /* ── faixa de notícias ── */
+      .faixa-noticias { position: absolute; left: 0; width: 1080px; height: 78px; z-index: 33; display: flex; align-items: stretch; background: var(--faixa-fundo, #cc0000); overflow: hidden; pointer-events: none; }
+      .fn-selo { flex: none; display: flex; align-items: center; padding: 0 22px; background: var(--faixa-selo, #7a0000); color: #ffffff; font-weight: 800; font-size: 30px; letter-spacing: 0.06em; text-transform: uppercase; z-index: 2; }
+      .fn-pista { flex: 1; overflow: hidden; position: relative; }
+      .fn-texto { position: absolute; left: 0; top: 0; height: 78px; line-height: 78px; white-space: nowrap; color: var(--faixa-texto, #ffffff); text-transform: uppercase; }
+      .fn-um { display: inline-flex; align-items: center; height: 78px; }
+      .fn-um span { white-space: nowrap; }
+      .fn-sep { display: inline-block; width: 14px; height: 14px; margin: 0 28px; background: var(--faixa-texto, #ffffff); border-radius: 2px; }
+
+      /* ── citação ── */
+      .citacao .tela-cheia-in { gap: 26px; padding: 0 90px; box-sizing: border-box; }
+      .cit-aspas { font-family: "Editorial", serif; font-size: 220px; line-height: 0.6; height: 110px; color: var(--acento); }
+      .cit-texto { text-align: center; line-height: 1.16; color: var(--texto); }
+      .cit-l { display: block; }
+      .cit-autor { font-family: var(--f-mono); font-size: 28px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--dim); margin-top: 18px; }
+
+      /* ── visor de câmera ── */
+      .visor { position: absolute; inset: 0; z-index: 9; pointer-events: none; font-family: var(--f-mono); color: #ffffff; }
+      .vs-canto { position: absolute; width: 64px; height: 64px; border: 4px solid rgba(255, 255, 255, 0.85); display: block; box-sizing: border-box; }
+      .vs-canto.a { left: 56px; top: 56px; border-right: none; border-bottom: none; }
+      .vs-canto.b { right: 56px; top: 56px; border-left: none; border-bottom: none; }
+      .vs-canto.c { left: 56px; bottom: 56px; border-right: none; border-top: none; }
+      .vs-canto.d { right: 56px; bottom: 56px; border-left: none; border-top: none; }
+      .vs-rec { position: absolute; left: 98px; top: 92px; font-size: 30px; letter-spacing: 0.12em; display: flex; align-items: center; gap: 12px; }
+      .vs-rec b { width: 16px; height: 16px; border-radius: 50%; background: #ff3b30; display: block; }
+      .vs-tempo { position: absolute; right: 98px; top: 92px; font-size: 30px; letter-spacing: 0.08em; }
+      .vs-rotulo { position: absolute; left: 98px; bottom: 98px; font-size: 26px; letter-spacing: 0.3em; }
+
+      /* ── janela de código (cores do tema One Dark) ── */
+      .codigo { width: 980px; padding-bottom: 30px; background: #282c34; color: #abb2bf; border-color: #3a3f4b; }
+      .codigo .rotulo { color: #abb2bf; margin-left: 10px; }
+      .cd-corpo { padding: 18px 30px 0; font-family: "Mono", monospace; font-size: 30px; line-height: 1.5; display: flex; flex-direction: column; }
+      .cd-linha { display: flex; gap: 22px; white-space: pre; border-radius: 8px; }
+      .cd-linha i { font-style: normal; color: #5c6370; width: 38px; text-align: right; flex: none; }
+      .cd-linha.destaque { background: rgba(97, 175, 239, 0.14); box-shadow: inset 4px 0 0 #61afef; }
+      .cd-chave { color: #c678dd; }
+      .cd-str { color: #98c379; }
+      .cd-num { color: #d19a66; }
+      .cd-fn { color: #61afef; }
+      .cd-com { color: #5c6370; font-style: italic; }
+      .cheia-zoom .codigo { width: 760px; }
+
+      /* ── ficha e gráfico ── */
+      .ficha, .grafico { width: 960px; padding: 34px 42px 38px; display: flex; flex-direction: column; gap: 18px; }
+      .ficha-titulo, .gr-titulo { display: flex; align-items: center; gap: 18px; font-family: var(--f-titulo); font-style: var(--titulo-estilo); letter-spacing: var(--titulo-espaco); font-size: 56px; line-height: 1.06; }
+      .ficha-linha { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; font-size: 36px; padding-bottom: 14px; border-bottom: 1px solid rgba(128, 128, 128, 0.28); }
+      .ficha-linha span { color: var(--dim); }
+      .ficha-linha b { font-weight: 800; text-align: right; }
+      .ficha-nota { display: flex; align-items: center; gap: 18px; font-size: 32px; }
+      .ficha-nota .xp { flex: 1; }
+      .ficha-nota b { font-size: 44px; font-weight: 800; color: var(--acento); }
+      .gr-linha { display: grid; grid-template-columns: 250px 1fr 150px; align-items: center; gap: 16px; font-size: 30px; }
+      .gr-rotulo { font-weight: 800; }
+      .gr-trilho { height: 44px; border-radius: var(--barra-raio, 10px); background: var(--trilho); overflow: hidden; }
+      .gr-barra { height: 100%; background: var(--dim); transform-origin: 0 50%; border-radius: var(--barra-raio, 10px); }
+      .gr-barra.destaque { background: var(--acento); }
+      .gr-valor { font-weight: 800; font-size: 34px; text-align: right; font-variant-numeric: tabular-nums; }
+      .gr-fonte { font-family: var(--f-mono); font-size: 20px; color: var(--dim); letter-spacing: 0.06em; }
+      .cheia-zoom .ficha, .cheia-zoom .grafico { width: 750px; }
+      /* na tela cheia o nome vai em cima da barra (não cabe do lado) */
+      .cheia-zoom .gr-linha { grid-template-columns: 1fr auto; grid-template-areas: "rotulo valor" "trilho trilho"; row-gap: 8px; font-size: 30px; }
+      .cheia-zoom .gr-rotulo { grid-area: rotulo; }
+      .cheia-zoom .gr-valor { grid-area: valor; }
+      .cheia-zoom .gr-trilho { grid-area: trilho; height: 40px; }
+      .cheia-zoom .grafico { gap: 22px; }

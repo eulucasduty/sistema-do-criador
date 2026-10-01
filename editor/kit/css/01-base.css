@@ -1,0 +1,191 @@
+      /* Base do editor: fontes, variáveis e a estrutura da tela. Cores, fontes e sombras são variáveis:
+         cada estilo de edição troca os valores no tema dele (kit/estilos/<estilo>/tema.css, que o
+         montador cola depois dos arquivos desta pasta). Os valores daqui são um escuro com dourado. */
+      @font-face { font-family: "Bangers"; src: url("assets/fontes/bangers.woff") format("woff"); font-weight: 400; }
+      @font-face { font-family: "Jakarta"; src: url("assets/fontes/jakarta-500.woff") format("woff"); font-weight: 500; }
+      @font-face { font-family: "Jakarta"; src: url("assets/fontes/jakarta-800.woff") format("woff"); font-weight: 800; }
+      @font-face { font-family: "Lilita"; src: url("assets/fontes/lilita.woff") format("woff"); font-weight: 400; }
+      @font-face { font-family: "Mono"; src: url("assets/fontes/mono.woff") format("woff"); font-weight: 500; }
+      @font-face { font-family: "Serifa"; src: url("assets/fontes/serifa-italica.woff") format("woff"); font-style: italic; font-weight: 400; }
+      @font-face { font-family: "SerifaReta"; src: url("assets/fontes/serifa-reta.woff") format("woff"); font-weight: 400; }
+      @font-face { font-family: "Archivo"; src: url("assets/fontes/archivo.woff2") format("woff2"); font-weight: 100 900; font-stretch: 62% 125%; }
+      @font-face { font-family: "Unbounded"; src: url("assets/fontes/unbounded.woff2") format("woff2"); font-weight: 200 900; }
+      @font-face { font-family: "Inter"; src: url("assets/fontes/inter.woff2") format("woff2"); font-weight: 100 900; }
+      @font-face { font-family: "Montserrat"; src: url("assets/fontes/montserrat.woff2") format("woff2"); font-weight: 100 900; }
+      @font-face { font-family: "Anton"; src: url("assets/fontes/anton.woff") format("woff"); font-weight: 400; }
+      @font-face { font-family: "Editorial"; src: url("assets/fontes/editorial.woff2") format("woff2"); font-weight: 400 900; font-style: normal; }
+      @font-face { font-family: "Editorial"; src: url("assets/fontes/editorial-italica.woff2") format("woff2"); font-weight: 400 900; font-style: italic; }
+      @font-face { font-family: "Manuscrita"; src: url("assets/fontes/manuscrita.woff2") format("woff2"); font-weight: 400 700; }
+      @font-face { font-family: "Marcador"; src: url("assets/fontes/marcador.woff") format("woff"); font-weight: 400; }
+      @font-face { font-family: "Maquina"; src: url("assets/fontes/maquina.woff") format("woff"); font-weight: 400; }
+      @font-face { font-family: "TikTok"; src: url("assets/fontes/tiktok.woff2") format("woff2"); font-weight: 300 900; }
+      @font-face { font-family: "Din"; src: url("assets/fontes/barlow-500.woff2") format("woff2"); font-weight: 500; }
+      @font-face { font-family: "Din"; src: url("assets/fontes/barlow-700.woff2") format("woff2"); font-weight: 700; }
+      @font-face { font-family: "Din"; src: url("assets/fontes/barlow-900i.woff2") format("woff2"); font-weight: 900; font-style: italic; }
+      @font-face { font-family: "DinCondensada"; src: url("assets/fontes/barlowc-700.woff2") format("woff2"); font-weight: 700; }
+      @font-face { font-family: "DinCondensada"; src: url("assets/fontes/barlowc-800i.woff2") format("woff2"); font-weight: 800; font-style: italic; }
+      @font-face { font-family: "Franklin"; src: url("assets/fontes/franklin.woff2") format("woff2"); font-weight: 300 900; }
+      @font-face { font-family: "Poppins"; src: url("assets/fontes/poppins-800.woff2") format("woff2"); font-weight: 800; }
+      @font-face { font-family: "Bebas"; src: url("assets/fontes/bebas.woff2") format("woff2"); font-weight: 400; }
+      @font-face { font-family: "Poppins"; src: url("assets/fontes/poppins-600.woff2") format("woff2"); font-weight: 600; }
+      @font-face { font-family: "Poppins"; src: url("assets/fontes/poppins-400.woff2") format("woff2"); font-weight: 400; }
+      @font-face { font-family: "Garamond"; src: url("assets/fontes/garamond.woff2") format("woff2"); font-weight: 400 800; font-style: normal; }
+      @font-face { font-family: "Garamond"; src: url("assets/fontes/garamond-italica.woff2") format("woff2"); font-weight: 400 800; font-style: italic; }
+      @font-face { font-family: "Fraunces"; src: url("assets/fontes/fraunces.woff2") format("woff2"); font-weight: 400 900; }
+      @font-face { font-family: "Roboto"; src: url("assets/fontes/roboto-700.woff2") format("woff2"); font-weight: 700; }
+      @font-face { font-family: "InterTight"; src: url("assets/fontes/inter-tight.woff2") format("woff2"); font-weight: 400 900; }
+      @font-face { font-family: "Assinatura"; src: url("assets/fontes/assinatura.woff2") format("woff2"); font-weight: 400; }
+
+      :root {
+        --void: #050505;
+        --void-img: radial-gradient(ellipse at 20% 10%, rgba(255, 201, 60, 0.16), transparent 52%), radial-gradient(ellipse at 88% 88%, rgba(255, 201, 60, 0.08), transparent 55%), radial-gradient(circle, rgba(255, 255, 255, 0.05) 1.5px, transparent 1.6px);
+        --void-tam: auto, auto, 34px 34px;
+        --card: #121212;
+        --card-borda: 2px solid #262626;
+        --card-sombra: 0 8px 0 #000, 0 22px 50px rgba(0, 0, 0, 0.55);
+        --card-raio: 28px;
+        --texto: #f5f4f0;
+        --dim: #bdb9b0;
+        --apagado: #9a958b;
+        --acento: #ffc93c;
+        --acento-tinta: #111;
+        --acento2: var(--acento);
+        --acento3: var(--acento);
+        --ok: #7dff3d;
+        --erro: #ff4d5e;
+        --tinta-borda: 2px solid #000;
+        --chip-sombra: 0 4px 0 #000;
+        --chip-raio: 10px;
+        --f-titulo: "Lilita", sans-serif;
+        --f-texto: "Jakarta", sans-serif;
+        --f-mono: "Mono", monospace;
+        --titulo-estilo: normal;
+        --titulo-espaco: 0;
+        --titulo-sombra: 0 6px 0 #000;
+        --palavra-sombra: 0 10px 0 #000;
+        --palavra-caixa: uppercase;
+        --nome-sombra: 0 3px 0 #000;
+        --logo-fundo: #f5f4f0;
+        --logo-sombra: 0 7px 0 #000;
+        --mold: #0b0b0b;
+        --janela: #1a1a1a;
+        --janela-borda: #2a2a2a;
+        --url: #0b0b0b;
+        --notif: #1f1f1f;
+        --notif-borda: #333;
+        --notif-texto: #d6d3cc;
+        --trilho: #1e1e1e;
+        --destaque-brilho: 0 0 0 4px rgba(0, 0, 0, 0.45), 0 0 30px rgba(255, 201, 60, 0.45);
+        /* a cor do brilho em volta de botões e vidros, em "r, g, b" */
+        --brilho: 255, 201, 60;
+        /* a janela do rosto (tela dividida com janela, pip, cartão) */
+        --quadro-borda: 2px solid rgba(255, 255, 255, 0.28);
+        --quadro-sombra: none;
+        /* escurecido atrás de cabeçalho e letreiro por cima do rosto */
+        --escurece: 8, 6, 18;
+        /* o vídeo dele */
+        --video-filtro: none;
+      }
+      body { margin: 0; background: #050505; font-family: var(--f-texto); color: var(--texto); }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: #050505; }
+      .filtros { position: absolute; left: 0; top: 0; }
+      .void { background-color: var(--void); background-image: var(--void-img); background-size: var(--void-tam); background-blend-mode: var(--void-mistura, normal); }
+
+      /* fundo: o que aparece fora da janela do rosto (e, no estilo que pede, o próprio vídeo desfocado) */
+      #fundo { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+      #fundo-video { position: absolute; inset: -80px; filter: blur(44px) brightness(0.55) saturate(1.15); }
+      #fundo-video video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+      /* o vídeo do criador vive num palco com profundidade (pros estilos em 3D).
+         #v-wrap  recorte da janela (clip-path)   > #v-fx  efeito das emendas
+         > #v-rot inclinação                      > #v-inner enquadramento (a câmera)
+         O #r-wrap é a mesma coisa pro recorte da pessoa (fica por cima do que está "atrás" dela). */
+      #cena3d { position: absolute; inset: 0; z-index: 1; perspective: 1900px; perspective-origin: 50% 46%; }
+      #palco { position: absolute; inset: 0; transform-style: preserve-3d; transform-origin: 50% 50%; }
+      #v-wrap, #r-wrap { position: absolute; inset: 0; overflow: hidden; clip-path: inset(0px 0px 0px 0px round 0px 0px 0px 0px); }
+      #r-wrap { pointer-events: none; }
+      #v-fx, #r-fx, #v-rot, #r-rot { position: absolute; inset: 0; transform-origin: 50% 50%; }
+      #v-inner, #r-inner { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; transform-origin: 0 0; }
+      #v, .recorte-v { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: var(--video-filtro); }
+      .janela-borda { position: absolute; box-sizing: border-box; border: var(--quadro-borda); box-shadow: var(--quadro-sombra); opacity: 0; pointer-events: none; }
+      /* os quatro cantos da janela (o tema liga quando o estilo usa colchetes no lugar da borda) */
+      .janela-borda i { display: none; position: absolute; width: 64px; height: 64px; border: var(--canto-borda, 5px solid var(--acento2)); box-sizing: border-box; }
+      .janela-borda.limpa i { display: none !important; }
+      .janela-borda i:nth-child(1) { left: -10px; top: -10px; border-right: none; border-bottom: none; }
+      .janela-borda i:nth-child(2) { right: -10px; top: -10px; border-left: none; border-bottom: none; }
+      .janela-borda i:nth-child(3) { left: -10px; bottom: -10px; border-right: none; border-top: none; }
+      .janela-borda i:nth-child(4) { right: -10px; bottom: -10px; border-left: none; border-top: none; }
+
+      /* faixa de cima da tela dividida clássica (sem janela): o fundo do estilo por cima do vídeo */
+      #painel { position: absolute; left: 0; top: 0; width: 1080px; height: 760px; overflow: hidden; z-index: 5; pointer-events: none; }
+      #painel-in { position: absolute; inset: 0; background-color: var(--void); background-image: var(--void-img); background-size: var(--void-tam); background-blend-mode: var(--void-mistura, normal); -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 90%, transparent 100%); mask-image: linear-gradient(to bottom, #000 0, #000 90%, transparent 100%); }
+
+      .sem-painel #painel { display: none; }
+
+      /* escurecido atrás de texto por cima do rosto */
+      .escurece { position: absolute; left: 0; width: 1080px; z-index: 7; opacity: 0; pointer-events: none; }
+      .escurece.topo { top: 0; height: 820px; background: linear-gradient(to bottom, rgba(var(--escurece), 0.94) 0, rgba(var(--escurece), 0.78) 46%, rgba(var(--escurece), 0) 100%); }
+      .escurece.base { bottom: 0; height: 900px; background: linear-gradient(to top, rgba(var(--escurece), 0.92) 0, rgba(var(--escurece), 0.7) 50%, rgba(var(--escurece), 0) 100%); }
+
+      /* por cima do vídeo dele, sem mexer no enquadramento */
+      .cena-sobre { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; z-index: 8; pointer-events: none; }
+      .sobre-centro { position: absolute; left: 40px; width: 1000px; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+      .pos-baixo .sobre-centro { bottom: 380px; }
+      .pos-meio .sobre-centro { top: 760px; }
+      .pos-topo .sobre-centro { top: 130px; }
+      .pos-esquerda .sobre-centro { left: 40px; width: 460px; top: 560px; align-items: flex-start; }
+      .pos-direita .sobre-centro { left: 580px; width: 460px; top: 560px; align-items: flex-start; }
+
+      /* flash, apagão e queima de filme (emendas) */
+      #flash { position: absolute; inset: 0; background: #ffffff; opacity: 0; z-index: 28; pointer-events: none; }
+      #apaga { position: absolute; inset: 0; background: #000; opacity: 0; z-index: 29; pointer-events: none; }
+      #queima { position: absolute; inset: -12%; z-index: 29; opacity: 0; pointer-events: none; mix-blend-mode: screen; background: radial-gradient(ellipse at 28% 38%, rgba(255, 176, 64, 0.95), rgba(255, 84, 20, 0.62) 34%, transparent 64%), radial-gradient(ellipse at 76% 72%, rgba(255, 224, 160, 0.82), transparent 56%); }
+      #barras-corte { position: absolute; inset: 0; z-index: 29; pointer-events: none; }
+      #barras-corte i { position: absolute; left: -10%; width: 120%; height: 34px; opacity: 0; display: block; background: var(--barra-corte, rgba(80, 220, 255, 0.72)); }
+      #barras-corte i:nth-child(even) { height: 26px; background: var(--barra-corte2, rgba(150, 90, 255, 0.72)); }
+
+      /* legendas: a palavra falada acende. Cada estilo desenha a dele na classe .leg-<tipo> */
+      #legendas { position: absolute; inset: 0; z-index: 30; pointer-events: none; }
+      #leg-pos { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; transform-origin: 540px 0; }
+      .grupo { position: absolute; left: 40px; width: 1000px; top: 0; text-align: center; opacity: 0; }
+      .gi { display: inline; }
+      .grupo.pe { top: auto; bottom: 1920px; }
+      .grupo.esq { text-align: left; }
+      .p { position: relative; display: inline-block; margin: 0 0.07em; }
+      .pt { position: relative; }
+      .ln { display: block; white-space: nowrap; }
+      .bl { display: inline-block; }
+      .grupo.revela .p { opacity: 0; }
+      .grupo.preenche .p { opacity: 0.42; }
+      .leg-emoji { display: block; font-size: 112px; line-height: 1; margin-bottom: 8px; -webkit-text-stroke: 0; text-shadow: none; }
+      .ln + .leg-emoji, .gi + .leg-emoji, .cx-linhas + .leg-emoji { margin: 10px 0 0; }
+      /* marca-texto atrás da palavra */
+      .mk { position: absolute; left: -0.1em; right: -0.1em; top: 0.08em; bottom: 0.02em; background: var(--marcador, #fff200); transform-origin: 0 50%; display: block; border-radius: 0.05em; }
+      /* caixas conectadas, uma por linha (texto nativo do TikTok) */
+      .cx-fundo { position: absolute; left: 0; top: 0; display: block; }
+      .cx-linhas { position: relative; display: block; box-sizing: border-box; }
+      .leg-bangers .grupo { font-family: "Bangers", sans-serif; font-size: 100px; line-height: 1.02; letter-spacing: 0.02em; color: #ffffff; -webkit-text-stroke: 12px #000; paint-order: stroke fill; text-shadow: 0 8px 0 #000; }
+      .leg-bangers .p.dest { font-size: 120px; color: #ffc93c; }
+      .leg-limpa .grupo { font-family: "Jakarta", sans-serif; font-weight: 800; font-size: 66px; line-height: 1.15; color: #ffffff; text-shadow: 0 4px 0 #000, 0 0 22px rgba(0, 0, 0, 0.6); }
+      .leg-limpa .p { padding: 0 12px 4px; border-radius: 14px; }
+      .leg-limpa .p.dest { font-family: "Lilita", sans-serif; font-weight: 400; text-transform: uppercase; color: #ffc93c; font-size: 76px; }
+
+      /* tratamento de filme (o estilo liga as camadas em estilo.json → video.camadas) */
+      .pelicula { position: absolute; inset: 0; pointer-events: none; z-index: 40; }
+      #tom { background: var(--tom, transparent); mix-blend-mode: var(--tom-mistura, soft-light); }
+      #vinheta { background: radial-gradient(ellipse at 50% 45%, transparent 50%, rgba(0, 0, 0, var(--vinheta, 0.5)) 100%); }
+      #grao { background-image: url("assets/texturas/grao.png"); background-size: 256px 256px; mix-blend-mode: overlay; opacity: var(--grao, 0.18); }
+      #barras-cine i { position: absolute; left: 0; width: 100%; height: var(--barra-cine, 150px); background: #000; display: block; }
+      #barras-cine i:first-child { top: 0; }
+      #barras-cine i:last-child { bottom: 0; }
+      #moldura-cheia { inset: 14px; border: var(--quadro-borda); border-radius: 44px; box-shadow: var(--quadro-sombra); z-index: 9; }
+
+      /* barra de progresso do vídeo */
+      #progresso { position: absolute; left: 0; width: 100%; height: var(--prog-altura, 10px); z-index: 36; background: var(--prog-trilho, rgba(255, 255, 255, 0.18)); pointer-events: none; }
+      #progresso.topo { top: 0; }
+      #progresso.base { bottom: 0; }
+      #progresso-in { display: block; width: 100%; height: 100%; background: var(--prog-cor, var(--acento)); transform-origin: 0 50%; }
+
+      /* ícones (Lucide): herdam a cor do texto */
+      .ic { width: 1em; height: 1em; display: block; flex: none; }
+      .ic.desenha > * { stroke-dasharray: 1; }

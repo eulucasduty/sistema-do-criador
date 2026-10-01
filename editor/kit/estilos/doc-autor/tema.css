@@ -1,0 +1,68 @@
+      /* Documentário de autor: creme, tinta, âmbar, vermelho e azul; sempre com textura. */
+      :root {
+        --void: #F4F2E6;
+        --void-img: url("assets/texturas/papel.jpg");
+        --void-tam: cover;
+        --void-mistura: multiply;
+        --card: #F6F4EA;
+        --card-borda: 1px solid rgba(18, 17, 24, 0.18);
+        --card-sombra: 0 16px 34px rgba(30, 24, 10, 0.26);
+        --card-raio: 2px;
+        --texto: #121118;
+        --dim: #3D3D39;
+        --apagado: #8a8672;
+        --acento: #FFBF00;
+        --acento-tinta: #121118;
+        --acento2: #DD2C1E;
+        --acento3: #004CFF;
+        --ok: #0D5921;
+        --erro: #DD2C1E;
+        --brilho: 255, 191, 0;
+        --tinta-borda: none;
+        --chip-sombra: none;
+        --chip-raio: 0;
+        --f-titulo: "SerifaReta", serif;
+        --titulo-sombra: none;
+        --palavra-sombra: none;
+        --palavra-caixa: none;
+        --f-numero: "SerifaReta", serif;
+        --logo-fundo: #ffffff;
+        --logo-sombra: 0 10px 22px rgba(30, 24, 10, 0.24);
+        --mold: #F6F4EA;
+        --janela: #e7e3d0;
+        --janela-borda: rgba(18, 17, 24, 0.18);
+        --url: #F6F4EA;
+        --notif: #F6F4EA;
+        --notif-borda: rgba(18, 17, 24, 0.18);
+        --notif-texto: #3D3D39;
+        --trilho: #CFCBB4;
+        --destaque-brilho: none;
+        --video-filtro: contrast(1.08) saturate(0.92) sepia(0.12);
+        --tom: rgba(255, 200, 120, 0.1);
+        --vinheta: 0.5;
+        --grao: 0.26;
+        --escurece: 18, 17, 24;
+        --cab-caixa: none;
+        --let-caixa: none;
+        --marcador: #FFBF00;
+      }
+      .cena-titulo { font-size: 92px; line-height: 0.98; letter-spacing: -0.01em; }
+      .lista-titulo { font-size: 78px; }
+      .rotulo, .cab-rotulo { font-family: var(--f-mono); color: #DD2C1E; letter-spacing: 0.18em; }
+      .chip-ouro, .chip-rotulo { background: #121118; color: #F4F2E6; border: none; }
+      .chip-titulo { background: #FFBF00; color: #121118; border: none; border-radius: 0; box-shadow: none; font-family: var(--f-mono); font-size: 40px; letter-spacing: 0.08em; }
+      .marca { background: #DD2C1E; color: #F4F2E6; border: none; border-radius: 0; }
+      .destaque-box { border: 8px solid #FFBF00; border-radius: 0; box-shadow: none; }
+      .foto-card { border: 14px solid #F6F4EA; border-radius: 0; box-shadow: 0 20px 40px rgba(30, 24, 10, 0.45); }
+      .foto-card img { border-radius: 0; }
+      .foto-brilho { display: none; }
+      .foto-etiqueta { background: #121118; color: #F4F2E6; border-radius: 0; font-family: var(--f-mono); font-weight: 500; font-size: 26px; letter-spacing: 0.1em; text-transform: uppercase; }
+      .cab-l { color: #F4F2E6; line-height: 0.98; }
+      .cab-l.l1 { color: #FFBF00; }
+      .cab-regua { background: #DD2C1E; height: 5px; border-radius: 0; }
+      .palavra-linha.ouro { color: #DD2C1E; font-style: italic; }
+      .local-l { font-size: 34px; }
+      /* legenda: clara; a palavra de destaque em serifa itálica âmbar */
+      .leg-editorial .grupo { color: #F4F2E6; text-shadow: 0 2px 14px rgba(0, 0, 0, 0.8); }
+      .leg-editorial .p.dest { font-family: "Serifa", serif; font-style: italic; font-weight: 400; font-size: 1.22em; letter-spacing: 0; }
+      .leg-editorial .grupo.no-claro { color: #121118; text-shadow: none; }

@@ -1,0 +1,51 @@
+      /* Impacto: Montserrat Black em caixa alta, branco com sombra preta macia (sem contorno),
+         amarelo, verde e vermelho só na linha de ênfase. Nada de cor no vídeo. */
+      :root {
+        --void: #0b0b0c;
+        --void-img: none;
+        --card: #ffffff;
+        --card-borda: none;
+        --card-sombra: 0 14px 40px rgba(0, 0, 0, 0.5);
+        --card-raio: 18px;
+        --texto: #111111;
+        --dim: #555555;
+        --apagado: #8a8a8a;
+        --acento: #F9FF09;
+        --acento-tinta: #000000;
+        --acento2: #37FF29;
+        --acento3: #ED4056;
+        --ok: #19c93a;
+        --erro: #ED4056;
+        --brilho: 249, 255, 9;
+        --tinta-borda: none;
+        --chip-sombra: none;
+        --chip-raio: 10px;
+        --f-titulo: "Montserrat", sans-serif;
+        --titulo-sombra: none;
+        --palavra-sombra: 0 0 18px #000000;
+        --nome-sombra: none;
+        --f-numero: "Montserrat", sans-serif;
+        --numero-peso: 900;
+        --logo-fundo: #ffffff;
+        --logo-sombra: 0 10px 30px rgba(0, 0, 0, 0.4);
+        --mold: #ffffff;
+        --janela: #ececec;
+        --janela-borda: #dddddd;
+        --url: #ffffff;
+        --trilho: #e6e6e6;
+        --cab-caixa: uppercase;
+      }
+      .cena-titulo, .lista-titulo, .palavra-linha, .chip-titulo, .cta-txt b, .logo-op { font-weight: 900; text-transform: uppercase; }
+      .cena-titulo { color: #ffffff; text-shadow: 0 0 14px rgba(0, 0, 0, 0.9); }
+      .palavra-linha { color: #ffffff; }
+      .palavra-linha.ouro { color: #F9FF09; }
+      .chip-ouro, .chip-rotulo { font-family: "Montserrat", sans-serif; font-weight: 900; }
+      .chip-titulo { border: none; box-shadow: 0 8px 0 rgba(0, 0, 0, 0.6); }
+      .cab-l { text-shadow: 0 0 14px #000, 0 0 14px #000, 0 5px 10px #000; }
+      .cab-l.l1, .cab-num, .cab-icone { color: #F9FF09; }
+      .cab-selo { color: #F9FF09; border-color: #F9FF09; background: rgba(0, 0, 0, 0.5); }
+      .cab-regua, .cab-prog i.feito, .cab-prog i b { background: #F9FF09; }
+      /* legenda: sombra preta macia de 12 a 18 px em volta das letras */
+      .leg-impacto .grupo, .leg-torta .grupo { color: #ffffff; letter-spacing: -0.012em; text-shadow: 0 0 12px rgba(0, 0, 0, 0.95), 0 0 16px rgba(0, 0, 0, 0.9), 0 5px 10px rgba(0, 0, 0, 0.9); }
+      .leg-emoji { font-size: 92px; }
+      .anot-texto { font-family: "Montserrat", sans-serif; font-weight: 900; text-transform: uppercase; font-size: 54px; }

@@ -1,0 +1,7 @@
+{
+  "id": "tela-dividida",
+  "nome": "Tela dividida",
+  "base": "roxo",
+  "ordem": 10,
+  "descricao": "O motion explica em cima e você aparece embaixo, numa janela. Bom pra lista, passo a passo e print de tela."
+}

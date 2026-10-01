@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { lerPerfil } from "@/lib/config";
-import { estacaoLigada, type BatidaEstacao } from "@/lib/editor";
+import { estacaoLigada, estiloValido, legendaValida, type BatidaEstacao } from "@/lib/editor";
 import { roteiroEmTexto, type Roteiro } from "@/lib/esteira/criacao";
 import { EstacaoDesligada } from "../estacao";
-import { estiloValido, lookValido } from "../opcoes";
+import { lookValido } from "../opcoes";
 import { FormularioEdicao } from "./formulario";
 
 export const dynamic = "force-dynamic";
@@ -60,7 +60,8 @@ export default async function PaginaNovaEdicao({ searchParams }: PageProps<"/edi
         inicial={{
           titulo: roteiro?.titulo ?? "",
           roteiro: roteiro ? roteiroEmTexto(roteiro) : "",
-          legenda: estiloValido(perfil.legenda),
+          estilo: estiloValido(perfil.estilo),
+          legenda: legendaValida(perfil.estilo, perfil.legenda),
           cor: lookValido(perfil.cor) ?? "natural",
         }}
       />

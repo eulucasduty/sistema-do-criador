@@ -1,0 +1,8 @@
+{
+  "id": "perspectiva-3d",
+  "nome": "Perspectiva 3D",
+  "base": "roxo",
+  "ordem": 15,
+  "usa_recorte": true,
+  "descricao": "Imagem que entra no quadro exato, você saindo da moldura enquanto o card explica, e o vídeo desmontado em camadas de profundidade."
+}

@@ -1,0 +1,80 @@
+{
+  "id": "documental",
+  "nome": "Minimal documental (inspirado em Matt D'Avella)",
+  "grupo": "cinema",
+  "ordem": 43,
+  "descricao": "Plano parado, cor quente e apagada, quase nenhum gráfico. Legenda branca numa caixa preta, nome em serifa no canto direito entrando em fade. Sem música na sua fala.",
+  "legenda": {
+    "padrao": "caixa",
+    "tipos": {
+      "caixa": {
+        "linhas": 2,
+        "max_chars": 26,
+        "max_palavras_linha": 5,
+        "max_palavras_bloco": 9,
+        "quebra_virgula": false,
+        "acende": "nenhum",
+        "entrada": "seco",
+        "fonte": "roboto",
+        "tamanho": 54,
+        "entrelinha": 1.22,
+        "ancora": "auto",
+        "prefere_y": 0.69,
+        "segura": 0.4
+      },
+      "solta": {
+        "linhas": 2,
+        "max_chars": 26,
+        "max_palavras_linha": 5,
+        "max_palavras_bloco": 9,
+        "quebra_virgula": false,
+        "acende": "nenhum",
+        "entrada": "seco",
+        "fonte": "roboto",
+        "tamanho": 54,
+        "entrelinha": 1.22,
+        "ancora": "auto",
+        "prefere_y": 0.69,
+        "segura": 0.4
+      }
+    },
+    "clara": "#ffffff"
+  },
+  "cores": {
+    "verde": "#7fd08a",
+    "vermelho": "#d9705f",
+    "dourado": "#e9c46a",
+    "branco": "#ffffff"
+  },
+  "video": {
+    "camadas": [
+      "tom",
+      "vinheta"
+    ]
+  },
+  "cortes": {
+    "estilo": "seco",
+    "som": null
+  },
+  "sons": {
+    "automaticos": false
+  },
+  "tarja": {
+    "lado": "direita",
+    "entrada": "fade",
+    "y": 1380
+  },
+  "fontes": {
+    "palavra": "din-condensada",
+    "titulo": "din-condensada",
+    "cabecalho": "din-condensada",
+    "lettering": "din-condensada",
+    "citacao": "garamond"
+  },
+  "palavra": {
+    "entrada": "seco",
+    "som": false,
+    "teto": 190
+  },
+  "escurecer": false
+}

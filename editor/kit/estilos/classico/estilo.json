@@ -1,0 +1,40 @@
+{
+  "id": "classico",
+  "nome": "Clássico",
+  "grupo": "base",
+  "ordem": 1,
+  "descricao": "O padrão: emenda com onda de calor e clique de câmera, legenda com a palavra acendendo em dourado e os motions em papel creme com laranja.",
+  "padrao": true,
+  "legenda": {
+    "padrao": "bangers",
+    "tipos": {
+      "bangers": {
+        "max_chars": 16,
+        "max_palavras": 3,
+        "caixa": "alta",
+        "acende": "cor"
+      },
+      "limpa": {
+        "max_chars": 18,
+        "max_palavras": 3,
+        "caixa": "normal",
+        "acende": "caixa",
+        "sobre_fundo_claro": "#1a1a1a"
+      }
+    },
+    "acento": "#ffc93c",
+    "tinta": "#111111",
+    "clara": "#ffffff"
+  },
+  "cores": {
+    "verde": "#1fa35c",
+    "vermelho": "#e5533d",
+    "dourado": "#d97757",
+    "branco": "#1a1a1a"
+  },
+  "cortes": {
+    "estilo": "onda",
+    "som": "obturador"
+  },
+  "padrao_2x1": true
+}

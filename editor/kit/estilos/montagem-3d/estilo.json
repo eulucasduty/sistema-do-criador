@@ -1,0 +1,26 @@
+{
+  "id": "montagem-3d",
+  "nome": "Montagem em camadas 3D",
+  "base": "roxo",
+  "ordem": 11,
+  "descricao": "Seu vídeo vira um cartão e a edição vai entrando em camadas de vidro: trilha, legenda, ícones, título. No fim, junta tudo.",
+  "fontes": {
+    "cabecalho": "display"
+  },
+  "cabecalho": {
+    "alinhar": "centro",
+    "tamanho": 74,
+    "y": 96
+  },
+  "layout": {
+    "janelas": {
+      "cartao": {
+        "x": 210,
+        "y": 330,
+        "w": 660,
+        "h": 1000,
+        "r": 30
+      }
+    }
+  }
+}

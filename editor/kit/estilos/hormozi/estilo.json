@@ -1,0 +1,117 @@
+{
+  "id": "hormozi",
+  "nome": "Impacto (inspirado em Alex Hormozi)",
+  "grupo": "virais",
+  "ordem": 30,
+  "descricao": "Legenda gigante em caixa alta, duas linhas, uma delas pintada de amarelo, verde ou vermelho; emoji embaixo; imagem estourando a cada frase; corte seco com aproximação.",
+  "legenda": {
+    "padrao": "impacto",
+    "tipos": {
+      "impacto": {
+        "linhas": 2,
+        "max_chars": 11,
+        "max_palavras_linha": 3,
+        "max_palavras_bloco": 5,
+        "caixa": "alta",
+        "enfase": "linha",
+        "enfase_auto": true,
+        "acende": "nenhum",
+        "entrada": "mola",
+        "emoji_pos": "baixo",
+        "fonte": "montserrat",
+        "tamanho": 104,
+        "entrelinha": 0.96,
+        "ancora": "auto",
+        "posicao": "peito",
+        "cores_auto": {
+          "dinheiro": "verde",
+          "negacao": "vermelho"
+        },
+        "segura": 0.25
+      },
+      "torta": {
+        "linhas": 2,
+        "max_chars": 11,
+        "max_palavras_linha": 3,
+        "max_palavras_bloco": 5,
+        "caixa": "alta",
+        "enfase": "linha",
+        "enfase_auto": true,
+        "acende": "nenhum",
+        "entrada": "mola",
+        "emoji_pos": "baixo",
+        "fonte": "montserrat",
+        "tamanho": 104,
+        "entrelinha": 0.96,
+        "ancora": "auto",
+        "posicao": "peito",
+        "cores_auto": {
+          "dinheiro": "verde",
+          "negacao": "vermelho"
+        },
+        "segura": 0.25,
+        "girar": [
+          2,
+          6
+        ]
+      }
+    },
+    "acento": "#F9FF09",
+    "clara": "#ffffff",
+    "tinta": "#000000",
+    "cores": {
+      "amarelo": "#F9FF09",
+      "verde": "#37FF29",
+      "vermelho": "#ED4056"
+    }
+  },
+  "cores": {
+    "verde": "#37FF29",
+    "vermelho": "#ED4056",
+    "dourado": "#F9FF09",
+    "branco": "#ffffff"
+  },
+  "camera": {
+    "planos": {
+      "medio": 1.15,
+      "fechado": 1.3
+    },
+    "auto": {
+      "alterna": [
+        "aberto",
+        "medio"
+      ],
+      "cada": [
+        3,
+        6
+      ]
+    }
+  },
+  "cortes": {
+    "estilo": "seco",
+    "som": null
+  },
+  "sons": {
+    "automaticos": [
+      "pop",
+      "whoosh",
+      "click"
+    ],
+    "volume": 0.8
+  },
+  "fotos": {
+    "modo": "solta"
+  },
+  "fontes": {
+    "cabecalho": "montserrat",
+    "lettering": "montserrat",
+    "manchete": "montserrat",
+    "carimbo": "montserrat",
+    "palavra": "montserrat",
+    "titulo": "montserrat",
+    "passo": "montserrat",
+    "numero": "montserrat",
+    "etiqueta": "montserrat"
+  },
+  "escurecer": false
+}

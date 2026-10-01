@@ -1,0 +1,14 @@
+{
+  "id": "bruto-editado",
+  "nome": "Do bruto ao editado",
+  "base": "roxo",
+  "ordem": 14,
+  "usa_recorte": true,
+  "descricao": "Começa cru, com visor de câmera gravando; um glitch vira a chave e o vídeo ganha cor, palavra gigante atrás de você, carrossel de referências e moldura.",
+  "palavra": {
+    "teto_atras": 300
+  },
+  "fontes": {
+    "palavra": "larga"
+  }
+}

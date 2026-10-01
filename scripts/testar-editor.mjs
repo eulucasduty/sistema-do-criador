@@ -1,6 +1,7 @@
 // Edita um vídeo local sem passar pelo painel nem pelo banco (pra testar o kit e a IA).
 // Uso: npm run editor:testar -- <video> [--motor claude|codex|openrouter] [--modelo …]
-//        [--titulo "…"] [--legenda bangers|limpa] [--cor natural|quente|contraste]
+//        [--titulo "…"] [--estilo <pasta de editor/kit/estilos>] [--legenda <tipo do estilo>]
+//        [--cor natural|quente|contraste]
 //        [--usuario @seu.perfil] [--nome "Seu nome"] [--nicho "…"] [--foto <arquivo|https://…>]
 //        [--material <arquivo|https://…> "descrição"]…
 // O perfil vem das opções acima (no painel ele vem do Perfil do criador). No motor openrouter,
@@ -12,7 +13,7 @@ import path from "node:path";
 import { editar } from "../editor/estacao/fluxo.mjs";
 import { prepararMotor } from "../editor/estacao/motor.mjs";
 
-const USO = 'uso: npm run editor:testar -- <video> [--motor claude|codex|openrouter] [--modelo …] [--titulo "…"] [--legenda bangers|limpa] [--cor natural|quente|contraste] [--usuario @perfil] [--nome "…"] [--nicho "…"] [--foto <arquivo|link>] [--material <arquivo|link> "descrição"]';
+const USO = 'uso: npm run editor:testar -- <video> [--motor claude|codex|openrouter] [--modelo …] [--titulo "…"] [--estilo classico] [--legenda <tipo do estilo>] [--cor natural|quente|contraste] [--usuario @perfil] [--nome "…"] [--nicho "…"] [--foto <arquivo|link>] [--material <arquivo|link> "descrição"]';
 const args = process.argv.slice(2);
 let video = null;
 let titulo = "Teste do editor";
@@ -25,6 +26,7 @@ for (let i = 0; i < args.length; i++) {
   if (a === "--titulo") titulo = args[++i];
   else if (a === "--motor") escolha.motor = args[++i];
   else if (a === "--modelo") escolha.modelo = args[++i];
+  else if (a === "--estilo") opcoes.estilo = args[++i];
   else if (a === "--legenda") opcoes.legenda = args[++i];
   else if (a === "--cor") opcoes.cor = args[++i];
   else if (a === "--usuario") perfil.usuario = args[++i];

@@ -1,0 +1,43 @@
+      /* Desafio: tudo claro e saturado, letra de gibi com contorno preto, amarelo e vermelho. */
+      :root {
+        --void: #0d0d0f;
+        --void-img: radial-gradient(ellipse at 50% 30%, rgba(255, 255, 0, 0.12), transparent 60%);
+        --void-tam: auto;
+        --card: #ffffff;
+        --card-borda: 6px solid #000000;
+        --card-sombra: 0 10px 0 #000000;
+        --card-raio: 34px;
+        --texto: #111111;
+        --dim: #444444;
+        --apagado: #777777;
+        --acento: #FFFF00;
+        --acento-tinta: #000000;
+        --acento2: #EA0003;
+        --acento3: #12FF0B;
+        --ok: #12FF0B;
+        --erro: #EA0003;
+        --brilho: 255, 255, 0;
+        --tinta-borda: 4px solid #000000;
+        --chip-sombra: 0 6px 0 #000000;
+        --chip-raio: 14px;
+        --f-titulo: "Bangers", sans-serif;
+        --titulo-espaco: 0.02em;
+        --titulo-sombra: 0 6px 0 #000000;
+        --palavra-sombra: 0 10px 0 #000000;
+        --f-numero: "Bangers", sans-serif;
+        --logo-fundo: #ffffff;
+        --logo-sombra: 0 8px 0 #000000;
+        --mold: #ffffff;
+        --trilho: #e2e2e2;
+        --video-filtro: saturate(1.2) contrast(1.06) brightness(1.04);
+        --cab-caixa: uppercase;
+      }
+      .cena-titulo { color: #ffffff; -webkit-text-stroke: 10px #000; paint-order: stroke fill; }
+      .palavra-linha { color: #ffffff; -webkit-text-stroke: 14px #000; paint-order: stroke fill; }
+      .palavra-linha.ouro { color: #FFFF00; }
+      .cab-l { color: #ffffff; -webkit-text-stroke: 9px #000; paint-order: stroke fill; text-shadow: 0 6px 0 #000; letter-spacing: 0.02em; }
+      .cab-l.l1, .cab-num { color: #FFFF00; -webkit-text-stroke: 9px #000; paint-order: stroke fill; }
+      /* legenda: contorno preto de 10 px, cantos redondos, sombrinha embaixo; o bloco deita um pouco */
+      .leg-gibi .grupo { color: #ffffff; letter-spacing: 0.02em; -webkit-text-stroke: 10px #000000; paint-order: stroke fill; stroke-linejoin: round; text-shadow: 0 6px 0 #000000; }
+      .leg-gibi .gi { display: inline-block; transform: skewX(-7deg); }
+      .carimbo { -webkit-text-stroke: 0; box-shadow: 0 10px 0 #000000; border: 6px solid #000000; }

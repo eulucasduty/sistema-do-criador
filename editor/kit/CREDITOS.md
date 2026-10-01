@@ -15,9 +15,26 @@ de base. A biblioteca que vale nas edições é a "Meus sons" do painel (`criado
 catálogo é a reserva quando o criador ainda não montou a dele (ou a estação não alcança o banco).
 Os sons que o criador sobe no painel são dele: ele responde pela licença de cada um.
 
-## Fontes (`fontes/`, via Fontsource)
-- Bangers, Lilita One, Plus Jakarta Sans, JetBrains Mono: SIL Open Font License 1.1 (uso livre,
-  inclusive comercial; podem ser redistribuídas junto com o projeto).
+## Fontes (`fontes/`, com a licença de cada uma em `fontes/licencas/`)
+Todas de licença aberta: podem ser usadas em vídeo comercial e redistribuídas junto com o projeto.
+- SIL Open Font License 1.1: Anton, Archivo, Bangers, Barlow e Barlow Condensed, Bebas Neue,
+  Caveat, EB Garamond, Fraunces, Instrument Serif, Inter, Inter Tight, JetBrains Mono, Libre
+  Franklin, Lilita One, Montserrat, Mrs Saint Delafield, Playfair Display, Plus Jakarta Sans,
+  Poppins, Roboto, TikTok Sans e Unbounded.
+- Apache License 2.0: Permanent Marker e Special Elite.
+- `fontes/metricas.json`: as larguras de cada letra, medidas a partir desses arquivos (é com elas
+  que o montador calcula o tamanho em que um texto cabe).
+
+Os estilos "inspirados em" um criador ou canal usam essas fontes abertas no lugar das fontes
+comerciais de cada um (que não podem ser redistribuídas). Os nomes citados são só referência do
+jeito de editar: nenhum deles tem ligação com este projeto.
+
+## Ícones (`icones/`)
+Lucide (lucide.dev), licença ISC (`icones/LICENSE`).
+
+## Texturas (`texturas/`)
+`grao.png` (grão de filme) e `papel.jpg` (papel) foram geradas por este projeto no ffmpeg (ruído),
+sem arquivo de terceiros.
 
 ## Logos
 Buscadas na hora pelo media-use do HyperFrames (theSVG → avatar do GitHub → favicon) ou o ícone

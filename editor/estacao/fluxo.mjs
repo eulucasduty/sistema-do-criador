@@ -8,7 +8,8 @@ import path from "node:path";
 import { ambienteDaIA } from "./ambiente.mjs";
 import { comandoHyperframes, garantirFerramentas } from "./ferramentas.mjs";
 import { prepararMotor } from "./motor.mjs";
-import { FERRAMENTAS, gravarPerfil, legendaValida, lookValido, perfilLimpo, prepararOficina, prepararPasta, rodar, sondar } from "./preparar.mjs";
+import { FERRAMENTAS, estiloValido, gravarPerfil, kitAntigo, legendaValida, lookValido, perfilLimpo, prepararOficina, prepararPasta, rodar, sondar } from "./preparar.mjs";
+import { gerarRecortes } from "./recortes.mjs";
 
 /** "Você é o editor de vídeo do criador @ana." + nicho, público e tom, quando o perfil tem. */
 function quemE(perfil) {
@@ -19,9 +20,19 @@ function quemE(perfil) {
   return linhas;
 }
 
-/** O pedido pra IA. O Codex já recebe o manual como AGENTS.md; os outros leem kit/EDITOR.md. */
-export function promptEdicao({ versao = 1, ajuste, perfil, motor = "claude" } = {}) {
-  const manual = motor === "codex" ? "Siga o manual das suas instruções (AGENTS.md: as notas deste ambiente + o kit/EDITOR.md)." : "Leia kit/EDITOR.md (o manual, com o padrão de edição).";
+/**
+ * O pedido pra IA. São três manuais: kit/EDITOR.md (fluxo e formato do plano), kit/ESTILO.md (o
+ * estilo de edição deste vídeo) e kit/COMPONENTES.md (as cenas). O Codex já recebe os dois
+ * primeiros como AGENTS.md. `antigo`: oficina do kit de antes dos estilos (um manual só).
+ */
+export function promptEdicao({ versao = 1, ajuste, perfil, motor = "claude", antigo = false } = {}) {
+  const manual = antigo
+    ? motor === "codex"
+      ? "Siga o manual das suas instruções (AGENTS.md: as notas deste ambiente + o kit/EDITOR.md)."
+      : "Leia kit/EDITOR.md (o manual, com o padrão de edição)."
+    : motor === "codex"
+      ? "Siga os manuais das suas instruções (AGENTS.md: as notas deste ambiente, o kit/EDITOR.md e o kit/ESTILO.md, que é o estilo de edição deste vídeo e vale por cima do manual) e leia kit/COMPONENTES.md (as cenas que existem)."
+      : "Leia os três manuais: kit/EDITOR.md (o fluxo de trabalho e o formato do plano), kit/ESTILO.md (o estilo de edição deste vídeo, que vale por cima do manual onde disser diferente) e kit/COMPONENTES.md (as cenas que existem).";
   if (versao > 1 && ajuste)
     return [
       ...quemE(perfil),
@@ -38,8 +49,8 @@ export function promptEdicao({ versao = 1, ajuste, perfil, motor = "claude" } = 
     ...quemE(perfil),
     "Esta pasta é a oficina de uma edição nova.",
     `${manual} Leia dados/perfil.json e siga o fluxo de trabalho até o fim:`,
-    "pedido e materiais, emendas, assets reais (logos e prints), plano.json, montador, lint com 0 erros",
-    "e conferência nos snapshots. Não renderize (a estação renderiza depois).",
+    "pedido e materiais, emendas, medida do rosto, assets reais (logos e prints), plano.json no estilo desta edição,",
+    "montador, lint com 0 erros e conferência nos snapshots. Não renderize (a estação renderiza depois).",
     "Termine com o resumo curto pro criador (3 a 6 linhas, português simples).",
   ].join("\n");
 }
@@ -170,13 +181,20 @@ export async function editar({ pasta, base, bruto, materiais, pedido, perfil, ve
   const p = perfilLimpo(perfil);
   const opcoes = { ...(pedido?.opcoes ?? {}) };
   opcoes.cor = lookValido(opcoes.cor, p.cor);
-  opcoes.legenda = legendaValida(opcoes.legenda, p.legenda);
+  opcoes.estilo = estiloValido(opcoes.estilo, p.estilo);
+  const legenda = legendaValida(opcoes.legenda, p.legenda);
+  if (legenda) opcoes.legenda = legenda;
+  else delete opcoes.legenda;
+  let antigo = false;
   if (versao > 1 && base) {
     if (!fs.existsSync(path.join(base, "plano.json"))) throw new Error("a oficina da versão anterior não está neste PC (o ajuste precisa dela)");
     aviso(`copiando a oficina da versão ${versao - 1}`);
     fs.cpSync(base, pasta, { recursive: true, filter: (f) => !/[\\/](renders|snapshots|\.cache)([\\/]|$)/.test(f.slice(base.length)) });
-    prepararPasta(pasta); // kit atualizado
-    fs.writeFileSync(path.join(pasta, "dados", "pedido.json"), JSON.stringify({ ...JSON.parse(fs.readFileSync(path.join(base, "dados", "pedido.json"), "utf8")), versao, ajuste }, null, 2));
+    const anterior = JSON.parse(fs.readFileSync(path.join(base, "dados", "pedido.json"), "utf8"));
+    // edição feita com o kit de antes dos estilos: o ajuste continua nele (o plano e o visual são daquele kit)
+    antigo = kitAntigo(pasta);
+    const estilo = antigo ? undefined : prepararPasta(pasta, anterior.opcoes?.estilo); // kit atualizado, no estilo da versão anterior
+    fs.writeFileSync(path.join(pasta, "dados", "pedido.json"), JSON.stringify({ ...anterior, ...(estilo ? { opcoes: { ...(anterior.opcoes ?? {}), estilo } } : {}), versao, ajuste }, null, 2));
   } else {
     await prepararOficina({ pasta, bruto, materiais, pedido: { ...pedido, opcoes, versao }, aviso });
   }
@@ -184,7 +202,7 @@ export async function editar({ pasta, base, bruto, materiais, pedido, perfil, ve
   await aoPreparar(pasta); // a estação põe aqui os sons da biblioteca do criador (dados/sons.json)
 
   aviso(`${ia.nome} está montando a edição`);
-  let cerebro = await ia.rodar(pasta, promptEdicao({ versao, ajuste, perfil: p, motor: ia.id }), { aoPasso });
+  let cerebro = await ia.rodar(pasta, promptEdicao({ versao, ajuste, perfil: p, motor: ia.id, antigo }), { aoPasso });
   if (ia.id === "codex") cerebro = await rodadaDasLogos(pasta, ia, cerebro, { aviso, aoPasso });
   if (!fs.existsSync(path.join(pasta, "index.html"))) throw new Error(`${ia.nome} terminou sem montar o vídeo (sem index.html)`);
 
@@ -195,6 +213,18 @@ export async function editar({ pasta, base, bruto, materiais, pedido, perfil, ve
     cerebro.uso.conserto = conserto.uso;
     lint = conferir(pasta);
     if (lint.erros > 0) throw new Error(`o vídeo ficou com ${lint.erros} erro(s) no lint: ${lint.saida.slice(-600)}`);
+  }
+
+  // estilos que põem coisa atrás da pessoa (texto, cenário): recorta ela do fundo nos trechos que o
+  // plano pediu e monta de novo, agora com os recortes no lugar
+  const t1 = Date.now();
+  const recortes = await gerarRecortes(pasta, { aviso });
+  if (recortes) {
+    const m = spawnSync(process.execPath, ["kit/montar.mjs"], { cwd: pasta, encoding: "utf8", windowsHide: true, timeout: 120_000, env: ambienteDaIA() });
+    if (m.status !== 0 && m.status !== 2) throw new Error(`o montador falhou depois dos recortes: ${`${m.stdout ?? ""}${m.stderr ?? ""}`.slice(-600)}`);
+    lint = conferir(pasta);
+    if (lint.erros > 0) throw new Error(`o vídeo ficou com ${lint.erros} erro(s) no lint depois dos recortes: ${lint.saida.slice(-600)}`);
+    cerebro.uso.recortes = { trechos: recortes, duracao_s: Math.round((Date.now() - t1) / 1000) };
   }
 
   aviso("renderizando");

@@ -1,9 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 import { lerPerfil } from "@/lib/config";
+import { ESTILOS_EDICAO, GRUPOS_ESTILO, estiloValido } from "@/lib/editor";
 import { atualizarDoInstagram, salvarPerfil } from "./acoes";
 
 // Quem é você: a IA escreve a partir disso (roteiro, carrossel, agente) e o editor usa o
-// seu @, a sua foto, o look do vídeo e o estilo de legenda.
+// seu @, a sua foto, o look do vídeo, o estilo de edição padrão e as suas regras.
 
 export const dynamic = "force-dynamic";
 
@@ -11,11 +12,6 @@ const LOOKS = [
   { id: "natural", nome: "Natural", texto: "Só corrige (HDR do iPhone, nitidez leve). Bom pra quem já grava com luz boa." },
   { id: "quente", nome: "Quente", texto: "Um pouco mais de contraste e calor, pele saudável." },
   { id: "contraste", nome: "Contraste forte", texto: "Mais escuro e contrastado, com nitidez: o look de edição de criador." },
-];
-
-const LEGENDAS = [
-  { id: "bangers", nome: "Impacto", texto: "Palavra por palavra, letra grossa e grande (estilo karaokê)." },
-  { id: "limpa", nome: "Limpa", texto: "Legenda em caixa, mais discreta, com destaque na palavra." },
 ];
 
 export default async function PaginaPerfil({ searchParams }: PageProps<"/perfil">) {
@@ -87,6 +83,17 @@ export default async function PaginaPerfil({ searchParams }: PageProps<"/perfil"
             />
             <span className="mt-1 block text-xs text-apagado">A persona tirada dos seus reels (Esteira) é mais precisa; isto aqui completa.</span>
           </label>
+          <label className="block">
+            <span className="rotulo">O que nunca pode aparecer nos vídeos (opcional)</span>
+            <textarea
+              name="regras"
+              rows={3}
+              defaultValue={p.regras ?? ""}
+              placeholder="ex.: nunca mostrar preço na tela; não citar o nome de concorrente; a data do lançamento só aparece a partir do dia 20"
+              className="campo mt-1"
+            />
+            <span className="mt-1 block text-xs text-apagado">O editor de vídeo segue essas regras em tudo que põe na tela.</span>
+          </label>
         </section>
 
         <section className="card space-y-4 p-4">
@@ -105,20 +112,21 @@ export default async function PaginaPerfil({ searchParams }: PageProps<"/perfil"
               ))}
             </div>
           </fieldset>
-          <fieldset>
-            <legend className="rotulo">Legenda padrão</legend>
-            <div className="mt-2 grid gap-2 sm:grid-cols-2">
-              {LEGENDAS.map((l) => (
-                <label key={l.id} className="flex cursor-pointer gap-2 rounded-xl border-2 border-borda p-3 text-sm has-[:checked]:border-marca">
-                  <input type="radio" name="legenda" value={l.id} defaultChecked={p.legenda === l.id} className="mt-1 accent-[var(--color-marca)]" />
-                  <span>
-                    <span className="font-bold">{l.nome}</span>
-                    <span className="block text-xs text-suave">{l.texto}</span>
-                  </span>
-                </label>
+          <label className="block">
+            <span className="rotulo">Estilo de edição padrão</span>
+            <select name="estilo" defaultValue={estiloValido(p.estilo)} className="campo mt-1">
+              {GRUPOS_ESTILO.map((g) => (
+                <optgroup key={g.id} label={g.nome}>
+                  {ESTILOS_EDICAO.filter((e) => e.grupo === g.id).map((e) => (
+                    <option key={e.id} value={e.id}>
+                      {e.nome}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
-            </div>
-          </fieldset>
+            </select>
+            <span className="mt-1 block text-xs text-apagado">É o que já vem escolhido em cada edição nova (dá pra trocar na hora). A legenda acompanha o estilo.</span>
+          </label>
         </section>
 
         <section className="card space-y-4 p-4">

@@ -1,0 +1,99 @@
+{
+  "id": "cinema-escuro",
+  "nome": "Cinema escuro (inspirado em Iman Gadzhi)",
+  "grupo": "cinema",
+  "ordem": 40,
+  "descricao": "Sala escura e quente, grão de filme em tudo, legenda pequena e apertada em branco (amarelo só na ênfase) e animações em fundo quase preto com grade. Caro e contido.",
+  "legenda": {
+    "padrao": "apertada",
+    "tipos": {
+      "apertada": {
+        "max_chars": 18,
+        "max_palavras": 3,
+        "enfase": "bloco",
+        "acende": "nenhum",
+        "entrada": "borra",
+        "fonte": "apertada",
+        "tamanho": 56,
+        "ancora": "auto",
+        "posicao": "peito",
+        "segura": 0.35
+      },
+      "leve-forte": {
+        "max_chars": 22,
+        "max_palavras": 4,
+        "caixa": "baixa",
+        "acende": "peso",
+        "peso_leve": 300,
+        "peso_forte": 800,
+        "entrada": "fade",
+        "fonte": "montserrat-leve",
+        "tamanho": 54,
+        "ancora": "auto",
+        "posicao": "peito",
+        "segura": 0.35
+      }
+    },
+    "acento": "#FCFF02",
+    "clara": "#ffffff",
+    "cores": {
+      "amarelo": "#FCFF02",
+      "branco": "#ffffff"
+    }
+  },
+  "cores": {
+    "verde": "#4dff9a",
+    "vermelho": "#ff5a5a",
+    "dourado": "#FCFF02",
+    "branco": "#ffffff"
+  },
+  "quadros": 12,
+  "video": {
+    "camadas": [
+      "tom",
+      "vinheta",
+      "grao"
+    ]
+  },
+  "camera": {
+    "planos": {
+      "medio": 1.16,
+      "fechado": 1.32
+    },
+    "auto": {
+      "alterna": [
+        "aberto",
+        "medio"
+      ],
+      "cada": [
+        2.7,
+        4.2
+      ]
+    }
+  },
+  "cortes": {
+    "estilo": "seco",
+    "som": null
+  },
+  "sons": {
+    "automaticos": [
+      "whoosh",
+      "ding"
+    ],
+    "volume": 0.6
+  },
+  "fontes": {
+    "titulo": "montserrat",
+    "cabecalho": "montserrat",
+    "lettering": "montserrat",
+    "palavra": "montserrat",
+    "passo": "montserrat",
+    "numero": "montserrat",
+    "citacao": "montserrat-media",
+    "local": "mono"
+  },
+  "palavra": {
+    "entrada": "borra",
+    "som": false
+  }
+}

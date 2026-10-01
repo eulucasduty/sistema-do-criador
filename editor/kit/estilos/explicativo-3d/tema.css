@@ -1,0 +1,71 @@
+      /* Explicativo 3D: fundo verde-petróleo escuro, creme e laranja; letra condensada técnica;
+         a janela do rosto tem os cantos chanfrados. */
+      :root {
+        --void: #202727;
+        --void-img: none;
+        --card: #2a3232;
+        --card-borda: 1px solid rgba(210, 185, 142, 0.3);
+        --card-sombra: none;
+        --card-raio: 6px;
+        --texto: #efe6d2;
+        --dim: #a9a08a;
+        --apagado: #7d7766;
+        --acento: #c27344;
+        --acento-tinta: #1a1f1f;
+        --acento2: #d2b98e;
+        --acento3: #e58a55;
+        --ok: #9bc48a;
+        --erro: #d9644a;
+        --brilho: 194, 115, 68;
+        --tinta-borda: 1px solid rgba(210, 185, 142, 0.4);
+        --chip-sombra: none;
+        --chip-raio: 4px;
+        --f-titulo: "DinCondensada", sans-serif;
+        --titulo-espaco: 0.01em;
+        --titulo-sombra: none;
+        --palavra-sombra: none;
+        --nome-sombra: none;
+        --f-numero: "DinCondensada", sans-serif;
+        --numero-peso: 700;
+        --logo-fundo: #efe6d2;
+        --logo-sombra: none;
+        --mold: #1a1f1f;
+        --janela: #2a3232;
+        --janela-borda: rgba(210, 185, 142, 0.25);
+        --url: #1a1f1f;
+        --notif: #2a3232;
+        --notif-borda: rgba(210, 185, 142, 0.3);
+        --notif-texto: #cfc6b0;
+        --trilho: #343d3d;
+        --destaque-brilho: 0 0 0 3px rgba(32, 39, 39, 0.6);
+        --quadro-borda: none;
+        --quadro-sombra: none;
+        --escurece: 32, 39, 39;
+        --cab-caixa: uppercase;
+        --iso-objeto: #f3ead2;
+        --iso-traco: #c27344;
+        --grade: rgba(210, 185, 142, 0.2);
+      }
+      .cena-titulo, .lista-titulo, .palavra-linha { font-weight: 700; text-transform: uppercase; }
+      /* janela chanfrada: quatro triângulos da cor do fundo tapam os cantos e um fio creme contorna */
+      .janela-borda::before { content: ""; position: absolute; inset: -3px; background: #d2b98e; clip-path: polygon(evenodd, 30px 0, calc(100% - 30px) 0, 100% 30px, 100% calc(100% - 30px), calc(100% - 30px) 100%, 30px 100%, 0 calc(100% - 30px), 0 30px, 30px 0, 31px 3px, 3px 31px, 3px calc(100% - 31px), 31px calc(100% - 3px), calc(100% - 31px) calc(100% - 3px), calc(100% - 3px) calc(100% - 31px), calc(100% - 3px) 31px, calc(100% - 31px) 3px, 31px 3px); }
+      .janela-borda i { display: block; width: 32px; height: 32px; border: none; background: var(--void); }
+      .janela-borda i:nth-child(1) { left: -3px; top: -3px; clip-path: polygon(0 0, 100% 0, 0 100%); }
+      .janela-borda i:nth-child(2) { right: -3px; top: -3px; left: auto; clip-path: polygon(0 0, 100% 0, 100% 100%); }
+      .janela-borda i:nth-child(3) { left: -3px; bottom: -3px; top: auto; clip-path: polygon(0 0, 0 100%, 100% 100%); }
+      .janela-borda i:nth-child(4) { right: -3px; bottom: -3px; left: auto; top: auto; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+      /* cabeçalho: olho laranja pequeno e título condensado creme */
+      .cab-rotulo, .iso-olho { font-family: var(--f-texto); font-weight: 500; font-size: 24px; letter-spacing: 0.26em; color: var(--acento3); }
+      .cab-l, .iso-t { color: var(--texto); }
+      .cab-l.l1, .iso-t.l1 { color: var(--texto); }
+      .cab-regua { display: none; }
+      /* etiquetas dos andares: caixinha escura com letra creme */
+      .iso-rotulo span { display: none; }
+      .iso-rotulo b { padding: 6px 14px 8px; background: #161b1b; color: var(--cor); letter-spacing: 0.04em; }
+      .iso-rotulo > i { height: 2px; }
+      .iso-topo { color: rgba(32, 39, 39, 0.5); }
+      .iso-icones span { border-width: 0; color: var(--acento2); opacity: 0.4; font-size: 54px; width: 64px; }
+      .iso-tx { letter-spacing: 0.01em; }
+      /* legenda: letra fina numa caixinha preta, colada na janelinha */
+      .leg-caixa .grupo { color: #ffffff; }
+      .leg-caixa .gi { display: inline-block; background: #0e1111; padding: 8px 20px 10px; }
