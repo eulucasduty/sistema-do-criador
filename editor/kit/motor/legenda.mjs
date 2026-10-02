@@ -163,6 +163,8 @@ export function montarLegendas(M, camera, emendas, cenas) {
   const grupos = [];
   let atual = [];
   const fimDeFrase = L.quebra_virgula ? /[.,!?;:]$/ : /[.!?;:]$/;
+  // bloco que ficaria menos que isso na tela não fecha na pontuação ("Tem." / "Ah," viravam um flash)
+  const vidaMinima = L.vida_minima ?? 0.3;
   validas.forEach((w, k) => {
     const prox = validas[k + 1];
     if (atual.length && !cabe([...atual, w])) {
@@ -171,8 +173,11 @@ export function montarLegendas(M, camera, emendas, cenas) {
     }
     atual.push(w);
     const pausa = prox ? prox.a - w.b > (L.pausa ?? 0.35) : true;
-    const quebra = emendas.some((c) => prox && c.t > w.b - 0.05 && c.t <= prox.a + 0.05); // não atravessa emenda
-    if (atual.length >= porBloco || fimDeFrase.test(w.texto) || pausa || quebra) {
+    // não atravessa emenda (a emenda tem que cair depois desta palavra: palavra de tempo zero logo
+    // depois do corte pertence à tomada nova)
+    const quebra = emendas.some((c) => prox && c.t > w.a && c.t > w.b - 0.05 && c.t <= prox.a + 0.05);
+    const flash = prox && prox.a - atual[0].a < vidaMinima;
+    if (atual.length >= porBloco || pausa || quebra || (fimDeFrase.test(w.texto) && !flash)) {
       grupos.push(atual);
       atual = [];
     }
@@ -208,6 +213,9 @@ export function montarLegendas(M, camera, emendas, cenas) {
     const fimOculto = ocultar.find(([x]) => x > a && x < b);
     if (fimOculto) b = r3(fimOculto[0]);
     if (b - a < 0.06) return; // palavra que a transcrição deu com tempo zero: pula
+    // a entrada nunca dura mais que o bloco: senão ela termina depois do "some" e o bloco volta a
+    // aparecer (e fica na tela por baixo das legendas seguintes)
+    const dEnt = (d) => r3(Math.min(d, Math.max(0.03, b - a - 0.02)));
     const noClaro = NO_CLARO && (dentro(camera.cheiasComLegenda, a + 0.02) || dentro(M.fundosClaros, a + 0.02));
     const C = noClaro ? NO_CLARO : NORMAL;
     const info = new Map(
@@ -300,9 +308,9 @@ export function montarLegendas(M, camera, emendas, cenas) {
     }
 
     // entrada do bloco
-    if (L.entrada === "sobe") add(`tl.fromTo("#g${gi}", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.16, ease: "power2.out", immediateRender: false }, ${a});`);
-    else if (L.entrada === "fade") add(`tl.fromTo("#g${gi}", { opacity: 0 }, { opacity: 1, duration: 0.14, ease: "none", immediateRender: false }, ${a});`);
-    else if (L.entrada === "borra") add(`tl.fromTo("#g${gi}", { opacity: 0, filter: "blur(12px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.22, ease: "power2.out", immediateRender: false }, ${a});`);
+    if (L.entrada === "sobe") add(`tl.fromTo("#g${gi}", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: ${dEnt(0.16)}, ease: "power2.out", immediateRender: false }, ${a});`);
+    else if (L.entrada === "fade") add(`tl.fromTo("#g${gi}", { opacity: 0 }, { opacity: 1, duration: ${dEnt(0.14)}, ease: "none", immediateRender: false }, ${a});`);
+    else if (L.entrada === "borra") add(`tl.fromTo("#g${gi}", { opacity: 0, filter: "blur(12px)" }, { opacity: 1, filter: "blur(0px)", duration: ${dEnt(0.22)}, ease: "power2.out", immediateRender: false }, ${a});`);
     else {
       add(`tl.set("#g${gi}", { opacity: 1 }, ${a});`);
       if (L.entrada === "mola") add(`tl.from("#g${gi}", { scale: 0.8, y: 14, duration: 0.2, ease: "back.out(3.2)" }, ${a});`);
