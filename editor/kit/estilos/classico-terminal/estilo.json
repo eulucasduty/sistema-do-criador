@@ -1,0 +1,58 @@
+{
+  "id": "classico-terminal",
+  "nome": "Clássico · Terminal",
+  "grupo": "variacoes",
+  "ordem": 2,
+  "descricao": "O clássico com cara de Claude Code: tela escura com grade, letra mono, a palavra falada numa caixa laranja e o Claudinho em pixel art.",
+  "movimento": "video",
+  "cor_intocada": true,
+  "legenda": {
+    "padrao": "terminal",
+    "tipos": {
+      "terminal": {
+        "max_chars": 18,
+        "max_palavras": 3,
+        "caixa": "normal",
+        "acende": "caixa",
+        "entrada": "seco",
+        "fonte": "mono",
+        "tamanho": 62
+      },
+      "limpa": {
+        "max_chars": 18,
+        "max_palavras": 3,
+        "caixa": "normal",
+        "acende": "caixa",
+        "sobre_fundo_claro": "#1a1a1a"
+      }
+    },
+    "acento": "#d97757",
+    "tinta": "#0f0e0d",
+    "clara": "#f1ece4"
+  },
+  "cores": {
+    "verde": "#7bd88f",
+    "vermelho": "#ff6b6b",
+    "dourado": "#d97757",
+    "branco": "#f1ece4"
+  },
+  "cortes": {
+    "estilo": "glitch",
+    "som": "tecla"
+  },
+  "fontes": {
+    "palavra": "mono",
+    "titulo": "mono",
+    "cabecalho": "mono",
+    "lettering": "mono",
+    "carimbo": "mono",
+    "etiqueta": "mono",
+    "numero": "mono"
+  },
+  "palavra": {
+    "entrada": "seco",
+    "som": "tecla",
+    "teto": 150
+  },
+  "padrao_2x1": true
+}

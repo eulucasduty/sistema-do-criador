@@ -18,6 +18,39 @@ Vale por cima do `kit/EDITOR.md` onde disser diferente.
 
 Motion em **50 a 70%** do vídeo.
 
+## Movimento (automático)
+
+Os motions deste estilo **não ficam parados**: cada card tem uma câmera que anda a cena inteira
+(aproxima devagar e inclina um pouco em 3D), entra deitado e assenta, e sai com movimento no lugar
+de sumir de corte seco. O papel do fundo desliza. Por dentro: o print ganha um cursor que clica no
+`destaque`, o fluxo tem o tracejado correndo e um pacote de luz indo de um nó pro outro, a lista
+acende o item da vez, o chat mostra "digitando…", os comentários ganham curtida, o terminal tem o
+cursor piscando e, no `cta`, o cursor clica em "Seguir". Isso tudo o montador faz sozinho. O que
+**você** faz pra ficar bom:
+
+- Dê `i` (a palavra falada) em cada item de `lista`, nó de `fluxo` e mensagem de `chat`: assim as
+  coisas vão aparecendo ao longo da fala, e não todas no começo.
+- Em `material`/`print`, sempre que der, um `destaque` no botão ou número de que ele fala (é ali
+  que o cursor clica) e um `foco_inicial` largo antes do `foco` (a câmera passeia pelo print).
+- Cenas de **2,5 a 6 s**. Com menos de 1 s não tem câmera nem saída; os últimos 0,3 s de cada
+  cena são a saída.
+- No `cta`, deixe pelo menos 2,5 s (o tempo do cursor clicar em "Seguir").
+
+## Motion animado (vídeo)
+
+**1 a 2 motions por vídeo** (`kit/MOTION.md`), na ideia principal: o momento em que ele descreve
+uma cena, um processo ou uma metáfora (Claudes brigando, um sistema rodando sozinho, o antes e
+depois de alguma coisa). Personagem `Claudinho` quando o assunto é o Claude; `Codinho` e
+`TerminalClaude` quando é o Claude Code, programar ou "mandei a IA fazer". Um em `tela-cheia`
+(o mais forte, 3 a 6 s) e, se tiver o segundo, na `faixa`. Eles contam como motion em tela cheia
+no padrão 2x1. Se o pedido falar em motion ou animação, faça o que ele pediu.
+
+## Cor do vídeo
+
+O criador já grava com o filtro e o brilho dele. **Nada mexe na cor do vídeo neste estilo**: sem
+escurecido atrás de texto, sem grão, vinheta ou banho de cor, e o `visor` não deixa o vídeo
+"cru". Não use cena livre que pinte, escureça ou dessature o vídeo dele.
+
 ## Como editar
 
 - **Legenda `bangers`** (padrão): caixa alta, até 3 palavras, branca com contorno preto; a
@@ -57,6 +90,7 @@ Motion em **50 a 70%** do vídeo.
 - Card escuro com sombra dura de tinta preta, ou dourado nos cards.
 - Logo desenhada à mão ou interface imitada quando existe a de verdade.
 - Gradiente linear em tela cheia, neon.
+- Filtro, escurecido ou mudança de cor no vídeo dele.
 - Legenda em cima dos olhos ou da boca.
 
 ## Identidade visual

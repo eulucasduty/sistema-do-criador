@@ -47,3 +47,7 @@ next-env.d.ts
 /editor/oficina/
 # HyperFrames e GSAP que a estação instala (editor/estacao/ferramentas.mjs)
 /editor/ferramentas/
+
+# estúdio de motion animado (Remotion): dependências e cache
+/editor/motion/node_modules
+/editor/motion/.cache

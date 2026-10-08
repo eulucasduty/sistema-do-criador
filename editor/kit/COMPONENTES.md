@@ -136,6 +136,15 @@ o recorte ainda não existe: o que deveria ficar "atrás" dele aparece na frente
 render final fica atrás. Use esses componentes em trechos curtos (2 a 6 s), em que ele esteja
 parado e bem iluminado, a não ser que o estilo seja feito disso.
 
+## Motion animado (vídeo de verdade)
+
+- **motion**: `{ "de": 23.46, "ate": 32.86, "tipo": "motion", "motion": "mata-mata" }`. Um vídeo animado
+  que você escreve em `motions/<id>.tsx` e renderiza com `node kit/motion.mjs render <id>` (o passo a
+  passo, a biblioteca e as regras estão em `kit/MOTION.md`). O lugar vem da `area` do motion:
+  `tela-cheia` (cobre a tela; aceita `"pip"`), `faixa` (faixa de cima, ele embaixo) ou `sobre`
+  (transparente, por cima dele). `ate - de` igual à duração do motion. Na tela cheia toca um whoosh
+  na entrada (`"som": false` tira).
+
 ## Cena livre
 
 Só quando nenhum componente serve: `{ "tipo": "livre", "arquivo": "cenas/nome.html", "area": "topo|tela-cheia|sobre" }`.
@@ -170,7 +179,8 @@ cena livre sai na cara do estilo.
 ## Papéis de fonte (campo `fonte`)
 
 `texto`, `texto-medio` (Jakarta) · `inter`, `inter-leve`, `inter-semi`, `inter-preta` · `apertada`,
-`apertada-forte` (Inter Tight) · `mono` · `display`, `display-leve` (Unbounded, larga e redonda) ·
+`apertada-forte` (Inter Tight) · `sora`, `sora-forte`, `sora-preta` (Sora) · `plex`,
+`plex-leve`, `plex-semi`, `plex-forte` (IBM Plex Sans) · `mono` · `display`, `display-leve` (Unbounded, larga e redonda) ·
 `larga`, `larga-media`, `larga-leve`, `preta`, `condensada`, `condensada-media` (Archivo em três
 larguras) · `montserrat`, `montserrat-media`, `montserrat-leve` · `impacto` (Anton) · `bebas` ·
 `bangers` · `lilita` · `poppins`, `poppins-media`, `poppins-leve` · `din`, `din-forte`, `din-preta`,

@@ -1,0 +1,45 @@
+      /* Movimento "de vídeo" (estilo.json → "movimento": "video"; o montador põe a classe .mv no body).
+         As peças que o motor/vida.mjs e os componentes animam: a câmera de cada card, o cursor que
+         clica, o pacote que corre no fluxo, o "digitando…" do chat, a curtida e o cursor do terminal. */
+      .mv .topo-centro, .mv .cheia-centro, .mv .sobre-centro, .mv .mv-cam, .mv .mv-camv { will-change: transform; }
+      /* câmera de print/gravação: um quadro do tamanho da tela, girando em volta da moldura */
+      .mv-cam { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+      .mv-camv { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; z-index: 11; pointer-events: none; }
+      .mv-camv.cheia { z-index: 25; }
+
+      /* cursor de mouse (a ponta da seta fica no ponto do clique) e a onda do clique */
+      .mv-cursor { position: absolute; z-index: 6; width: 58px; height: 58px; margin: -5px 0 0 -7px; transform-origin: 7px 5px; opacity: 0; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.35)); pointer-events: none; }
+      .mv-cursor svg { display: block; }
+      .mv-clique { position: absolute; z-index: 5; width: 96px; height: 96px; margin: -48px 0 0 -48px; border-radius: 50%; border: 5px solid var(--acento); background: color-mix(in srgb, var(--acento) 18%, transparent); box-sizing: border-box; opacity: 0; display: block; pointer-events: none; }
+      .cta .mv-cursor { z-index: 3; }
+
+      /* fluxo: o tracejado corre (fundo em listras andando) e um pacote de luz viaja entre os nós */
+      .mv .liga { position: relative; }
+      .mv .liga-linha { border-top: none; height: 6px; border-radius: 3px; background-image: repeating-linear-gradient(90deg, var(--acento) 0 14px, transparent 14px 26px); background-size: 26px 6px; }
+      .mv .cheia-zoom .liga-linha { border-left: none; width: 6px; height: 100%; background-image: repeating-linear-gradient(180deg, var(--acento) 0 14px, transparent 14px 26px); background-size: 6px 26px; }
+      .liga-pulso { position: absolute; left: 0; top: 50%; width: 100%; height: 0; opacity: 0; pointer-events: none; }
+      .liga-pulso i { position: absolute; left: -11px; top: -11px; width: 22px; height: 22px; border-radius: 50%; background: var(--acento); box-shadow: 0 0 0 6px color-mix(in srgb, var(--acento) 25%, transparent), 0 0 22px var(--acento); display: block; }
+      .mv .cheia-zoom .liga-pulso { left: 50%; top: 0; width: 0; height: 100%; }
+
+      /* lista: o item da vez acende (sem mudar o lugar de nada) */
+      .mv .item.vivo { position: relative; padding: 10px 16px; margin: -10px -16px; border-radius: 18px; }
+      .mv .item.vivo > :not(.item-luz) { position: relative; }
+      .mv .item.vivo .item-luz { border-radius: 18px; }
+
+      /* chat: a bolha dela com os três pontinhos antes do texto */
+      .bolha.vivo { position: relative; }
+      .b-dig { position: absolute; left: 26px; top: 50%; margin-top: -7px; display: flex; gap: 9px; opacity: 0; }
+      .b-dig i { width: 14px; height: 14px; border-radius: 50%; background: #a8a8a8; display: block; }
+
+      /* comentários: o coração enche */
+      .coracao.vivo { position: relative; display: inline-block; }
+      .coracao.vivo b { font-weight: 400; display: block; }
+      .coracao.vivo .cheio { position: absolute; left: 0; top: 0; color: #ff3040; opacity: 0; }
+
+      /* terminal: o cursor no fim da linha */
+      .t-car { display: inline-block; width: 0.55em; height: 1.05em; margin-left: 6px; vertical-align: -0.17em; background: #f5f4f0; opacity: 0; }
+
+      /* CTA: "Seguir" vira "Seguindo" no mesmo lugar */
+      .seguir.vivo { display: inline-grid; }
+      .seguir.vivo > span { grid-area: 1 / 1; text-align: center; }
+      .seguir .seguindo { opacity: 0; }

@@ -45,3 +45,12 @@ fala no vídeo. Não vêm no kit.
 Não vêm no kit: a estação baixa na primeira vez (editor/ferramentas, fora do git) o HyperFrames
 (npm) e o `gsap.min.js` da CDN jsDelivr, e põe uma cópia do GSAP em cada oficina pra edição e o
 render funcionarem sem internet. GSAP: licença própria da GreenSock/Webflow, gratuita.
+
+## Motion animado (`MOTION.md`, `motion-exemplos/`, estúdio em `editor/motion`)
+- Regras de movimento, a camada de fundo, cor, grão e vinheta e o ciclo "renderizar, olhar os quadros,
+  corrigir" adaptados da skill `claude-remotion-skill` (MIT, github.com/haidrrrry/claude-remotion-skill).
+- Motor: Remotion (remotion.dev). **Licença do Remotion:** grátis pra pessoa física e empresa de até 3
+  funcionários; empresa maior precisa da licença paga deles (remotion.dev/license).
+- O Claudinho e o Codinho (os personagens) são desenhos próprios do projeto, feitos em SVG no estúdio,
+  na mesma licença do código.
+- Fontes do estúdio: as mesmas do kit (SIL OFL), em `editor/motion/public/fontes`.

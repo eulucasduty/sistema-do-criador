@@ -156,8 +156,37 @@ export function comandoHyperframes() {
  * uns 130 MB na primeira vez). Não trava a estação: sem isso, o kit usa o npx e o GSAP da CDN.
  */
 let garantidas = null;
+
+// O estúdio de motion (editor/motion, Remotion): as dependências e o navegador dele, uma vez.
+export const PASTA_MOTION = path.join(RAIZ_SISTEMA, "editor", "motion");
+const motionPronto = () => {
+  try {
+    const quer = JSON.parse(fs.readFileSync(path.join(PASTA_MOTION, "package.json"), "utf8")).dependencies?.remotion;
+    const tem = JSON.parse(fs.readFileSync(path.join(PASTA_MOTION, "node_modules", "remotion", "package.json"), "utf8")).version;
+    return Boolean(quer) && quer === tem;
+  } catch {
+    return false;
+  }
+};
+function garantirMotion(aviso) {
+  if (!fs.existsSync(path.join(PASTA_MOTION, "package.json"))) return false;
+  if (!motionPronto()) {
+    aviso("instalando o estúdio de motion animado (uma vez só, uns 2 minutos)");
+    const r = spawnSync("npm ci --no-audit --no-fund --loglevel=error", { cwd: PASTA_MOTION, shell: true, encoding: "utf8", windowsHide: true, timeout: 15 * 60_000 });
+    if (!motionPronto()) {
+      aviso(`não deu pra instalar o estúdio de motion (${String(r.stderr || r.stdout || "").trim().split("\n").pop()?.slice(0, 200)}): as edições saem sem motion animado`);
+      return false;
+    }
+  }
+  // o Chrome do Remotion (renderiza o motion): baixa uma vez
+  if (!fs.existsSync(path.join(PASTA_MOTION, "node_modules", ".remotion"))) {
+    aviso("baixando o navegador do motion animado (uma vez só)");
+    spawnSync("npx --no-install remotion browser ensure", { cwd: PASTA_MOTION, shell: true, encoding: "utf8", windowsHide: true, timeout: 15 * 60_000 });
+  }
+  return true;
+}
 export async function garantirFerramentas({ aviso = () => {} } = {}) {
-  if (garantidas?.hyperframes && garantidas.gsap && hyperframesLocal()) return garantidas;
+  if (garantidas?.hyperframes && garantidas.gsap && garantidas.motion && hyperframesLocal()) return garantidas;
   fs.mkdirSync(PASTA_FERRAMENTAS, { recursive: true });
   if (!hyperframesLocal()) {
     aviso(`instalando o HyperFrames ${HF_VERSAO} (uma vez só)`);
@@ -179,7 +208,8 @@ export async function garantirFerramentas({ aviso = () => {} } = {}) {
   // O Chrome do HyperFrames (snapshot e render): baixa uma vez
   const bin = hyperframesLocal();
   if (bin) spawnSync(process.execPath, [bin, "browser", "ensure"], { encoding: "utf8", windowsHide: true, timeout: 15 * 60_000, env: { ...process.env, HYPERFRAMES_NO_UPDATE_CHECK: "1" } });
-  garantidas = { hyperframes: hyperframesLocal(), gsap: fs.existsSync(GSAP_LOCAL) ? GSAP_LOCAL : null };
+  const motion = garantirMotion(aviso);
+  garantidas = { hyperframes: hyperframesLocal(), gsap: fs.existsSync(GSAP_LOCAL) ? GSAP_LOCAL : null, motion };
   return garantidas;
 }
 

@@ -1,0 +1,61 @@
+      /* Tema "Clássico · Massinha": o padrão dele como brinquedo 3D. Pêssego e lilás, cards bem
+         redondos com brilho por dentro e sombra macia, títulos na Unbounded (redonda e larga). */
+      :root {
+        --void: #ffe8dc;
+        --void-img: radial-gradient(ellipse at 15% 5%, rgba(255, 255, 255, 0.95), transparent 55%), radial-gradient(ellipse at 90% 95%, rgba(139, 123, 255, 0.28), transparent 60%), linear-gradient(165deg, #ffe8dc, #ece4ff);
+        --void-tam: auto, auto, auto;
+        --card: #ffffff;
+        --card-borda: none;
+        --card-sombra: inset 0 -6px 0 rgba(43, 29, 58, 0.06), inset 0 4px 0 rgba(255, 255, 255, 0.9), 0 22px 44px rgba(120, 60, 90, 0.22);
+        --card-raio: 44px;
+        --texto: #2b1d3a;
+        --dim: #8a7b94;
+        --apagado: #b3a7bb;
+        --acento: #ff6a3d;
+        --acento2: #8b7bff;
+        --acento3: #ffc533;
+        --acento-tinta: #ffffff;
+        --ok: #2fbf71;
+        --erro: #ff4f6d;
+        --tinta-borda: none;
+        --chip-sombra: 0 10px 24px rgba(120, 60, 90, 0.22), inset 0 3px 0 rgba(255, 255, 255, 0.35);
+        --chip-raio: 999px;
+        --f-titulo: "Unbounded", sans-serif;
+        --titulo-estilo: normal;
+        --titulo-espaco: -0.02em;
+        --titulo-sombra: 0 4px 0 rgba(43, 29, 58, 0.12);
+        --palavra-sombra: 0 10px 0 rgba(43, 29, 58, 0.14);
+        --nome-sombra: none;
+        --f-numero: "Unbounded", sans-serif;
+        --numero-peso: 800;
+        --logo-fundo: #ffffff;
+        --logo-sombra: 0 16px 34px rgba(120, 60, 90, 0.22);
+        --mold: #ffffff;
+        --janela: #f6eef8;
+        --janela-borda: #eadff0;
+        --url: #ffffff;
+        --notif: #ffffff;
+        --notif-borda: transparent;
+        --notif-texto: #5a4a66;
+        --notif-sombra: 0 18px 40px rgba(120, 60, 90, 0.2);
+        --trilho: #f3e6ee;
+        --destaque-brilho: 0 0 0 5px rgba(255, 255, 255, 0.85), 0 0 34px rgba(255, 106, 61, 0.5);
+        --foco-fundo: rgba(139, 123, 255, 0.12);
+        --brilho: 255, 106, 61;
+        --marcador: #ffc533;
+      }
+      .cena-titulo { font-size: 60px; line-height: 1.04; font-weight: 800; }
+      .lista-titulo { font-size: 50px; font-weight: 800; }
+      .palavra-linha { font-weight: 800; letter-spacing: -0.03em; }
+      .palavra-linha.ouro { color: #ff6a3d; }
+      .chip-ouro, .chip-rotulo { background: linear-gradient(180deg, #ff6a3d, #e8522a); color: #ffffff; border: none; }
+      .chip-titulo { background: linear-gradient(180deg, #ffffff, #f4ecf8); color: #2b1d3a; border: none; border-radius: 999px; font-family: "Unbounded", sans-serif; box-shadow: 0 16px 40px rgba(43, 29, 58, 0.3); }
+      .marca { border-radius: 50%; box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.35); }
+      .cta-coment, .cta-perfil { box-shadow: 0 18px 50px rgba(43, 29, 58, 0.35); border-radius: 36px; }
+      .seguir { border: none; border-radius: 999px; }
+      /* legenda gordinha: Unbounded branca com sombra lilás, a palavra falada vira uma pílula laranja */
+      .leg-bolha .grupo { font-family: "Unbounded", sans-serif; font-weight: 800; color: #ffffff; letter-spacing: -0.02em; text-shadow: 0 5px 0 rgba(43, 29, 58, 0.55), 0 12px 26px rgba(43, 29, 58, 0.35); }
+      .leg-bolha .p { padding: 2px 18px 8px; border-radius: 999px; }
+      /* em cima de card ou motion em tela cheia (fundo claro): tinta ameixa com brilho branco */
+      .leg-bolha .grupo.no-claro { color: #2b1d3a; text-shadow: 0 4px 0 rgba(255, 255, 255, 0.7), 0 10px 22px rgba(120, 60, 90, 0.18); }
+      .leg-limpa .grupo.no-claro { color: #2b1d3a; text-shadow: none; }

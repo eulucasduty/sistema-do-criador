@@ -33,6 +33,7 @@ const PERMITIDAS = [
   "Bash(node kit/hf.mjs lint:*)",
   "Bash(node kit/hf.mjs snapshot:*)",
   "Bash(node kit/hf.mjs inspect:*)",
+  "Bash(node kit/motion.mjs:*)",
 ];
 // Só estas ferramentas existem pra IA (o resto do Claude Code nem aparece: agendador, sub-agentes, web…)
 const FERRAMENTAS_DA_IA = "Bash,Read,Edit,Write,Glob,Grep,TodoWrite";

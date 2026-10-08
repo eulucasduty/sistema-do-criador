@@ -1,0 +1,59 @@
+{
+  "id": "classico-editorial",
+  "nome": "Clássico · Editorial",
+  "grupo": "variacoes",
+  "ordem": 4,
+  "descricao": "O clássico como revista: papel branco, traço fino, serifada grande, legenda fina com marca-texto laranja e o Claudinho em line-art.",
+  "movimento": "video",
+  "cor_intocada": true,
+  "legenda": {
+    "padrao": "revista",
+    "tipos": {
+      "revista": {
+        "max_chars": 22,
+        "max_palavras": 4,
+        "caixa": "normal",
+        "acende": "marcador",
+        "entrada": "sobe",
+        "fonte": "apertada",
+        "tamanho": 60,
+        "ancora": "auto",
+        "segura": 0.3
+      },
+      "limpa": {
+        "max_chars": 18,
+        "max_palavras": 3,
+        "caixa": "normal",
+        "acende": "caixa",
+        "sobre_fundo_claro": "#1a1a1a"
+      }
+    },
+    "acento": "#d97757",
+    "tinta": "#141414",
+    "clara": "#ffffff",
+    "sobre_fundo_claro": "#141414"
+  },
+  "cores": {
+    "verde": "#1f8a4c",
+    "vermelho": "#c8452f",
+    "dourado": "#d97757",
+    "branco": "#141414"
+  },
+  "cortes": {
+    "estilo": "desfoque",
+    "som": "whoosh"
+  },
+  "fontes": {
+    "palavra": "serifa",
+    "titulo": "serifa",
+    "cabecalho": "serifa",
+    "lettering": "serifa",
+    "citacao": "serifa"
+  },
+  "palavra": {
+    "entrada": "fade",
+    "som": "whoosh",
+    "teto": 230
+  },
+  "padrao_2x1": true
+}

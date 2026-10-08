@@ -254,7 +254,7 @@ registrar("visor", {
     M.add(`(() => { const o = { v: 0 }; const el = document.getElementById("${id}-t"); const d2 = (n) => String(n).padStart(2, "0"); tl.to(o, { v: ${dur}, duration: ${dur}, ease: "none", onUpdate: () => { const s = Math.floor(o.v); el.textContent = "00:" + d2(Math.floor(s / 60)) + ":" + d2(s % 60) + ":" + d2(Math.floor((o.v - s) * 30)); } }, ${c.de}); })();`);
     M.add(`tl.fromTo("#${id}-p", { opacity: 1 }, { opacity: 0.15, duration: 0.5, ease: "steps(1)", yoyo: true, repeat: ${Math.max(1, Math.floor(dur / 0.5))}, immediateRender: false }, ${c.de});`);
     // o vídeo "cru": menos cor e menos contraste enquanto o visor está na tela
-    if (c.cru !== false) {
+    if (c.cru !== false && !M.corIntocada) {
       M.add(`tl.set("#v, .recorte-v", { filter: "saturate(0.5) contrast(0.84) brightness(1.08)" }, ${c.de});`);
       M.add(`tl.set("#v, .recorte-v", { clearProps: "filter" }, ${c.ate});`);
     }

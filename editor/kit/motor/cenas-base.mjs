@@ -6,6 +6,7 @@ import { W, H, clamp, corDe, curto, encaixe, esc, js, linhasDe, marcar, r3, semM
 import { cssFonte } from "./fontes.mjs";
 import { abrir, cheia, entrada, faixaBaixo, fechar, logoImg, registrar, selo, zonaDeCard } from "./cenas.mjs";
 import { PAINEL } from "./camera.mjs";
+import { SAIDA, entradaViva } from "./vida.mjs";
 
 const BARRA = 52; // barra de janela (quando a cena tem url)
 const MOLD = { x: 48, y: 122, w: 984, h: 560 }; // moldura de print/gravação dentro da faixa de cima
@@ -16,6 +17,23 @@ const animarTitulo = (M, c, id) => {
   if (c.titulo) M.add(`tl.from("#${id}-t", { y: -30, opacity: 0, duration: 0.3, ease: "power3.out" }, ${r3(c.de + 0.05)});`);
 };
 const rotuloCena = (c, id) => (c.rotulo ? `<div class="rotulo cena-rotulo" id="${id}-rt">${esc(c.rotulo)}</div>` : "");
+
+// ── cursor de mouse que vai até um ponto e clica (movimento "de vídeo") ─────
+// A ponta da seta fica em (px, py). Vem de baixo à direita, desliza, aperta, solta a onda do
+// clique e, depois, se afasta devagar até a cena acabar.
+const SETA = `<svg viewBox="0 0 24 24" width="58" height="58" aria-hidden="true"><path d="M3 2 L3 19.5 L7.6 15.4 L10.6 22 L13.7 20.6 L10.8 14.1 L17 14.1 Z" fill="#ffffff" stroke="#111111" stroke-width="1.4" stroke-linejoin="round"/></svg>`;
+function cursorClique(M, id, { px, py, tClique, desde, ate, vem = [230, 190] }) {
+  const tIni = r3(Math.max(desde, tClique - 0.85));
+  const ida = r3(Math.max(0.25, tClique - tIni - 0.12));
+  M.add(`tl.fromTo("#${id}-cur", { x: ${vem[0]}, y: ${vem[1]}, scale: 1, opacity: 0 }, { opacity: 1, duration: 0.15, ease: "none" }, ${tIni});`);
+  M.add(`tl.to("#${id}-cur", { x: 0, y: 0, duration: ${ida}, ease: "power2.inOut" }, ${r3(tIni + 0.05)});`);
+  M.add(`tl.to("#${id}-cur", { scale: 0.82, duration: 0.07, ease: "power1.in" }, ${r3(tClique)});`);
+  M.add(`tl.to("#${id}-cur", { scale: 1, duration: 0.18, ease: "power2.out" }, ${r3(tClique + 0.07)});`);
+  M.add(`tl.fromTo("#${id}-rp", { scale: 0.2, opacity: 0.75 }, { scale: 1.7, opacity: 0, duration: 0.5, ease: "power2.out", immediateRender: false }, ${r3(tClique + 0.04)});`);
+  const resto = r3(ate - (tClique + 0.3));
+  if (resto > 0.3) M.add(`tl.to("#${id}-cur", { x: 46, y: 58, duration: ${resto}, ease: "sine.inOut" }, ${r3(tClique + 0.3)});`);
+  return `<div class="mv-cursor" id="${id}-cur" style="left:${r3(px)}px;top:${r3(py)}px">${SETA}</div><i class="mv-clique" id="${id}-rp" style="left:${r3(px)}px;top:${r3(py)}px"></i>`;
+}
 
 // ── print (que o editor tirou) e material (que o criador subiu) ──────────────
 function cenaMidia(M, c, id) {
@@ -46,8 +64,9 @@ function cenaMidia(M, c, id) {
     if (c.sangrar) Mo = { x: -2, y: -2, w: W + 4, h: H + 4 };
   }
   const classe = cheia(c) ? `cena-cheia${c.sangrar ? " sangra" : ""}` : `cena-topo${c.zona === "faixa-baixo" ? " baixo-livre" : ""}`;
-  const fundo = cheia(c) ? `<div class="cheia-fundo void" id="${id}-bg"></div>` : "";
-  if (cheia(c)) add(`tl.from("#${id}-bg", { opacity: 0, duration: 0.2, ease: "none" }, ${c.de});`);
+  const fundo = cheia(c) ? `<div class="cheia-fundo void" id="${id}-bg"${M.vivo ? ' style="opacity:0"' : ""}></div>` : "";
+  if (cheia(c) && M.vivo) add(`tl.fromTo("#${id}-bg", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "none" }, ${c.de});`);
+  else if (cheia(c)) add(`tl.from("#${id}-bg", { opacity: 0, duration: 0.2, ease: "none" }, ${c.de});`);
   const cw = Mo.w - 4;
   const ch = Mo.h - 4 - bar;
   // sangrada: cobre a caixa (corta as sobras); na moldura: mostra o recorte inteiro
@@ -59,30 +78,55 @@ function cenaMidia(M, c, id) {
   const e0 = cabe(c.foco_inicial ?? { x: 0, y: 0, w: 1, h: 1 });
   const e1 = c.foco ? cabe(c.foco) : e0;
   const dur = c.ate - c.de;
-  const dFoco = r3(Math.min(1.1, dur * 0.4));
-  const tFoco = r3(c.de + 0.45);
+  const vivo = M.vivo;
+  const tFoco = r3(c.de + (vivo ? 0.35 : 0.45));
+  // no movimento "de vídeo" o zoom até o foco é mais longo (a câmera passeia pelo print), mas
+  // termina a tempo de o cursor clicar no destaque e de ele ficar ~1 s na tela
+  let dFoco = r3(Math.min(1.1, dur * 0.4));
+  if (vivo) dFoco = r3(Math.max(Math.min(dFoco, 0.5), Math.min(2.2, dur * 0.45, c.destaque ? c.ate - 0.95 - tFoco : 9)));
   const janela = c.url ? `<div class="janela"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="url">${esc(c.url)}</span></div>` : "";
   const rot = c.rotulo ? `<div class="chip-rotulo" id="${id}-rot" style="right:${W - Mo.x - Mo.w + 24}px;top:${Mo.y - 24}px">${esc(c.rotulo)}</div>` : "";
   const d = c.destaque;
   const caixa = d ? { l: r3(e1.x + e1.s * d.x * iw), t: r3(e1.y + e1.s * d.y * ih), w: r3(e1.s * d.w * iw), h: r3(e1.s * d.h * ih) } : null;
   const moldStyle = `left:${Mo.x}px;top:${Mo.y}px;width:${Mo.w}px;height:${Mo.h}px`;
+  // movimento "de vídeo": a moldura, o vídeo dentro dela e o que vai por cima (destaque, rótulo,
+  // cursor) andam juntos numa câmera só, girando em volta do centro da moldura
+  const centro = `${r3(Mo.x + Mo.w / 2)}px ${r3(Mo.y + Mo.h / 2)}px`;
+  const topoMold = `${r3(Mo.x + Mo.w / 2)}px ${r3(Mo.y)}px`;
+  const tBox = r3(c.foco ? tFoco + dFoco + 0.05 : c.de + 0.5);
+  const cursor =
+    vivo && caixa
+      ? cursorClique(M, id, { px: clamp(Mo.x + 2 + caixa.l + caixa.w / 2, 40, W - 40), py: Mo.y + 2 + bar + caixa.t + caixa.h / 2, tClique: tBox - 0.06, desde: c.de + 0.45, ate: c.ate - SAIDA })
+      : "";
+  const cam = (dentro, sufixo = "cam") => (vivo ? `<div class="mv-cam" id="${id}-${sufixo}">${dentro}</div>` : dentro);
+  if (vivo) {
+    c._fundo = cheia(c);
+    c._cam = [{ sel: `#${id}-cam`, origem: centro, plano: Boolean(cheia(c) && c.sangrar) }];
+  }
   if (m.tipo === "video") {
     // <video> não pode ficar dentro de elemento com tempo: moldura, vídeo e sobreposição são irmãos
     const ax = Mo.x + 2;
     const ay = Mo.y + 2 + bar;
     const box = caixa ? `<div class="destaque-box" id="${id}-box" style="left:${r3(ax + caixa.l)}px;top:${r3(ay + caixa.t)}px;width:${caixa.w}px;height:${caixa.h}px"></div>` : "";
+    const janelaVideo = `<div class="topo-video${bar ? " com-barra" : ""}${cheia(c) ? " cheia" : ""}" id="${id}-vw" style="left:${ax}px;top:${ay}px;width:${cw}px;height:${ch}px"><div class="midia-in" id="${id}-m" style="width:${iw}px;height:${ih}px"><video id="${id}-v" class="clip" ${M.attrs(c)} data-media-start="${r3(Number(c.inicio ?? 0))}" src="${esc(m.arquivo)}" muted playsinline style="width:${iw}px;height:${ih}px"></video></div></div>`;
     M.html.cenas.push(
-      `      <div id="${id}" class="clip ${classe}" ${M.attrs(c)}>${fundo}${cabeca}<div class="mold" id="${id}-in" style="${moldStyle}">${janela}</div></div>`,
-      `      <div class="topo-video${bar ? " com-barra" : ""}${cheia(c) ? " cheia" : ""}" id="${id}-vw" style="left:${ax}px;top:${ay}px;width:${cw}px;height:${ch}px"><div class="midia-in" id="${id}-m" style="width:${iw}px;height:${ih}px"><video id="${id}-v" class="clip" ${M.attrs(c)} data-media-start="${r3(Number(c.inicio ?? 0))}" src="${esc(m.arquivo)}" muted playsinline style="width:${iw}px;height:${ih}px"></video></div></div>`,
-      `      <div id="${id}-ov" class="clip topo-over${cheia(c) ? " cheia" : ""}" ${M.attrs(c)}><div class="topo-over-in" id="${id}-ovi">${box}${rot}</div></div>`,
+      `      <div id="${id}" class="clip ${classe}" ${M.attrs(c)}>${fundo}${cam(`${cabeca}<div class="mold" id="${id}-in" style="${moldStyle}">${janela}</div>`)}</div>`,
+      vivo ? `      <div class="mv-camv${cheia(c) ? " cheia" : ""}" id="${id}-vwc">${janelaVideo}</div>` : `      ${janelaVideo}`,
+      `      <div id="${id}-ov" class="clip topo-over${cheia(c) ? " cheia" : ""}" ${M.attrs(c)}><div class="topo-over-in" id="${id}-ovi">${cam(`${box}${rot}${cursor}`, "ove")}</div></div>`,
     );
-    entrada(M, [`#${id}-in`, `#${id}-ovi`], c.de + 0.04);
-    add(`tl.fromTo("#${id}-vw", { y: -50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.34, ease: "power3.out" }, ${r3(c.de + 0.04)});`);
+    if (vivo) {
+      // as três peças giram em volta do mesmo ponto (o topo da moldura na entrada, o centro na câmera)
+      entradaViva(M, [{ sel: `#${id}-in` }, { sel: `#${id}-vw`, origem: `${r3(Mo.x + Mo.w / 2 - ax)}px ${r3(Mo.y - ay)}px` }, { sel: `#${id}-ove`, origem: topoMold }], c.de + 0.04);
+      c._cam.push({ sel: `#${id}-vwc`, origem: centro }, { sel: `#${id}-ovi`, origem: centro });
+    } else {
+      entrada(M, [`#${id}-in`, `#${id}-ovi`], c.de + 0.04);
+      add(`tl.fromTo("#${id}-vw", { y: -50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.34, ease: "power3.out" }, ${r3(c.de + 0.04)});`);
+    }
     add(`tl.set("#${id}-vw", { opacity: 0 }, ${c.ate});`);
   } else {
     const box = caixa ? `<div class="destaque-box" id="${id}-box" style="left:${caixa.l}px;top:${caixa.t}px;width:${caixa.w}px;height:${caixa.h}px"></div>` : "";
     M.html.cenas.push(
-      `      <div id="${id}" class="clip ${classe}" ${M.attrs(c)}>${fundo}${cabeca}<div class="mold" id="${id}-in" style="${moldStyle}">${janela}<div class="mold-midia" style="top:${bar}px;width:${cw}px;height:${ch}px"><div class="midia-in" id="${id}-m" style="width:${iw}px;height:${ih}px"><img src="${esc(m.arquivo)}" alt="" style="width:${iw}px;height:${ih}px" /></div>${box}</div></div>${rot}</div>`,
+      `      <div id="${id}" class="clip ${classe}" ${M.attrs(c)}>${fundo}${cam(`${cabeca}<div class="mold" id="${id}-in" style="${moldStyle}">${janela}<div class="mold-midia" style="top:${bar}px;width:${cw}px;height:${ch}px"><div class="midia-in" id="${id}-m" style="width:${iw}px;height:${ih}px"><img src="${esc(m.arquivo)}" alt="" style="width:${iw}px;height:${ih}px" /></div>${box}</div></div>${rot}${cursor}`)}</div>`,
     );
     entrada(M, `#${id}-in`, c.de + 0.04);
   }
@@ -113,9 +157,8 @@ function cenaMidia(M, c, id) {
   }
   if (c.rotulo) add(`tl.from("#${id}-rot", { y: 16, opacity: 0, duration: 0.26, ease: "back.out(2)" }, ${r3(c.de + 0.28)});`);
   if (caixa) {
-    const tb = r3(c.foco ? tFoco + dFoco + 0.05 : c.de + 0.5);
-    add(`tl.from("#${id}-box", { scale: 1.25, opacity: 0, duration: 0.26, ease: "back.out(2)" }, ${tb});`);
-    somCena(c, "click", tb);
+    add(`tl.from("#${id}-box", { scale: 1.25, opacity: 0, duration: 0.26, ease: "back.out(2)" }, ${tBox});`);
+    somCena(c, "click", tBox);
   }
 }
 registrar("material", { zona: zonaDeCard, montar: cenaMidia });
@@ -133,10 +176,18 @@ registrar("logos", {
       .join(op);
     M.html.cenas.push(`      ${abrir(M, c, id)}${rotuloCena(c, id)}${titulo(c, id)}<div class="logos">${tiles}</div>${fechar(c)}`);
     animarTitulo(M, c, id);
-    itens.forEach((_, k) => {
-      const t = r3(c.de + 0.16 + k * 0.16);
+    const passo = M.vivo ? clamp((c.ate - c.de - 1.4) / Math.max(1, itens.length), 0.16, 0.6) : 0.16;
+    itens.forEach((l, k) => {
+      const t = r3(M.vivo ? clamp(M.tempoDe(l, c.de + 0.16 + k * passo), c.de + 0.1, c.ate - 0.6) : c.de + 0.16 + k * 0.16);
       M.add(`tl.from("#${id}-l${k}", { scale: 0.3, opacity: 0, duration: 0.36, ease: "back.out(2.2)" }, ${t});`);
       if (k < 4) M.somCena(c, "pop", t);
+      if (M.vivo) {
+        // depois de entrar, cada logo balança em 3D (uma pra cada lado, fora de fase)
+        const ini = r3(t + 0.45);
+        const per = 1.3 + (k % 3) * 0.15;
+        const n = Math.floor((c.ate - SAIDA - ini) / per) - 1;
+        if (n >= 0) M.add(`tl.fromTo("#${id}-l${k}", { rotationY: 0, y: 0, transformPerspective: 900 }, { rotationY: ${k % 2 ? 10 : -10}, y: -10, transformPerspective: 900, duration: ${r3(per)}, ease: "sine.inOut", yoyo: true, repeat: ${n}, immediateRender: false }, ${ini});`);
+      }
     });
   },
 });
@@ -149,19 +200,38 @@ registrar("fluxo", {
     const nos = c.nos ?? [];
     const eixo = cheia(c) ? "scaleY" : "scaleX"; // na tela cheia o fluxo desce
     const partes = nos.map((n, k) => {
-      const marca = n.logo ? `<div class="logo-caixa pequena${n.fundo === "escuro" ? " escuro" : ""}">${logoImg(M, n.logo, `cena ${c.i}`)}</div>` : n.icone ? `<div class="icone-caixa pequena">${M.icone(n.icone)}</div>` : "";
+      const icone = n.icone ? (M.vivo ? M.icone(n.icone, "ic", { id: `${id}-ni${k}`, desenha: true }) : M.icone(n.icone)) : "";
+      const marca = n.logo ? `<div class="logo-caixa pequena${n.fundo === "escuro" ? " escuro" : ""}">${logoImg(M, n.logo, `cena ${c.i}`)}</div>` : n.icone ? `<div class="icone-caixa pequena">${icone}</div>` : "";
       const no = `<div class="card no" id="${id}-n${k}">${marca}<span>${esc(n.nome ?? "")}</span>${n.sub ? `<small>${esc(n.sub)}</small>` : ""}</div>`;
-      return k < nos.length - 1 ? `${no}<div class="liga"><div class="liga-linha" id="${id}-k${k}"></div></div>` : no;
+      const pulso = M.vivo ? `<b class="liga-pulso" id="${id}-q${k}"><i></i></b>` : "";
+      return k < nos.length - 1 ? `${no}<div class="liga"><div class="liga-linha" id="${id}-k${k}"></div>${pulso}</div>` : no;
     });
     const rodape = c.rotulo ? `<div class="chip-ouro" id="${id}-r">${esc(c.rotulo)}</div>` : "";
     M.html.cenas.push(`      ${abrir(M, c, id)}${titulo(c, id)}<div class="fluxo">${partes.join("")}</div>${rodape}${fechar(c)}`);
     animarTitulo(M, c, id);
-    const passo = clamp((c.ate - c.de - 1) / Math.max(1, nos.length), 0.3, 0.6);
+    const passo = clamp((c.ate - c.de - 1) / Math.max(1, nos.length), 0.3, M.vivo ? 1.1 : 0.6);
     nos.forEach((n, k) => {
       const t = r3(M.tempoDe(n, c.de + 0.2 + k * passo));
       M.add(`tl.from("#${id}-n${k}", { scale: 0.4, opacity: 0, duration: 0.34, ease: "back.out(2)" }, ${t});`);
       M.somCena(c, "pop", t);
-      if (k > 0) M.add(`tl.fromTo("#${id}-k${k - 1}", { ${eixo}: 0 }, { ${eixo}: 1, duration: ${r3(passo * 0.8)}, ease: "power2.inOut" }, ${r3(Math.max(c.de, t - passo * 0.85))});`);
+      if (M.vivo && n.icone && !n.logo) M.desenharIcone(`${id}-ni${k}`, t + 0.12, 0.6, true);
+      if (k > 0) {
+        const tLiga = r3(Math.max(c.de, t - passo * 0.85));
+        M.add(`tl.fromTo("#${id}-k${k - 1}", { ${eixo}: 0 }, { ${eixo}: 1, duration: ${r3(passo * 0.8)}, ease: "power2.inOut" }, ${tLiga});`);
+        if (M.vivo) {
+          // o tracejado corre no sentido do fluxo até a cena acabar
+          const resto = r3(c.ate - tLiga);
+          const anda = Math.round(resto * 70);
+          M.add(`tl.fromTo("#${id}-k${k - 1}", { backgroundPosition: "0px 0px" }, { backgroundPosition: "${cheia(c) ? `0px ${anda}px` : `${anda}px 0px`}", duration: ${resto}, ease: "none", immediateRender: false }, ${tLiga});`);
+          // e um pacote de luz viaja de um nó pro outro, de novo e de novo
+          const tP = r3(t + 0.15);
+          const voltas = Math.floor((c.ate - SAIDA - tP) / 1.05) - 1;
+          if (voltas >= 0) {
+            M.add(`tl.set("#${id}-q${k - 1}", { opacity: 1 }, ${tP});`);
+            M.add(`tl.fromTo("#${id}-q${k - 1}", { ${cheia(c) ? "yPercent" : "xPercent"}: 0 }, { ${cheia(c) ? "yPercent" : "xPercent"}: 100, duration: 0.7, ease: "power1.inOut", repeat: ${voltas}, repeatDelay: 0.35, immediateRender: false }, ${tP});`);
+          }
+        }
+      }
     });
     if (c.rotulo) {
       const t = r3(c.de + 0.3 + nos.length * passo);
@@ -182,13 +252,21 @@ registrar("comparacao", {
       `<div class="card lado ${qual}" id="${id}-${qual}">${x?.logo ? `<div class="logo-caixa pequena${x.fundo === "escuro" ? " escuro" : ""}">${logoImg(M, x.logo, `cena ${c.i}`)}</div>` : x?.icone ? `<div class="icone-caixa pequena">${M.icone(x.icone)}</div>` : ""}<div class="rotulo">${esc(x?.rotulo ?? "")}</div><div class="valor" style="font-size:${tamValor}px"><span>${esc(x?.valor ?? "")}</span>${qual === "antes" ? `<i class="risco" id="${id}-risco"></i>` : ""}</div>${x?.detalhe ? `<div class="detalhe">${esc(x.detalhe)}</div>` : ""}</div>`;
     M.html.cenas.push(`      ${abrir(M, c, id)}${titulo(c, id)}<div class="compara">${lado(c.antes, "antes")}<div class="vs" id="${id}-vs">${cheia(c) ? "↓" : "→"}</div>${lado(c.depois, "depois")}</div>${fechar(c)}`);
     animarTitulo(M, c, id);
-    const meio = c.de + clamp((c.ate - c.de) * 0.35, 0.6, 1.4);
+    const meio = c.de + (M.vivo ? clamp((c.ate - c.de) * 0.4, 0.7, 2.0) : clamp((c.ate - c.de) * 0.35, 0.6, 1.4));
     M.add(`tl.from("#${id}-antes", { x: -80, opacity: 0, duration: 0.36, ease: "power3.out" }, ${r3(c.de + 0.12)});`);
     M.add(`tl.fromTo("#${id}-risco", { scaleX: 0 }, { scaleX: 1, duration: 0.3, ease: "power2.inOut" }, ${r3(meio - 0.3)});`);
     M.somCena(c, "click", meio - 0.3);
     M.add(`tl.from("#${id}-vs", { scale: 0, opacity: 0, duration: 0.25, ease: "back.out(2)" }, ${r3(meio)});`);
     M.add(`tl.from("#${id}-depois", { scale: 0.5, opacity: 0, duration: 0.4, ease: "back.out(2.2)" }, ${r3(meio + 0.1)});`);
     M.somCena(c, "ding", meio + 0.1, 0.8);
+    if (M.vivo) {
+      // o "antes" recua e apaga; o valor novo dá uma pulsada; a seta fica empurrando pro "depois"
+      M.add(`tl.to("#${id}-antes", { scale: 0.93, opacity: 0.55, duration: 0.5, ease: "power2.out" }, ${r3(meio + 0.55)});`);
+      M.add(`tl.fromTo("#${id}-depois .valor", { scale: 1 }, { scale: 1.1, duration: 0.3, ease: "power2.out", yoyo: true, repeat: 1, immediateRender: false }, ${r3(meio + 0.55)});`);
+      const tS = r3(meio + 0.3);
+      const n = Math.floor((c.ate - SAIDA - tS) / 0.45) - 1;
+      if (n >= 1) M.add(`tl.fromTo("#${id}-vs", { ${cheia(c) ? "y" : "x"}: 0 }, { ${cheia(c) ? "y" : "x"}: 14, duration: 0.45, ease: "sine.inOut", yoyo: true, repeat: ${n}, immediateRender: false }, ${tS});`);
+    }
   },
 });
 
@@ -207,7 +285,7 @@ registrar("contador", {
       `      ${abrir(M, c, id)}<div class="card contador" id="${id}-in"><div class="contador-topo">${selo(M, c, `cena ${c.i}`)}<span class="rotulo">${esc(c.rotulo ?? "")}</span></div><div class="num" id="${id}-n" style="font-size:${tamNum}px">${esc(fmt(c.de_valor ?? 0))}</div>${c.barra ? `<div class="xp"><div id="${id}-xp"></div></div>` : ""}${c.detalhe ? `<div class="detalhe">${esc(c.detalhe)}</div>` : ""}</div>${fechar(c)}`,
     );
     const t0 = r3(c.de + 0.3);
-    const dt = r3(clamp((c.ate - c.de) * 0.55, 0.6, 1.6));
+    const dt = r3(M.vivo ? clamp((c.ate - c.de) * 0.62, 0.8, 2.6) : clamp((c.ate - c.de) * 0.55, 0.6, 1.6));
     entrada(M, `#${id}-in`, c.de + 0.04);
     M.add(`(() => { const o = { v: ${Number(c.de_valor ?? 0)} }; const el = document.getElementById("${id}-n"); tl.to(o, { v: ${Number(c.para_valor ?? 0)}, duration: ${dt}, ease: "power2.out", onUpdate: () => (el.textContent = ${js(c.prefixo ?? "")} + o.v.toLocaleString("pt-BR", { minimumFractionDigits: ${casas}, maximumFractionDigits: ${casas} }) + ${js(c.sufixo ?? "")}) }, ${t0}); })();`);
     M.add(`tl.set("#${id}-n", { color: "${cor}" }, ${r3(t0 + dt)});`);
@@ -226,16 +304,30 @@ registrar("chat", {
     const app = c.app === "whatsapp" ? "whatsapp" : "instagram";
     const msgs = c.mensagens ?? [];
     const avatar = c.avatar === "perfil" ? M.avatarPerfil() : `<span class="av letra" style="background:${corDe(c.nome ?? "?")}">${esc((c.nome ?? "?").slice(0, 1).toUpperCase())}</span>`;
-    const bolhas = msgs.map((m, k) => `<div class="bolha ${m.lado === "eu" ? "eu" : "ela"}" id="${id}-b${k}">${esc(m.texto)}</div>`).join("");
+    const digita = (m) => M.vivo && m.lado !== "eu";
+    const bolhas = msgs
+      .map((m, k) => (digita(m) ? `<div class="bolha ela vivo" id="${id}-b${k}"><span class="b-txt" id="${id}-bt${k}">${esc(m.texto)}</span><span class="b-dig" id="${id}-bd${k}"><i></i><i></i><i></i></span></div>` : `<div class="bolha ${m.lado === "eu" ? "eu" : "ela"}" id="${id}-b${k}">${esc(m.texto)}</div>`))
+      .join("");
     const logo = c.logo ? `<span class="chat-logo">${logoImg(M, c.logo, `cena ${c.i}`)}</span>` : "";
     M.html.cenas.push(
       `      ${abrir(M, c, id)}<div class="card chat ${app}" id="${id}-in"><div class="chat-topo">${avatar}<div class="chat-nome"><b>${esc(c.nome ?? "")}</b><span>${esc(c.status ?? (app === "whatsapp" ? "online" : "Ativo(a) agora"))}</span></div>${logo}</div><div class="chat-corpo">${bolhas}</div></div>${fechar(c)}`,
     );
     entrada(M, `#${id}-in`, c.de + 0.04);
-    const passo = clamp((c.ate - c.de - 0.7) / Math.max(1, msgs.length), 0.3, 0.8);
+    const passo = clamp((c.ate - c.de - 0.7) / Math.max(1, msgs.length), 0.3, M.vivo ? 1.3 : 0.8);
+    const tempos = msgs.map((m, k) => r3(M.tempoDe(m, c.de + 0.4 + k * passo)));
     msgs.forEach((m, k) => {
-      const t = r3(M.tempoDe(m, c.de + 0.4 + k * passo));
-      M.add(`tl.from("#${id}-b${k}", { x: ${m.lado === "eu" ? 60 : -60}, opacity: 0, duration: 0.28, ease: "back.out(1.7)" }, ${t});`);
+      const t = tempos[k];
+      // a bolha dela aparece antes com os três pontinhos e o texto chega na hora da mensagem
+      const tIn = digita(m) ? r3(Math.max(k ? tempos[k - 1] + 0.3 : c.de + 0.35, t - 0.75, c.de + 0.35)) : t;
+      if (t - tIn >= 0.35) {
+        M.add(`tl.from("#${id}-b${k}", { x: -60, opacity: 0, duration: 0.28, ease: "back.out(1.7)" }, ${tIn});`);
+        M.add(`tl.set("#${id}-bt${k}", { opacity: 0 }, ${tIn});`);
+        M.add(`tl.set("#${id}-bd${k}", { opacity: 1 }, ${tIn});`);
+        const pulos = Math.max(1, Math.floor((t - tIn - 0.1) / 0.18));
+        M.add(`tl.fromTo("#${id}-bd${k} i", { y: 0 }, { y: -7, duration: 0.18, ease: "sine.inOut", yoyo: true, repeat: ${pulos}, stagger: 0.09, immediateRender: false }, ${tIn});`);
+        M.add(`tl.to("#${id}-bd${k}", { opacity: 0, duration: 0.1, ease: "none" }, ${r3(t - 0.05)});`);
+        M.add(`tl.to("#${id}-bt${k}", { opacity: 1, duration: 0.16, ease: "none" }, ${t});`);
+      } else M.add(`tl.from("#${id}-b${k}", { x: ${m.lado === "eu" ? 60 : -60}, opacity: 0, duration: 0.28, ease: "back.out(1.7)" }, ${t});`);
       M.somCena(c, "pop", t, 0.8);
     });
   },
@@ -248,7 +340,7 @@ registrar("comentarios", {
   montar(M, c, id) {
     const itens = c.itens ?? [];
     const lis = itens
-      .map((it, k) => `<div class="coment" id="${id}-c${k}"><span class="av letra" style="background:${corDe(it.usuario)}">${esc(String(it.usuario ?? "?").slice(0, 1).toUpperCase())}</span><div class="coment-txt"><div><b>${esc(it.usuario)}</b> ${esc(it.texto)}</div><span class="coment-meta">${esc(it.tempo ?? "agora")} · Responder</span></div><span class="coracao">♡</span></div>`)
+      .map((it, k) => `<div class="coment" id="${id}-c${k}"><span class="av letra" style="background:${corDe(it.usuario)}">${esc(String(it.usuario ?? "?").slice(0, 1).toUpperCase())}</span><div class="coment-txt"><div><b>${esc(it.usuario)}</b> ${esc(it.texto)}</div><span class="coment-meta">${esc(it.tempo ?? "agora")} · Responder</span></div>${M.vivo ? `<span class="coracao vivo"><b>♡</b><b class="cheio" id="${id}-h${k}">♥</b></span>` : `<span class="coracao">♡</span>`}</div>`)
       .join("");
     const quem = c.usuario ?? (M.arroba || M.perfil.nome || "voce");
     const resp = c.resposta ? `<div class="coment resposta" id="${id}-resp">${M.avatarPerfil()}<div class="coment-txt"><div><b>${esc(quem)}</b> ${esc(c.resposta)}</div><span class="coment-meta">agora · Responder</span></div></div>` : "";
@@ -256,11 +348,12 @@ registrar("comentarios", {
     M.html.cenas.push(`      ${abrir(M, c, id)}<div class="card coments" id="${id}-in">${topo}${lis}${resp}</div>${fechar(c)}`);
     entrada(M, `#${id}-in`, c.de + 0.04);
     const n = itens.length + (c.resposta ? 1 : 0);
-    const passo = clamp((c.ate - c.de - 0.7) / Math.max(1, n), 0.22, 0.6);
+    const passo = clamp((c.ate - c.de - 0.7) / Math.max(1, n), 0.22, M.vivo ? 1.0 : 0.6);
     itens.forEach((_, k) => {
       const t = r3(c.de + 0.35 + k * passo);
       M.add(`tl.from("#${id}-c${k}", { x: -50, opacity: 0, duration: 0.28, ease: "power3.out" }, ${t});`);
       if (k < 5) M.somCena(c, "pop", t, 0.7);
+      if (M.vivo && t + 0.55 < c.ate - SAIDA) M.add(`tl.fromTo("#${id}-h${k}", { opacity: 0, scale: 0.3 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2.5)", immediateRender: false }, ${r3(t + 0.55)});`);
     });
     if (c.resposta) {
       const t = r3(c.de + 0.35 + itens.length * passo);
@@ -283,7 +376,7 @@ registrar("notificacao", {
       )
       .join("");
     M.html.cenas.push(`      ${abrir(M, c, id, "notifs")}${cards}${fechar(c)}`);
-    const passo = clamp((c.ate - c.de - 0.6) / Math.max(1, itens.length), 0.25, 0.7);
+    const passo = clamp((c.ate - c.de - 0.6) / Math.max(1, itens.length), 0.25, M.vivo ? 1.1 : 0.7);
     itens.forEach((n, k) => {
       const t = r3(M.tempoDe(n, c.de + 0.12 + k * passo));
       M.add(`tl.from("#${id}-n${k}", { y: -90, opacity: 0, scale: 0.94, duration: 0.36, ease: "back.out(1.6)" }, ${t});`);
@@ -311,8 +404,9 @@ registrar("lista", {
     const foco = c.modo === "foco";
     const lis = itens
       .map((it, k) => {
-        const marca = it.imagem && M.arquivoOk(it.imagem, `cena ${c.i}`) ? `<span class="marca foto"><img src="${esc(it.imagem)}" alt="" /></span>` : it.ok !== undefined ? `<span class="marca ${it.ok ? "ok" : "nao"}">${M.icone(it.ok ? "check" : "x")}</span>` : it.icone ? `<span class="marca icone">${M.icone(it.icone, "ic", { id: `${id}-ic${k}` })}</span>` : `<span class="marca">${c.numerar === false ? "✓" : c.numerar === "00" ? String(k + 1).padStart(2, "0") : k + 1}</span>`;
-        return `<div class="item${foco ? " foco" : ""}" id="${id}-i${k}">${foco ? `<i class="item-luz" id="${id}-f${k}"></i>` : ""}${marca}<span class="item-txt"><span>${esc(it.texto ?? it.titulo ?? "")}</span>${it.sub ? `<small>${esc(it.sub)}</small>` : ""}</span>${foco ? `<em>${String(k + 1).padStart(2, "0")}</em>` : ""}</div>`;
+        const marca = it.imagem && M.arquivoOk(it.imagem, `cena ${c.i}`) ? `<span class="marca foto"><img src="${esc(it.imagem)}" alt="" /></span>` : it.ok !== undefined ? `<span class="marca ${it.ok ? "ok" : "nao"}">${M.icone(it.ok ? "check" : "x")}</span>` : it.icone ? `<span class="marca icone">${M.icone(it.icone, "ic", { id: `${id}-ic${k}`, desenha: M.vivo })}</span>` : `<span class="marca">${c.numerar === false ? "✓" : c.numerar === "00" ? String(k + 1).padStart(2, "0") : k + 1}</span>`;
+        const luz = foco || M.vivo;
+        return `<div class="item${foco ? " foco" : M.vivo ? " vivo" : ""}" id="${id}-i${k}">${luz ? `<i class="item-luz" id="${id}-f${k}"></i>` : ""}${marca}<span class="item-txt"><span>${esc(it.texto ?? it.titulo ?? "")}</span>${it.sub ? `<small>${esc(it.sub)}</small>` : ""}</span>${foco ? `<em>${String(k + 1).padStart(2, "0")}</em>` : ""}</div>`;
       })
       .join("");
     const cab = c.titulo ? `<div class="lista-titulo">${selo(M, c, `cena ${c.i}`)}<span>${linhasDe(c.titulo).map((l, k) => `<span class="l${k}">${marcar(l)}</span>`).join(" ")}</span></div>` : "";
@@ -325,8 +419,9 @@ registrar("lista", {
       M.html.cenas.push(`      <div id="${id}-rod" class="clip lista-rodape ${c._pip === "esquerda" ? "direita" : "esquerda"}" ${M.attrs(c)}><div id="${id}-rodi">${rod.icone ? `<span class="rod-ic">${M.icone(rod.icone)}</span>` : ""}${ls.map((l, k) => `<div class="rod-l l${Math.min(k, 1)}" style="font-size:${tam}px">${esc(l)}</div>`).join("")}<i class="rod-regua"></i></div></div>`);
       M.add(`tl.from("#${id}-rodi", { y: 30, opacity: 0, duration: 0.36, ease: "power3.out" }, ${r3(c.de + 0.5)});`);
     }
-    M.add(`tl.from("#${id}-in", { y: -50, rotation: ${foco ? 0 : -2}, opacity: 0, duration: 0.36, ease: "power3.out" }, ${r3(c.de + 0.04)});`);
-    const passo = clamp((c.ate - c.de - 0.7) / Math.max(1, itens.length), 0.25, foco ? 2.5 : 0.6);
+    if (M.vivo) entradaViva(M, `#${id}-in`, c.de + 0.04);
+    else M.add(`tl.from("#${id}-in", { y: -50, rotation: ${foco ? 0 : -2}, opacity: 0, duration: 0.36, ease: "power3.out" }, ${r3(c.de + 0.04)});`);
+    const passo = clamp((c.ate - c.de - 0.7) / Math.max(1, itens.length), 0.25, foco ? 2.5 : M.vivo ? 1.0 : 0.6);
     const tempos = itens.map((it, k) => r3(clamp(M.tempoDe(it, c.de + 0.42 + k * passo), c.de + 0.1, c.ate - 0.1)));
     itens.forEach((_, k) => {
       const t = tempos[k];
@@ -345,6 +440,13 @@ registrar("lista", {
       } else {
         M.add(`tl.from("#${id}-i${k}", { x: -40, opacity: 0, duration: 0.26, ease: "back.out(1.8)" }, ${t});`);
         M.somCena(c, "pop", t, 0.8);
+        if (M.vivo) {
+          // o item da vez acende (e apaga quando o próximo chega); a marca pula; o ícone se desenha
+          M.add(`tl.fromTo("#${id}-f${k}", { opacity: 0 }, { opacity: 1, duration: 0.22, ease: "power2.out", immediateRender: false }, ${t});`);
+          if (tempos[k + 1] !== undefined) M.add(`tl.to("#${id}-f${k}", { opacity: 0, duration: 0.25, ease: "power2.out" }, ${tempos[k + 1]});`);
+          M.add(`tl.fromTo("#${id}-i${k} .marca", { scale: 1.35 }, { scale: 1, duration: 0.4, ease: "back.out(2)", immediateRender: false }, ${r3(t + 0.05)});`);
+          if (itens[k].icone && itens[k].ok === undefined && !itens[k].imagem) M.desenharIcone(`${id}-ic${k}`, t + 0.08, 0.6, true);
+        }
       }
     });
   },
@@ -356,7 +458,7 @@ registrar("terminal", {
   limite: { faixa: ["linhas", 6], "faixa-baixo": ["linhas", 4], cheia: ["linhas", 10] },
   montar(M, c, id) {
     const linhas = c.linhas ?? [];
-    const ls = linhas.map((l, k) => `<div class="t-linha${/^[✓✔]/.test(l) ? " ok" : /^[>$]/.test(l) ? " cmd" : ""}" id="${id}-t${k}">${esc(l)}</div>`).join("");
+    const ls = linhas.map((l, k) => `<div class="t-linha${/^[✓✔]/.test(l) ? " ok" : /^[>$]/.test(l) ? " cmd" : ""}" id="${id}-t${k}">${esc(l)}${M.vivo && !/^[✓✔]/.test(l) ? `<span class="t-car" id="${id}-car${k}"></span>` : ""}</div>`).join("");
     const logo = c.logo ? logoImg(M, c.logo, `cena ${c.i}`, "t-logo") : "";
     M.html.cenas.push(
       `      ${abrir(M, c, id)}<div class="card terminal" id="${id}-in"><div class="janela-barra"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i>${logo}${c.titulo ? `<span class="rotulo">${esc(c.titulo)}</span>` : ""}</div><div class="t-corpo">${ls}</div></div>${fechar(c)}`,
@@ -366,14 +468,28 @@ registrar("terminal", {
     const total = c.ate - c.de - 0.6;
     const pesos = linhas.map((l) => Math.max(6, l.length));
     const soma = pesos.reduce((x, y) => x + y, 0) || 1;
+    const inicios = [];
+    const fins = [];
     linhas.forEach((l, k) => {
       const d = r3(clamp((total * pesos[k]) / soma - 0.05, 0.15, 1.3));
       const ok = /^[✓✔]/.test(l);
       if (ok) M.add(`tl.from("#${id}-t${k}", { x: -20, opacity: 0, duration: 0.2, ease: "power2.out" }, ${r3(t)});`);
       else M.add(`tl.fromTo("#${id}-t${k}", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: ${d}, ease: "steps(${Math.max(4, Math.min(40, l.length))})" }, ${r3(t)});`);
       M.somCena(c, ok ? "pop" : "teclado", t, ok ? 0.8 : 0.7);
+      inicios.push(t);
+      fins.push(t + (ok ? 0.2 : d));
       t += (ok ? 0.25 : d) + 0.05;
     });
+    // movimento "de vídeo": o cursor pisca no fim da linha que acabou de ser digitada, até a próxima começar
+    if (M.vivo)
+      linhas.forEach((l, k) => {
+        if (/^[✓✔]/.test(l)) return;
+        const a = r3(fins[k]);
+        const b = r3(k + 1 < linhas.length ? inicios[k + 1] : c.ate - SAIDA);
+        if (b - a < 0.15) return;
+        M.add(`tl.fromTo("#${id}-car${k}", { opacity: 1 }, { opacity: 0, duration: 0.4, ease: "steps(1)", yoyo: true, repeat: ${Math.max(0, Math.floor((b - a) / 0.4) - 1)}, immediateRender: false }, ${a});`);
+        M.add(`tl.set("#${id}-car${k}", { opacity: 0 }, ${b});`);
+      });
   },
 });
 
@@ -402,8 +518,11 @@ registrar("palavra", {
       const y = Number.isFinite(Number(c.y)) ? Number(c.y) : Math.round(clamp(topoCabeca - alturaBloco * 0.72, 60, 900));
       M.html.atras.push(`      <div id="${id}" class="clip palavra-atras" ${M.attrs(c)} style="top:${y}px"><div class="palavra-atras-in" id="${id}-in">${ls}</div></div>`);
     } else {
-      M.html.cenas.push(`      <div id="${id}" class="clip tela-cheia" ${M.attrs(c)}><div class="tela-cheia-in void" id="${id}-in">${ls}</div></div>`);
-      M.add(`tl.from("#${id}-in", { opacity: 0, duration: 0.08, ease: "none" }, ${c.de});`);
+      // no movimento "de vídeo" a palavra também sai (opacidade): nasce invisível e entra com fromTo
+      const vivo = M.vivo && c.ate - c.de >= 0.6;
+      M.html.cenas.push(`      <div id="${id}" class="clip tela-cheia" ${M.attrs(c)}><div class="tela-cheia-in void" id="${id}-in"${vivo ? ' style="opacity:0"' : ""}>${ls}</div></div>`);
+      if (vivo) M.add(`tl.fromTo("#${id}-in", { opacity: 0 }, { opacity: 1, duration: 0.08, ease: "none" }, ${c.de});`);
+      else M.add(`tl.from("#${id}-in", { opacity: 0, duration: 0.08, ease: "none" }, ${c.de});`);
     }
     const entrada = c.entrada ?? M.ESTILO.palavra?.entrada ?? "impacto";
     linhas.forEach((_, k) => {
@@ -414,6 +533,11 @@ registrar("palavra", {
       else M.add(`tl.from("#${id}-p${k}", { scale: 1.6, opacity: 0, duration: 0.24, ease: "power4.out" }, ${t});`);
     });
     if (c.som !== false && (c.som || M.ESTILO.palavra?.som !== false)) M.somCena(c, c.som ?? M.ESTILO.palavra?.som ?? "impacto", c.de, 1);
+    if (M.vivo && !c.atras && c.ate - c.de >= 0.6) {
+      const fim = r3(c.ate - 0.2);
+      M.add(`tl.fromTo("#${id}-in", { scale: 1 }, { scale: 1.1, duration: ${r3(fim - c.de - 0.01)}, ease: "power1.out", immediateRender: false }, ${c.de});`);
+      M.add(`tl.to("#${id}-in", { scale: 1.32, opacity: 0, duration: 0.2, ease: "power2.in" }, ${fim});`);
+    }
   },
 });
 
@@ -428,7 +552,7 @@ registrar("cta", {
     const nome = usuario ? `@${usuario}` : (M.perfil.nome ?? "");
     const bio = curto(c.bio ?? M.perfil.nicho ?? "", 60);
     M.html.cenas.push(
-      `      <div id="${id}" class="clip cta" ${M.attrs(c)}><div class="card cta-coment" id="${id}-c">${M.avatarPerfil()}<span class="cta-txt" id="${id}-tx">${esc(frase)} <b>${esc(palavra)}</b></span></div><div class="card cta-perfil" id="${id}-p">${M.avatarPerfil("grande")}<div class="cta-nome">${nome ? `<b>${esc(nome)}</b>` : ""}${bio ? `<span>${esc(bio)}</span>` : ""}</div><span class="seguir" id="${id}-s">Seguir</span></div></div>`,
+      `      <div id="${id}" class="clip cta" ${M.attrs(c)}><div class="card cta-coment" id="${id}-c">${M.avatarPerfil()}<span class="cta-txt" id="${id}-tx">${esc(frase)} <b>${esc(palavra)}</b></span></div><div class="card cta-perfil" id="${id}-p">${M.avatarPerfil("grande")}<div class="cta-nome">${nome ? `<b>${esc(nome)}</b>` : ""}${bio ? `<span>${esc(bio)}</span>` : ""}</div>${M.vivo ? `<span class="seguir vivo" id="${id}-s"><span id="${id}-s1">Seguir</span><span class="seguindo" id="${id}-s2">Seguindo</span></span>` : `<span class="seguir" id="${id}-s">Seguir</span>`}</div>@CURSOR</div>`,
     );
     const t0 = r3(c.de + 0.1);
     M.add(`tl.from("#${id}-c", { y: -80, opacity: 0, duration: 0.32, ease: "back.out(1.6)" }, ${t0});`);
@@ -436,8 +560,23 @@ registrar("cta", {
     M.somCena(c, "teclado", t0 + 0.3, 1);
     const tp = r3(Math.max(t0 + 0.3, Math.min(c.ate - 0.7, t0 + 0.9)));
     M.add(`tl.from("#${id}-p", { y: 160, opacity: 0, duration: 0.42, ease: "power3.out" }, ${tp});`);
-    M.add(`tl.fromTo("#${id}-s", { scale: 1 }, { scale: 1.12, duration: 0.25, ease: "power2.inOut", yoyo: true, repeat: 3, immediateRender: false }, ${r3(tp + 0.45)});`);
     M.somCena(c, "pop", tp, 0.8);
+    const ultima = M.html.cenas.length - 1;
+    if (M.vivo && c.ate - tp >= 1.7) {
+      // o cursor entra, clica no "Seguir" e o botão vira "Seguindo"
+      const tCl = r3(tp + 1.2);
+      const cursor = cursorClique(M, id, { px: 850, py: 1515, tClique: tCl, desde: tp + 0.45, ate: c.ate, vem: [150, 260] });
+      M.add(`tl.to("#${id}-s", { scale: 0.92, duration: 0.07, ease: "power1.in" }, ${tCl});`);
+      M.add(`tl.to("#${id}-s", { scale: 1, duration: 0.25, ease: "back.out(2)" }, ${r3(tCl + 0.07)});`);
+      M.add(`tl.to("#${id}-s", { backgroundColor: "#efefef", color: "#1a1a1a", duration: 0.15, ease: "none" }, ${r3(tCl + 0.06)});`);
+      M.add(`tl.to("#${id}-s1", { opacity: 0, duration: 0.12, ease: "none" }, ${r3(tCl + 0.06)});`);
+      M.add(`tl.to("#${id}-s2", { opacity: 1, duration: 0.12, ease: "none" }, ${r3(tCl + 0.06)});`);
+      M.somCena(c, "click", tCl);
+      M.html.cenas[ultima] = M.html.cenas[ultima].replace("@CURSOR", cursor);
+    } else {
+      M.add(`tl.fromTo("#${id}-s", { scale: 1 }, { scale: 1.12, duration: 0.25, ease: "power2.inOut", yoyo: true, repeat: 3, immediateRender: false }, ${r3(tp + 0.45)});`);
+      M.html.cenas[ultima] = M.html.cenas[ultima].replace("@CURSOR", "");
+    }
   },
 });
 
@@ -451,6 +590,7 @@ registrar("titulo", {
     M.html.cenas.push(`      <div id="${id}" class="clip titulo-linha" ${M.attrs(c)} style="top:${y}px"><div class="chip-titulo ${cor}" id="${id}-t">${c.icone ? M.icone(c.icone) : ""}<span>${esc(c.texto)}</span></div></div>`);
     M.add(`tl.from("#${id}-t", { scale: 0.4, rotation: -6, opacity: 0, duration: 0.3, ease: "back.out(2.4)" }, ${c.de});`);
     if (c.som !== "nenhum") M.somCena(c, c.som ?? "ding", c.de, 1);
+    if (M.vivo && c.ate - c.de > 0.9) M.add(`tl.to("#${id}-t", { scale: 0.7, y: -30, opacity: 0, duration: 0.2, ease: "power2.in" }, ${r3(c.ate - 0.22)});`);
   },
 });
 

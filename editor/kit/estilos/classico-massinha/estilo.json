@@ -1,0 +1,60 @@
+{
+  "id": "classico-massinha",
+  "nome": "Clássico · Massinha",
+  "grupo": "variacoes",
+  "ordem": 3,
+  "descricao": "O clássico como brinquedo 3D: pêssego e lilás, tudo redondo, legenda gordinha com a palavra numa pílula e o Claudinho de massinha.",
+  "movimento": "video",
+  "cor_intocada": true,
+  "legenda": {
+    "padrao": "bolha",
+    "tipos": {
+      "bolha": {
+        "max_chars": 15,
+        "max_palavras": 3,
+        "caixa": "normal",
+        "acende": "caixa",
+        "entrada": "mola",
+        "fonte": "display",
+        "tamanho": 66,
+        "entrelinha": 1.12
+      },
+      "limpa": {
+        "max_chars": 18,
+        "max_palavras": 3,
+        "caixa": "normal",
+        "acende": "caixa",
+        "sobre_fundo_claro": "#1a1a1a"
+      }
+    },
+    "acento": "#ff6a3d",
+    "tinta": "#ffffff",
+    "clara": "#ffffff",
+    "sobre_fundo_claro": "#2b1d3a"
+  },
+  "cores": {
+    "verde": "#2fbf71",
+    "vermelho": "#ff4f6d",
+    "dourado": "#ff6a3d",
+    "branco": "#2b1d3a"
+  },
+  "cortes": {
+    "estilo": "zoom",
+    "som": "pop"
+  },
+  "fontes": {
+    "palavra": "display",
+    "titulo": "display",
+    "cabecalho": "display",
+    "lettering": "display",
+    "carimbo": "display",
+    "etiqueta": "display",
+    "numero": "display"
+  },
+  "palavra": {
+    "entrada": "impacto",
+    "som": "pop",
+    "teto": 150
+  },
+  "padrao_2x1": true
+}

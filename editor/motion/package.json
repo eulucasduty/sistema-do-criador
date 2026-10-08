@@ -1,0 +1,18 @@
+{
+  "name": "criador-motion",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Estúdio de motion do editor: vídeos animados em Remotion que entram nas edições (cena \"motion\" do kit)",
+  "type": "module",
+  "dependencies": {
+    "@remotion/bundler": "4.0.534",
+    "@remotion/cli": "4.0.534",
+    "@remotion/fonts": "^4.0.534",
+    "@remotion/motion-blur": "4.0.534",
+    "@remotion/renderer": "4.0.534",
+    "@remotion/transitions": "4.0.534",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "remotion": "4.0.534"
+  }
+}

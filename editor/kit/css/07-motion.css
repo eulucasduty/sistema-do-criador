@@ -1,0 +1,7 @@
+      /* Cena "motion": o vídeo animado que o estúdio de motion renderizou (motions/<id>.mp4 ou .webm). */
+      .motion-caixa { position: absolute; left: 0; top: 0; pointer-events: none; }
+      .motion-caixa video { display: block; width: 100%; height: 100%; object-fit: cover; }
+      .motion-caixa.cheia { width: 1080px; height: 1920px; z-index: 24; }
+      /* na faixa de cima, a mesma costura suave do papel da tela dividida */
+      .motion-caixa.faixa { width: 1080px; height: 760px; z-index: 10; -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 90%, transparent 100%); mask-image: linear-gradient(to bottom, #000 0, #000 90%, transparent 100%); }
+      .motion-caixa.sobre { width: 1080px; height: 1920px; z-index: 8; }

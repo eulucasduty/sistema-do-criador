@@ -1,0 +1,63 @@
+{
+  "id": "classico-gibi",
+  "nome": "Clássico · Gibi",
+  "grupo": "variacoes",
+  "ordem": 1,
+  "descricao": "O clássico em HQ: contorno preto grosso, sombra dura, retícula, legenda Bangers torta com sombra laranja e o Claudinho adesivo.",
+  "movimento": "video",
+  "cor_intocada": true,
+  "legenda": {
+    "padrao": "hq",
+    "tipos": {
+      "hq": {
+        "max_chars": 14,
+        "max_palavras": 3,
+        "caixa": "alta",
+        "acende": "cor",
+        "entrada": "mola",
+        "fonte": "bangers",
+        "tamanho": 104,
+        "entrelinha": 1,
+        "girar": [
+          1.5,
+          3.5
+        ]
+      },
+      "limpa": {
+        "max_chars": 18,
+        "max_palavras": 3,
+        "caixa": "normal",
+        "acende": "caixa",
+        "sobre_fundo_claro": "#1a1a1a"
+      }
+    },
+    "acento": "#ffcf33",
+    "tinta": "#1a1a1a",
+    "clara": "#ffffff"
+  },
+  "cores": {
+    "verde": "#2bb673",
+    "vermelho": "#e63946",
+    "dourado": "#ff6b35",
+    "branco": "#1a1a1a"
+  },
+  "cortes": {
+    "estilo": "zoom",
+    "som": "whoosh"
+  },
+  "fontes": {
+    "palavra": "bangers",
+    "titulo": "bangers",
+    "cabecalho": "bangers",
+    "lettering": "bangers",
+    "carimbo": "bangers",
+    "etiqueta": "bangers",
+    "numero": "bangers"
+  },
+  "palavra": {
+    "entrada": "impacto",
+    "som": "impacto",
+    "teto": 230
+  },
+  "padrao_2x1": true
+}

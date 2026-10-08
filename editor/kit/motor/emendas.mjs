@@ -4,7 +4,7 @@
 
 import { ler, r3 } from "./util.mjs";
 
-const ESTILOS = new Set(["onda", "flash", "zoom", "glitch", "seco", "queima", "desfoque", "barras", "preto"]);
+const ESTILOS = new Set(["onda", "flash", "zoom", "glitch", "seco", "queima", "desfoque", "barras", "preto", "x"]);
 
 export function montarEmendas(M) {
   const { plano, ESTILO, D, add, som, avisar } = M;
@@ -63,6 +63,10 @@ export function montarEmendas(M) {
         add(`tl.fromTo("#barra-corte-${k}", { opacity: 0, xPercent: ${k % 2 ? 60 : -60} }, { opacity: 0.85, xPercent: 0, duration: 0.1, ease: "power2.out", immediateRender: false }, ${tk});`);
         add(`tl.to("#barra-corte-${k}", { opacity: 0, xPercent: ${k % 2 ? -40 : 40}, duration: 0.2, ease: "power2.in" }, ${r3(tk + 0.12)});`);
       }
+    } else if (c.estilo === "x") {
+      // o X da marca: duas faixas diagonais atravessam a tela e se cruzam no meio bem na emenda
+      add(`tl.fromTo("#corte-x-a", { x: -1500, opacity: 1 }, { x: 1500, duration: 0.46, ease: "power2.inOut", immediateRender: false }, ${r3(t - 0.23)});`);
+      add(`tl.fromTo("#corte-x-b", { x: 1500, opacity: 1 }, { x: -1500, duration: 0.46, ease: "power2.inOut", immediateRender: false }, ${r3(t - 0.2)});`);
     } else if (c.estilo === "preto") {
       add(`tl.fromTo("#apaga", { opacity: 0 }, { opacity: 1, duration: 0.1, ease: "none", immediateRender: false }, ${r3(t - 0.1)});`);
       add(`tl.to("#apaga", { opacity: 0, duration: 0.24, ease: "power2.out" }, ${t});`);
@@ -72,5 +76,6 @@ export function montarEmendas(M) {
   if (usa.has("queima")) M.html.fixos.push(`      <div id="queima"></div>`);
   if (usa.has("barras")) M.html.fixos.push(`      <div id="barras-corte">${[0, 1, 2, 3, 4].map((k) => `<i id="barra-corte-${k}" style="top:${[9, 20, 28, 37, 46][k] * 19.2}px"></i>`).join("")}</div>`);
   if (usa.has("preto")) M.html.fixos.push(`      <div id="apaga"></div>`);
+  if (usa.has("x")) M.html.fixos.push(`      <div id="corte-x"><i id="corte-x-a"></i><i id="corte-x-b"></i></div>`);
   return emendas;
 }

@@ -54,7 +54,10 @@ export const lookValido = (...nomes) => nomes.map(atual).find((n) => LOOKS[n]) ?
  */
 export const legendaValida = (...nomes) => nomes.map(atual).find((n) => /^[a-z0-9-]{1,40}$/.test(n)) ?? null;
 // iPhone grava em HDR (HLG): sem isso o vídeo fica lavado
-const TOM_HDR = "zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=yuv420p";
+// HDR do iPhone → vídeo comum, na conversão neutra (BT.2408): o branco de referência do HDR (203 nits)
+// vira o branco do vídeo e só as luzes fortes são comprimidas, então pele e parede ficam com o brilho
+// que a pessoa gravou (a antiga, hable com 100 nits, escurecia o rosto ~12%).
+const TOM_HDR = "zscale=t=linear:npl=203,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=mobius:param=0.6:desat=0,zscale=t=bt709:m=bt709:r=tv,format=yuv420p";
 const FONTE = fonteDrawtext(); // "fontfile='…':" ou "" (aí o ffmpeg usa a fonte padrão)
 const r2 = (n) => Math.round(n * 100) / 100;
 
@@ -326,9 +329,9 @@ export const kitAntigo = (pasta) => fs.existsSync(path.join(pasta, "kit", "monta
  */
 export function prepararPasta(pasta, estilo) {
   const id = estiloValido(estilo);
-  for (const p of ["assets", "dados", "materiais", "logos", "prints", "cenas", "recortes"]) fs.mkdirSync(path.join(pasta, p), { recursive: true });
+  for (const p of ["assets", "dados", "materiais", "logos", "prints", "cenas", "recortes", "motions"]) fs.mkdirSync(path.join(pasta, p), { recursive: true });
   fs.rmSync(path.join(pasta, "kit"), { recursive: true, force: true });
-  for (const f of ["montar.mjs", "motor", "css", "icones", "print.mjs", "logo.mjs", "hf.mjs", "EDITOR.md", "COMPONENTES.md"]) copiar(path.join(KIT, f), path.join(pasta, "kit", f));
+  for (const f of ["montar.mjs", "motor", "css", "icones", "print.mjs", "logo.mjs", "hf.mjs", "motion.mjs", "motion-exemplos", "EDITOR.md", "COMPONENTES.md", "MOTION.md"]) copiar(path.join(KIT, f), path.join(pasta, "kit", f));
   // só o estilo escolhido vai pra oficina (e a família de que ele herda): é o que o montador lê
   if (fs.existsSync(path.join(KIT, "estilos", "_bases"))) copiar(path.join(KIT, "estilos", "_bases"), path.join(pasta, "kit", "estilos", "_bases"));
   for (const f of ["estilo.json", "tema.css"]) copiar(path.join(KIT, "estilos", id, f), path.join(pasta, "kit", "estilos", id, f));

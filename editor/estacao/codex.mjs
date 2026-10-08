@@ -48,7 +48,8 @@ Notas deste ambiente, que valem por cima do manual abaixo:
 - Pra ler texto use comandos de leitura; pra criar e editar arquivos, apply_patch. Tudo dentro
   desta pasta.
 - Os comandos do kit são \`node kit/montar.mjs\`, \`node kit/hf.mjs lint\` e
-  \`node kit/hf.mjs snapshot --at "1.2,3.4"\` (a lista do --at sempre entre aspas).
+  \`node kit/hf.mjs snapshot --at "1.2,3.4"\` (a lista do --at sempre entre aspas). Os do motion
+  animado (kit/MOTION.md) são \`node kit/motion.mjs quadros <id>\` e \`node kit/motion.mjs render <id>\`.
 - O catálogo das cenas do plano está em \`kit/COMPONENTES.md\`: leia antes de escrever o plano.
 - Não instale nada, não use a internet e não mexa em \`assets/\` nem em \`kit/\`.
 

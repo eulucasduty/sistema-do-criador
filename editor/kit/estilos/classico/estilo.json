@@ -5,6 +5,8 @@
   "ordem": 1,
   "descricao": "O padrão: emenda com onda de calor e clique de câmera, legenda com a palavra acendendo em dourado e os motions em papel creme com laranja.",
   "padrao": true,
+  "movimento": "video",
+  "cor_intocada": true,
   "legenda": {
     "padrao": "bangers",
     "tipos": {

@@ -36,9 +36,11 @@ import "./motor/cenas-extra.mjs";
 import "./motor/cenas-extra2.mjs";
 import "./motor/cenas-extra3.mjs";
 import "./motor/cenas-3d.mjs";
+import "./motor/cenas-motion.mjs";
 import { montarCamera } from "./motor/camera.mjs";
 import { montarEmendas } from "./motor/emendas.mjs";
 import { montarFixos } from "./motor/fixos.mjs";
+import { montarVida } from "./motor/vida.mjs";
 
 const KIT = path.dirname(fileURLToPath(import.meta.url));
 const M = criarContexto(KIT);
@@ -59,6 +61,9 @@ const camera = montarCamera(M, cenas, emendas);
 const legenda = montarLegendas(M, camera, emendas, cenas);
 const linha0 = M.tl.length;
 montarCenas(M, cenas, camera);
+// movimento "de vídeo" (só nos estilos com "movimento": "video"): câmera em cada card, saída
+// animada e o fundo deslizando
+montarVida(M, cenas, camera);
 // estilos "em 12 quadros" (documentário): os motions andam aos pulinhos, como animação feita à mão.
 // Vale pras cenas; a câmera, a legenda e o que anda em linha reta (barra, letreiro correndo) seguem lisos.
 if (ESTILO.quadros) {
@@ -154,7 +159,7 @@ const html = `<!doctype html>
 ${css}
     </style>
   </head>
-  <body class="leg-${M.LEG.tipo} est-${estiloId}${camera.temPainel ? "" : " sem-painel"}">
+  <body class="leg-${M.LEG.tipo} est-${estiloId}${camera.temPainel ? "" : " sem-painel"}${M.vivo ? " mv" : ""}">
     <div id="root" data-composition-id="main" data-start="0" data-width="${W}" data-height="${H}" data-duration="${D}">
       <svg class="filtros" width="0" height="0" aria-hidden="true"><filter id="calor" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB"><feTurbulence id="calor-turb" type="turbulence" baseFrequency="0.002 0.014" numOctaves="2" seed="7" result="ruido" /><feDisplacementMap id="calor-map" in="SourceGraphic" in2="ruido" scale="0" xChannelSelector="R" yChannelSelector="G" /></filter></svg>
       <div id="fundo" class="void">${fundoVideo}${M.html.fundo.join("")}</div>

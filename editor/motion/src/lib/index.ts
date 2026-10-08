@@ -1,0 +1,12 @@
+// Tudo que um motion usa vem daqui: import { Cena, Claudinho, ... } from "@motion";
+export { AbsoluteFill, Sequence, Img, staticFile, useCurrentFrame, useVideoConfig, interpolate, spring } from "remotion";
+export * from "./tema";
+export * from "./anim";
+export * from "./cena";
+export * from "./camera";
+export * from "./claudinho";
+export * from "./codinho";
+export * from "./efeitos";
+export * from "./ui";
+export * from "./midia";
+export * from "./fontes";

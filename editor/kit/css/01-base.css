@@ -35,6 +35,11 @@
       @font-face { font-family: "Roboto"; src: url("assets/fontes/roboto-700.woff2") format("woff2"); font-weight: 700; }
       @font-face { font-family: "InterTight"; src: url("assets/fontes/inter-tight.woff2") format("woff2"); font-weight: 400 900; }
       @font-face { font-family: "Assinatura"; src: url("assets/fontes/assinatura.woff2") format("woff2"); font-weight: 400; }
+      @font-face { font-family: "Sora"; src: url("assets/fontes/sora.woff2") format("woff2"); font-weight: 100 800; }
+      @font-face { font-family: "IBMPlex"; src: url("assets/fontes/plex-400.woff2") format("woff2"); font-weight: 400; }
+      @font-face { font-family: "IBMPlex"; src: url("assets/fontes/plex-500.woff2") format("woff2"); font-weight: 500; }
+      @font-face { font-family: "IBMPlex"; src: url("assets/fontes/plex-600.woff2") format("woff2"); font-weight: 600; }
+      @font-face { font-family: "IBMPlex"; src: url("assets/fontes/plex-700.woff2") format("woff2"); font-weight: 700; }
 
       :root {
         --void: #050505;
@@ -143,6 +148,11 @@
       #barras-corte { position: absolute; inset: 0; z-index: 29; pointer-events: none; }
       #barras-corte i { position: absolute; left: -10%; width: 120%; height: 34px; opacity: 0; display: block; background: var(--barra-corte, rgba(80, 220, 255, 0.72)); }
       #barras-corte i:nth-child(even) { height: 26px; background: var(--barra-corte2, rgba(150, 90, 255, 0.72)); }
+      /* corte "x": as duas faixas do X da marca (a azul e a clara) */
+      #corte-x { position: absolute; inset: 0; z-index: 29; pointer-events: none; overflow: hidden; }
+      #corte-x i { position: absolute; left: 50%; top: 50%; width: var(--corte-x-largura, 300px); height: 3400px; margin: -1700px 0 0 calc(var(--corte-x-largura, 300px) / -2); display: block; opacity: 0; }
+      #corte-x-a { background: var(--corte-x-1, #2563eb); rotate: 38deg; }
+      #corte-x-b { background: var(--corte-x-2, linear-gradient(90deg, #e5e7eb, #ffffff)); rotate: -38deg; }
 
       /* legendas: a palavra falada acende. Cada estilo desenha a dele na classe .leg-<tipo> */
       #legendas { position: absolute; inset: 0; z-index: 30; pointer-events: none; }

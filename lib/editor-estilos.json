@@ -29,6 +29,64 @@
     ]
   },
   {
+    "id": "classico-gibi",
+    "nome": "Clássico · Gibi",
+    "grupo": "variacoes",
+    "ordem": 1,
+    "descricao": "O clássico em HQ: contorno preto grosso, sombra dura, retícula, legenda Bangers torta com sombra laranja e o Claudinho adesivo.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "hq",
+    "legendas": [
+      {
+        "id": "hq",
+        "nome": "hq"
+      },
+      {
+        "id": "limpa",
+        "nome": "Limpa (caixinha na palavra falada)"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#fbf1d8",
+      "#ff6b35",
+      "#ff6b35"
+    ]
+  },
+  {
+    "id": "classico-terminal",
+    "nome": "Clássico · Terminal",
+    "grupo": "variacoes",
+    "ordem": 2,
+    "descricao": "O clássico com cara de Claude Code: tela escura com grade, letra mono, a palavra falada numa caixa laranja e o Claudinho em pixel art.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "terminal",
+    "legendas": [
+      {
+        "id": "terminal",
+        "nome": "terminal"
+      },
+      {
+        "id": "limpa",
+        "nome": "Limpa (caixinha na palavra falada)"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#0f0e0d",
+      "#d97757",
+      "#7bd88f"
+    ]
+  },
+  {
     "id": "vlog",
     "nome": "Vlog",
     "grupo": "base",
@@ -54,6 +112,35 @@
     ]
   },
   {
+    "id": "classico-massinha",
+    "nome": "Clássico · Massinha",
+    "grupo": "variacoes",
+    "ordem": 3,
+    "descricao": "O clássico como brinquedo 3D: pêssego e lilás, tudo redondo, legenda gordinha com a palavra numa pílula e o Claudinho de massinha.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "bolha",
+    "legendas": [
+      {
+        "id": "bolha",
+        "nome": "bolha"
+      },
+      {
+        "id": "limpa",
+        "nome": "Limpa (caixinha na palavra falada)"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#ffe8dc",
+      "#ff6a3d",
+      "#8b7bff"
+    ]
+  },
+  {
     "id": "profissional",
     "nome": "Profissional",
     "grupo": "base",
@@ -76,6 +163,35 @@
       "#0d1117",
       "#6cb0ff",
       "#e9eef5"
+    ]
+  },
+  {
+    "id": "classico-editorial",
+    "nome": "Clássico · Editorial",
+    "grupo": "variacoes",
+    "ordem": 4,
+    "descricao": "O clássico como revista: papel branco, traço fino, serifada grande, legenda fina com marca-texto laranja e o Claudinho em line-art.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "revista",
+    "legendas": [
+      {
+        "id": "revista",
+        "nome": "revista"
+      },
+      {
+        "id": "limpa",
+        "nome": "Limpa (caixinha na palavra falada)"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#fbfaf7",
+      "#d97757",
+      "#d97757"
     ]
   },
   {

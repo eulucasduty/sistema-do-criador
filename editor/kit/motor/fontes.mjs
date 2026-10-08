@@ -64,6 +64,14 @@ export const FONTES = {
   apertada: { familia: "InterTight", peso: 600, arquivo: "inter-tight.woff2", eixos: { wght: 600 }, metrica: "inter-tight-600", media: 0.54, espaco: -0.03 },
   "apertada-forte": { familia: "InterTight", peso: 800, arquivo: "inter-tight.woff2", eixos: { wght: 800 }, metrica: "inter-tight-800", media: 0.57, espaco: -0.03 },
   assinatura: { familia: "Assinatura", peso: 400, arquivo: "assinatura.woff2", metrica: "assinatura", media: 0.34 },
+  // Sora (títulos) e IBM Plex Sans (texto)
+  sora: { familia: "Sora", peso: 600, arquivo: "sora.woff2", eixos: { wght: 600 }, metrica: "sora-600", media: 0.59, espaco: -0.02 },
+  "sora-forte": { familia: "Sora", peso: 700, arquivo: "sora.woff2", eixos: { wght: 700 }, metrica: "sora-700", media: 0.6, espaco: -0.02 },
+  "sora-preta": { familia: "Sora", peso: 800, arquivo: "sora.woff2", eixos: { wght: 800 }, metrica: "sora-800", media: 0.61, espaco: -0.02 },
+  plex: { familia: "IBMPlex", peso: 500, arquivo: "plex-500.woff2", metrica: "plex-500", media: 0.52 },
+  "plex-leve": { familia: "IBMPlex", peso: 400, arquivo: "plex-400.woff2", metrica: "plex-400", media: 0.51 },
+  "plex-semi": { familia: "IBMPlex", peso: 600, arquivo: "plex-600.woff2", metrica: "plex-600", media: 0.53 },
+  "plex-forte": { familia: "IBMPlex", peso: 700, arquivo: "plex-700.woff2", metrica: "plex-700", media: 0.54 },
 };
 
 /** Declarações CSS de um papel de fonte (para pôr num style="…"). */

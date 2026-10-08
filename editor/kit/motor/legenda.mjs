@@ -192,7 +192,8 @@ export function montarLegendas(M, camera, emendas, cenas) {
       base,
       on: (cor) => (caixa ? `backgroundColor: "${L.acento}", color: "${L.tinta}"` : `color: "${cor ?? L.acento}"`),
       off: (dest, cor, daLinha) => {
-        const c = daLinha ?? (dest ? (cor ?? (base === L.clara ? L.acento : base)) : base);
+        // destaque_cor: a cor da palavra-chave quando não está sendo falada (senão, a de destaque)
+        const c = daLinha ?? (dest ? (cor ?? (base === L.clara ? (L.destaque_cor ?? L.acento) : base)) : base);
         return caixa ? `${semFundo}, color: "${c}"` : `color: "${c}"`;
       },
     };

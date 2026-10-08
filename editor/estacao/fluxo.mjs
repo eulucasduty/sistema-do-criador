@@ -31,8 +31,8 @@ export function promptEdicao({ versao = 1, ajuste, perfil, motor = "claude", ant
       ? "Siga o manual das suas instruções (AGENTS.md: as notas deste ambiente + o kit/EDITOR.md)."
       : "Leia kit/EDITOR.md (o manual, com o padrão de edição)."
     : motor === "codex"
-      ? "Siga os manuais das suas instruções (AGENTS.md: as notas deste ambiente, o kit/EDITOR.md e o kit/ESTILO.md, que é o estilo de edição deste vídeo e vale por cima do manual) e leia kit/COMPONENTES.md (as cenas que existem)."
-      : "Leia os três manuais: kit/EDITOR.md (o fluxo de trabalho e o formato do plano), kit/ESTILO.md (o estilo de edição deste vídeo, que vale por cima do manual onde disser diferente) e kit/COMPONENTES.md (as cenas que existem).";
+      ? "Siga os manuais das suas instruções (AGENTS.md: as notas deste ambiente, o kit/EDITOR.md e o kit/ESTILO.md, que é o estilo de edição deste vídeo e vale por cima do manual) e leia kit/COMPONENTES.md (as cenas que existem). Se o pedido falar em motion ou animação, ou o estilo pedir motion, leia também kit/MOTION.md e os exemplos em kit/motion-exemplos/ (vídeos animados que entram na edição)."
+      : "Leia os três manuais: kit/EDITOR.md (o fluxo de trabalho e o formato do plano), kit/ESTILO.md (o estilo de edição deste vídeo, que vale por cima do manual onde disser diferente) e kit/COMPONENTES.md (as cenas que existem). Se o pedido falar em motion ou animação, ou o estilo pedir motion, leia também kit/MOTION.md e os exemplos em kit/motion-exemplos/ (vídeos animados que entram na edição).";
   if (versao > 1 && ajuste)
     return [
       ...quemE(perfil),

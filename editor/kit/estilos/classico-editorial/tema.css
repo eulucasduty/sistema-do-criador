@@ -1,0 +1,61 @@
+      /* Tema "Clássico · Editorial": o padrão dele como revista. Papel branco com pauta fina, cards
+         de traço fino e canto reto (sem sombra), serifada itálica grande, laranja só no que importa. */
+      :root {
+        --void: #fbfaf7;
+        --void-img: linear-gradient(rgba(20, 20, 20, 0.05) 1px, transparent 1px);
+        --void-tam: 100% 64px;
+        --card: #ffffff;
+        --card-borda: 1.5px solid #141414;
+        --card-sombra: none;
+        --card-raio: 0px;
+        --texto: #141414;
+        --dim: #77736c;
+        --apagado: #a7a29a;
+        --acento: #d97757;
+        --acento2: #d97757;
+        --acento3: #141414;
+        --acento-tinta: #ffffff;
+        --ok: #1f8a4c;
+        --erro: #c8452f;
+        --tinta-borda: 1.5px solid #141414;
+        --chip-sombra: none;
+        --chip-raio: 0px;
+        --f-titulo: "Serifa", serif;
+        --titulo-estilo: italic;
+        --titulo-espaco: -0.01em;
+        --titulo-sombra: none;
+        --palavra-sombra: none;
+        --nome-sombra: none;
+        --f-texto: "InterTight", sans-serif;
+        --f-numero: "InterTight", sans-serif;
+        --numero-peso: 800;
+        --logo-fundo: #ffffff;
+        --logo-sombra: none;
+        --mold: #ffffff;
+        --janela: #f4f2ee;
+        --janela-borda: #141414;
+        --url: #ffffff;
+        --notif: #ffffff;
+        --notif-borda: #141414;
+        --notif-texto: #3d3a35;
+        --notif-sombra: none;
+        --trilho: #ece9e3;
+        --destaque-brilho: 0 0 0 3px #ffffff;
+        --foco-fundo: rgba(217, 119, 87, 0.08);
+        --brilho: 217, 119, 87;
+        --marcador: #d97757;
+        --quadro-borda: 1.5px solid #141414;
+      }
+      .cena-titulo { font-size: 96px; line-height: 0.96; }
+      .lista-titulo { font-size: 80px; }
+      .logo-op { font-style: italic; }
+      .chip-ouro, .chip-rotulo { background: transparent; color: #141414; border: none; border-bottom: 2px solid #d97757; padding: 4px 2px; box-shadow: none; }
+      .chip-titulo { background: #ffffff; color: #141414; border: 1.5px solid #141414; border-radius: 0; box-shadow: none; font-family: "Serifa", serif; font-style: italic; }
+      .marca { border-radius: 0; background: #141414; color: #ffffff; }
+      .cta-coment, .cta-perfil { border-radius: 0; box-shadow: none; border: 1.5px solid #141414; }
+      .seguir { border-radius: 0; box-shadow: none; }
+      /* legenda de revista: Inter Tight fina, sombra macia; as palavras de destaque ganham marca-texto laranja */
+      .leg-revista .grupo { font-family: "InterTight", sans-serif; font-weight: 600; color: #ffffff; letter-spacing: -0.015em; text-shadow: 0 2px 16px rgba(0, 0, 0, 0.75); }
+      .leg-revista .p.dest { text-shadow: none; }
+      .leg-revista .grupo.no-claro { color: #141414; text-shadow: none; }
+      .leg-limpa .grupo.no-claro { color: #141414; text-shadow: none; }

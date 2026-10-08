@@ -208,7 +208,11 @@ export function criarContexto(KIT) {
 
   return {
     KIT, W, H, D, video, plano, pedido, perfil, arroba,
-    ESTILO, estiloId,
+    ESTILO, estiloId, temaCss,
+    // "movimento": "video" no estilo: os motions andam a cena inteira (motor/vida.mjs)
+    vivo: ESTILO.movimento === "video",
+    // "cor_intocada": true no estilo: nada escurece, dessatura ou pinta o vídeo do criador
+    corIntocada: ESTILO.cor_intocada === true,
     problemas, avisar,
     tl, add,
     materiais, arquivoOk, midia, avatarPerfil,

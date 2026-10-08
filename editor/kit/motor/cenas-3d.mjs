@@ -186,7 +186,9 @@ registrar("profundidade", {
     if (volta - t0 - 0.6 > 0.3) M.add(`tl.to("#palco", { rotationY: 16, duration: ${r3(volta - t0 - 0.6)}, ease: "sine.inOut" }, ${r3(t0 + 0.6)});`);
     M.add(`tl.to("#r-wrap", { z: ${Z[2]}, duration: 0.6, ease: "power3.out" }, ${t0});`);
     // o fundo desfoca: a pessoa (recorte) fica nítida na frente dele
-    M.add(`tl.fromTo("#v-rot", { filter: "blur(0px) brightness(1)" }, { filter: "blur(14px) brightness(0.62)", duration: 0.5, ease: "power2.out", immediateRender: false }, ${t0});`);
+    // (com "cor_intocada" só desfoca: o brilho do vídeo dele não muda)
+    const escuro = M.corIntocada ? 1 : 0.62;
+    M.add(`tl.fromTo("#v-rot", { filter: "blur(0px) brightness(1)" }, { filter: "blur(14px) brightness(${escuro})", duration: 0.5, ease: "power2.out", immediateRender: false }, ${t0});`);
     if (linhas.length) {
       M.add(`tl.set("#${id}-tx", { z: ${Z[1]} }, ${t0});`);
       linhas.forEach((_, k) => M.add(`tl.from("#${id}-t${k}", { opacity: 0, scale: 0.7, duration: 0.3, ease: "back.out(1.8)" }, ${r3(t0 + 0.35 + k * 0.18)});`));

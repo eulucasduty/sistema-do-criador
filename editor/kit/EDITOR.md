@@ -23,8 +23,9 @@ verdade**: a interface real, a logo oficial, o número, o print.
 
 ## O que não muda de um estilo pro outro
 
-- **Cor do vídeo:** já tratada pela estação. O estilo pode pôr um banho de cor, grão ou barras
-  por cima; isso é automático.
+- **Cor do vídeo:** é a que o criador gravou (a estação só converte o HDR do iPhone, sem filtro).
+  Alguns estilos põem banho de cor, grão ou barras por cima, automaticamente; os que têm
+  `"cor_intocada"` não põem nada. Você nunca muda a cor do vídeo dele.
 - **Emendas:** o bruto é uma junção de tomadas (`dados/cortes.json`). Cada emenda ganha a
   transição do estilo sozinha. Você só confere as candidatas e troca uma ou outra.
 - **Legenda:** o estilo define a dele (tamanho, fonte, quantas palavras, o que acende). O tipo
@@ -58,6 +59,7 @@ verdade**: a interface real, a logo oficial, o número, o print.
 | `dados/video.json` | duração e tamanho do vídeo |
 | `assets/` | vídeo tratado, sons, fontes, texturas, foto do perfil: não mexa |
 | `logos/`, `prints/`, `cenas/` | onde você salva logo, print e cena livre |
+| `motions/` | os motions animados (`<id>.tsx` que você escreve, `<id>.mp4` que o render gera) |
 
 A transcrição é automática e **erra nome**: marca e nome próprio saem trocados, número sai por
 extenso ou quebrado. Corrija na legenda (`correcoes`/`edicoes`), sem trocar o que ele falou.
@@ -99,8 +101,9 @@ extenso ou quebrado. Corrija na legenda (`correcoes`/`edicoes`), sem trocar o qu
    cada parte e o que ele precisa saber (ex.: "não achei print público do X, usei a logo").
 
 Comandos permitidos (rode exatamente assim, a partir desta pasta, um por vez): `node kit/montar.mjs`,
-`node kit/logo.mjs …`, `node kit/print.mjs …`, `node kit/hf.mjs lint` e
-`node kit/hf.mjs snapshot --at "…"`. Leia e escreva arquivos só **dentro desta pasta**, com as
+`node kit/logo.mjs …`, `node kit/print.mjs …`, `node kit/hf.mjs lint`,
+`node kit/hf.mjs snapshot --at "…"`, `node kit/motion.mjs quadros <id> …` e
+`node kit/motion.mjs render <id>`. Leia e escreva arquivos só **dentro desta pasta**, com as
 ferramentas de arquivo do seu ambiente. Não instale nada, não abra outros endereços, não mexa em
 `assets/` nem em `kit/`. Material com `erro` em `dados/pedido.json` não tem arquivo (diga isso no
 resumo).
@@ -125,6 +128,7 @@ Escolha dentro do que o estilo usa. Quando o estilo não disser, este é o ponto
 | a frase de efeito | `palavra`, `lettering`, `carimbo` |
 | uma prova, uma notícia, um documento | `documento`, `fotos`, `print` com `destaque` |
 | "comenta X que te mando" | `cta` |
+| uma cena, um processo, uma metáfora ("100 IAs brigando", "um vira o outro"), ou o pedido fala em motion/animação | `motion` (vídeo animado, `kit/MOTION.md`) |
 
 Cada cena mostra **informação de verdade** (nome, número, logo, o que ele disse), nunca texto que
 ele não falou. Português do Brasil, sem erro de ortografia, frases curtas.
@@ -185,7 +189,7 @@ canto de cima à esquerda, `w`,`h` = tamanho).
   `empurrar: true` = aproximação lenta durante o trecho. `inclinar`: graus (±1 a 3). **Tem estilo
   que já alterna os planos sozinho**: aí só escreva `angulos` se quiser mandar no ritmo.
 - `cortes`: estilos de emenda `seco`, `onda`, `flash`, `zoom`, `glitch`, `barras`, `queima`,
-  `desfoque`, `preto`. O padrão é o do estilo.
+  `desfoque`, `preto`, `x` (duas faixas cruzando em X). O padrão é o do estilo.
 - `sons[]`: `t` = começa nesse instante; `ate` = **termina** nesse instante (pro riser que acaba
   na revelação). `volume` opcional.
 

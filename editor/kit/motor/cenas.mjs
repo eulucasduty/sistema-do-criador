@@ -10,6 +10,7 @@
 
 import { W, H, clamp, esc, r3 } from "./util.mjs";
 import { JANELAS_PADRAO } from "./camera.mjs";
+import { entradaViva } from "./vida.mjs";
 
 /** A faixa de baixo (o rosto numa janela em cima): começa depois da janela e da legenda. */
 export function faixaBaixo(M) {
@@ -70,14 +71,18 @@ export const cheia = (c) => c.zona === "cheia";
 /** Contêiner de um card: faixa de cima, faixa de baixo, tela cheia (fundo do estilo) ou por cima do vídeo. */
 export function abrir(M, c, id, extra = "") {
   const mais = extra ? ` ${extra}` : "";
+  c._abriu = true; // a câmera do movimento "de vídeo" (motor/vida.mjs) mora no contêiner daqui
   if (c.zona === "cheia") {
-    M.add(`tl.from("#${id}-bg", { opacity: 0, duration: 0.2, ease: "none" }, ${c.de});`);
-    M.add(`tl.from("#${id}-z", { scale: 0.92, duration: 0.35, ease: "power3.out" }, ${c.de});`);
+    // no movimento "de vídeo" o papel também sai no fim: nasce invisível e entra com fromTo
+    if (M.vivo) M.add(`tl.fromTo("#${id}-bg", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "none" }, ${c.de});`);
+    else M.add(`tl.from("#${id}-bg", { opacity: 0, duration: 0.2, ease: "none" }, ${c.de});`);
+    if (M.vivo) M.add(`tl.from("#${id}-z", { scale: 0.86, y: 70, duration: 0.5, ease: "power3.out" }, ${c.de});`);
+    else M.add(`tl.from("#${id}-z", { scale: 0.92, duration: 0.35, ease: "power3.out" }, ${c.de});`);
     // com a janelinha, o card fica no espaço acima dela: quanto mais baixa e menor a janela, maior o card
     const j = c._pip ? (M.ESTILO.layout?.pip?.[c._pip] ?? JANELAS_PADRAO.pip[c._pip] ?? JANELAS_PADRAO.pip.direita) : null;
     const livre = j ? clamp(j.y - 180, 500, 1240) : 0;
     const vars = j ? ` style="--pip-pb:${H - 150 - livre}px;--pip-zoom:${r3(clamp(1.12 + ((livre - 770) / 470) * 0.2, 1, 1.32))}"` : "";
-    return `<div id="${id}" class="clip cena-cheia${c._pip ? " com-pip" : ""}" ${M.attrs(c)}${vars}><div class="cheia-fundo void" id="${id}-bg"></div><div class="cheia-centro"><div class="cheia-zoom${mais}" id="${id}-z">`;
+    return `<div id="${id}" class="clip cena-cheia${c._pip ? " com-pip" : ""}" ${M.attrs(c)}${vars}><div class="cheia-fundo void" id="${id}-bg"${M.vivo ? ' style="opacity:0"' : ""}></div><div class="cheia-centro"><div class="cheia-zoom${mais}" id="${id}-z">`;
   }
   if (c.zona === "sobre") return `<div id="${id}" class="clip cena-sobre pos-${esc(c.posicao ?? "baixo")}" ${M.attrs(c)}><div class="sobre-centro${mais}">`;
   if (c.zona === "faixa-baixo") {
@@ -88,7 +93,7 @@ export function abrir(M, c, id, extra = "") {
 }
 export const fechar = (c) => (c.zona === "cheia" ? "</div></div></div>" : "</div></div>");
 
-export const entrada = (M, sel, t, ease = "power3.out") => M.add(`tl.from(${JSON.stringify(sel)}, { y: -50, opacity: 0, duration: 0.34, ease: "${ease}" }, ${r3(t)});`);
+export const entrada = (M, sel, t, ease = "power3.out") => (M.vivo ? entradaViva(M, sel, t) : M.add(`tl.from(${JSON.stringify(sel)}, { y: -50, opacity: 0, duration: 0.34, ease: "${ease}" }, ${r3(t)});`));
 
 export function logoImg(M, arq, onde, classe = "logo-img") {
   if (!arq || !M.arquivoOk(arq, onde)) return "";

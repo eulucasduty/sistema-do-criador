@@ -20,7 +20,8 @@ export function montarFixos(M, cenas, camera) {
         const i1 = Math.min(b, y);
         if (i1 - i0 > 0.3) trechos.push([i0, i1]);
       }
-    if (!trechos.length || ESTILO.escurecer === false) continue;
+    // "cor_intocada": o vídeo dele não escurece (o texto por cima se vira com a sombra dele)
+    if (!trechos.length || ESTILO.escurecer === false || M.corIntocada) continue;
     M.html.sobre.unshift(`      <div id="escurece-${onde}" class="escurece ${onde}"></div>`);
     add(`tl.set("#escurece-${onde}", { opacity: 0 }, 0);`);
     for (const [a, b] of trechos) {
@@ -30,7 +31,7 @@ export function montarFixos(M, cenas, camera) {
   }
 
   // tratamento de filme: cada camada é um <div> que o tema.css do estilo pinta
-  const camadas = V.camadas ?? [];
+  const camadas = M.corIntocada ? V.camadas?.filter((k) => k === "barras" || k === "moldura") ?? [] : V.camadas ?? [];
   if (camadas.includes("tom")) M.html.fixos.push(`      <div id="tom" class="pelicula"></div>`);
   if (camadas.includes("vinheta")) M.html.fixos.push(`      <div id="vinheta" class="pelicula"></div>`);
   if (camadas.includes("grao")) {

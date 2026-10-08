@@ -36,6 +36,8 @@
         --notif-sombra: 0 18px 40px rgba(70, 50, 30, 0.17);
         --trilho: #ece7dc;
         --destaque-brilho: 0 0 0 4px rgba(255, 255, 255, 0.75), 0 0 30px rgba(217, 119, 87, 0.5);
+        /* o item da lista que acende quando ele fala */
+        --foco-fundo: rgba(217, 119, 87, 0.09);
       }
       /* a serifada é mais fina que a Lilita: títulos um pouco maiores */
       .cena-titulo { font-size: 88px; line-height: 0.98; }
