@@ -94,7 +94,10 @@ function configDoMotion() {
   const area = bloco.match(/area\s*:\s*["']([\w-]+)["']/)?.[1] ?? "tela-cheia";
   if (!(duracao > 0.2)) throw new Error(`motions/${id}.tsx precisa de: export const config = { duracao: <segundos>, area: "tela-cheia" | "faixa" | "sobre" }`);
   if (!TAMANHOS[area]) throw new Error(`area desconhecida em motions/${id}.tsx: ${area} (use tela-cheia, faixa ou sobre)`);
-  return { duracao, area, transparente: area === "sobre" || /transparente\s*:\s*true/.test(bloco) };
+  // os sons de cada batida (export const sons = [{ em: 0.4, som: "pop" }, …]): a edição toca no lugar certo
+  const listaSons = txt.match(/export\s+const\s+sons\s*=\s*\[([\s\S]*?)\]\s*;/)?.[1] ?? "";
+  const sons = [...listaSons.matchAll(/\{\s*em\s*:\s*([\d.]+)\s*,\s*som\s*:\s*["']([\w-]+)["']\s*(?:,\s*volume\s*:\s*([\d.]+)\s*)?,?\s*\}/g)].map((m) => ({ em: Number(m[1]), som: m[2], ...(m[3] ? { volume: Number(m[3]) } : {}) })).filter((x) => x.em < duracao);
+  return { duracao, area, transparente: area === "sobre" || /transparente\s*:\s*true/.test(bloco), noite: /noite\s*:\s*true/.test(bloco), sons };
 }
 
 /** Uma pasta pública com as fontes do estúdio e as imagens da oficina (logos, prints, materiais, foto do perfil). */
@@ -186,7 +189,7 @@ if (cmd === "render") {
       }
     },
   });
-  const info = { id, arquivo: path.relative(PASTA, arquivo).replaceAll("\\", "/"), area: cfg.area, duracao: cfg.duracao, largura: composition.width, altura: composition.height, transparente: cfg.transparente, feito_em: new Date().toISOString() };
+  const info = { id, arquivo: path.relative(PASTA, arquivo).replaceAll("\\", "/"), area: cfg.area, duracao: cfg.duracao, largura: composition.width, altura: composition.height, transparente: cfg.transparente, noite: cfg.noite, sons: cfg.sons, feito_em: new Date().toISOString() };
   fs.writeFileSync(path.join(saidas, `${id}${sufixo}.json`), JSON.stringify(info, null, 2));
   console.log(`pronto: ${info.arquivo} (${((Date.now() - t0) / 1000).toFixed(1)}s). Na cena: { "tipo": "motion", "motion": "${id}", "de": …, "ate": … } com ate - de = ${cfg.duracao}`);
 } else {

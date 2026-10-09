@@ -1,0 +1,67 @@
+{
+  "id": "classico-continuo",
+  "nome": "Clássico · Motion contínuo",
+  "grupo": "variacoes",
+  "ordem": 5,
+  "descricao": "Motion o vídeo inteiro: cada coisa que você fala aparece na hora, num estúdio claro com luz de janela, cards de vidro, contadores rolando e anotações; a legenda se constrói palavra por palavra e vira serifada itálica nas frases de efeito.",
+  "movimento": "video",
+  "cor_intocada": true,
+  "motion_claro": true,
+  "tempo_edicao": 90,
+  "legenda": {
+    "padrao": "vitrine",
+    "tipos": {
+      "vitrine": {
+        "max_chars": 20,
+        "max_palavras": 4,
+        "caixa": "normal",
+        "acende": "constroi",
+        "entrada": "seco",
+        "fonte": "inter-semi",
+        "tamanho": 60,
+        "entrelinha": 1.12,
+        "miudas": true,
+        "peso_forte": 760,
+        "peso_leve": 500,
+        "segura": 0.35
+      },
+      "limpa": {
+        "max_chars": 18,
+        "max_palavras": 3,
+        "caixa": "normal",
+        "acende": "caixa",
+        "sobre_fundo_claro": "#121212"
+      }
+    },
+    "acento": "#d97757",
+    "tinta": "#121212",
+    "clara": "#ffffff",
+    "sobre_fundo_claro": "#121212"
+  },
+  "cores": {
+    "verde": "#1f9d55",
+    "vermelho": "#e0473c",
+    "dourado": "#d97757",
+    "branco": "#121212"
+  },
+  "cortes": {
+    "estilo": "desfoque",
+    "som": null
+  },
+  "fontes": {
+    "palavra": "serifa",
+    "titulo": "inter",
+    "cabecalho": "inter",
+    "lettering": "serifa",
+    "carimbo": "inter-preta",
+    "etiqueta": "inter",
+    "numero": "inter-preta",
+    "manchete": "inter"
+  },
+  "palavra": {
+    "entrada": "borra",
+    "som": "whoosh",
+    "teto": 200
+  },
+  "padrao_2x1": false
+}

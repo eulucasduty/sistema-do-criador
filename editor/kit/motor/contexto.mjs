@@ -227,5 +227,7 @@ export function criarContexto(KIT) {
     escurecer: [],
     // trechos em que o fundo atrás da legenda é claro (cenário xadrez ou de cor clara): [de, ate]
     fundosClaros: [],
+    // trechos em que o fundo atrás da legenda é escuro mesmo numa tela cheia (motion noite): [de, ate]
+    fundosEscuros: [],
   };
 }

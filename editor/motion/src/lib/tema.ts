@@ -6,7 +6,7 @@ import { Easing } from "remotion";
 
 export type Visual = {
   /** o fundo da cena: papel creme, retícula de gibi, tela de terminal, massinha (gradiente macio) ou papel limpo */
-  fundo: "papel" | "meio-tom" | "terminal" | "massinha" | "limpo" | "noite";
+  fundo: "papel" | "meio-tom" | "terminal" | "massinha" | "limpo" | "noite" | "estudio" | "estudio-noite";
   /** como os personagens são desenhados */
   personagem: "chapado" | "adesivo" | "pixel" | "massinha" | "traco";
   /** a tinta do contorno (adesivo, traço, balão, nuvem) */
@@ -40,8 +40,10 @@ export type Tema = {
     claudinho: string; // o personagem
   };
   /** escala: o quanto o título cresce ou encolhe (fonte larga como a Unbounded precisa de menos) */
-  fontes: { titulo: string; tituloEstilo: "italic" | "normal"; texto: string; mono: string; impacto: string; numero: string; escala: number };
+  fontes: { titulo: string; tituloEstilo: "italic" | "normal"; tituloPeso?: number; texto: string; mono: string; impacto: string; numero: string; escala: number };
   visual: Visual;
+  /** a versão escura do mesmo estilo (o motion pede com <Cena noite>), pra alternar claro e escuro no vídeo */
+  noite?: Tema;
 };
 
 const CHAPADO: Visual = { fundo: "papel", personagem: "chapado", contorno: "#2a1a14", cardRaio: 28, cardBorda: 2, sombraDura: false, grao: 0.05, vinheta: 0.13, linhas: false, correcao: 0.08 };
@@ -82,6 +84,21 @@ export const TEMAS: Record<string, Tema> = {
     fontes: { titulo: "Serifa", tituloEstilo: "italic", texto: "InterTight", mono: "Mono", impacto: "Serifa", numero: "InterTight", escala: 1 },
     visual: { fundo: "limpo", personagem: "traco", contorno: "#141414", cardRaio: 0, cardBorda: 1.5, sombraDura: false, grao: 0.035, vinheta: 0, linhas: false, correcao: 0 },
   },
+  // contínuo: a vitrine. Estúdio cinza claro com luz de janela passando, cards
+  // de vidro com sombra longa, Inter pesada, mono nos rótulos e o coral do Claude no destaque. Tem a
+  // versão noite (<Cena noite>) pros trechos de contraste.
+  "classico-continuo": {
+    claro: true,
+    cores: { fundo: "#e7e5e0", fundo2: "#f7f6f3", card: "#ffffff", borda: "rgba(20, 16, 10, 0.08)", tinta: "#121212", dim: "#8b867d", heroi: "#d97757", ok: "#1f9d55", erro: "#e0473c", ouro: "#efb04a", sombra: "rgba(46, 36, 24, 0.17)", brilho: "rgba(217, 119, 87, 0.38)", claudinho: "#d97757" },
+    fontes: { titulo: "Inter", tituloEstilo: "normal", tituloPeso: 750, texto: "Inter", mono: "Mono", impacto: "Inter", numero: "Inter", escala: 0.9 },
+    visual: { fundo: "estudio", personagem: "chapado", contorno: "#121212", cardRaio: 30, cardBorda: 0, sombraDura: false, grao: 0.028, vinheta: 0.07, linhas: false, correcao: 0 },
+    noite: {
+      claro: false,
+      cores: { fundo: "#0c0c0e", fundo2: "#1d1b1f", card: "#17171a", borda: "rgba(255, 255, 255, 0.09)", tinta: "#f4f2ee", dim: "#8f8b85", heroi: "#e8876a", ok: "#43d17e", erro: "#ff6a5c", ouro: "#f3c264", sombra: "rgba(0, 0, 0, 0.62)", brilho: "rgba(232, 135, 106, 0.42)", claudinho: "#e8876a" },
+      fontes: { titulo: "Inter", tituloEstilo: "normal", tituloPeso: 750, texto: "Inter", mono: "Mono", impacto: "Inter", numero: "Inter", escala: 0.9 },
+      visual: { fundo: "estudio-noite", personagem: "chapado", contorno: "#0c0c0e", cardRaio: 30, cardBorda: 1, sombraDura: false, grao: 0.04, vinheta: 0.32, linhas: false, correcao: 0 },
+    },
+  },
   // escuro: o padrão dos estilos de fundo escuro
   escuro: {
     claro: false,
@@ -96,11 +113,17 @@ export const temaDoEstilo = (estilo?: string): Tema => TEMAS[estilo ?? ""] ?? TE
 export const TemaCtx = createContext<Tema>(TEMAS.classico);
 export const useTema = () => useContext(TemaCtx);
 
+/** A versão noite do tema (se o estilo não tiver uma, o padrão escuro com o destaque do estilo). */
+export const temaNoite = (tema: Tema): Tema => tema.noite ?? (tema.claro ? { ...TEMAS.escuro, cores: { ...TEMAS.escuro.cores, heroi: tema.cores.heroi, brilho: tema.cores.brilho, claudinho: tema.cores.claudinho }, fontes: tema.fontes } : tema);
+
 /** A sombra do card do tema: dura (gibi: deslocada, sem desfoque) ou macia. */
 export const sombraCard = (tema: Tema, destaque = false) =>
   tema.visual.sombraDura
     ? `${destaque ? 9 : 7}px ${destaque ? 9 : 7}px 0 ${tema.visual.contorno}`
-    : `0 4px 0 ${tema.claro ? tema.cores.borda : "rgba(0,0,0,0.3)"}, 0 26px 60px ${tema.cores.sombra}${destaque ? `, 0 0 50px ${tema.cores.brilho}` : ""}`;
+    : tema.visual.fundo.startsWith("estudio")
+      ? // vidro: luz fina em cima, sombra de contato e a sombra longa e macia da vitrine
+        `inset 0 1px 0 rgba(255,255,255,${tema.claro ? 0.9 : 0.07}), 0 1px 2px rgba(0,0,0,${tema.claro ? 0.05 : 0.4}), 0 18px 40px ${tema.cores.sombra}, 0 50px 110px ${tema.cores.sombra}${destaque ? `, 0 0 0 3px ${tema.cores.heroi}, 0 0 60px ${tema.cores.brilho}` : ""}`
+      : `0 4px 0 ${tema.claro ? tema.cores.borda : "rgba(0,0,0,0.3)"}, 0 26px 60px ${tema.cores.sombra}${destaque ? `, 0 0 50px ${tema.cores.brilho}` : ""}`;
 
 // As curvas. Movimento linear é proibido (só em coisa mecânica: ponteiro, barra de progresso).
 export const CURVA = {

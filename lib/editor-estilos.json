@@ -195,6 +195,35 @@
     ]
   },
   {
+    "id": "classico-continuo",
+    "nome": "Clássico · Motion contínuo",
+    "grupo": "variacoes",
+    "ordem": 5,
+    "descricao": "Motion o vídeo inteiro: cada coisa que você fala aparece na hora, num estúdio claro com luz de janela, cards de vidro, contadores rolando e anotações; a legenda se constrói palavra por palavra e vira serifada itálica nas frases de efeito.",
+    "recorte": false,
+    "padrao": false,
+    "legenda": "vitrine",
+    "legendas": [
+      {
+        "id": "vitrine",
+        "nome": "vitrine"
+      },
+      {
+        "id": "limpa",
+        "nome": "Limpa (caixinha na palavra falada)"
+      },
+      {
+        "id": "nenhuma",
+        "nome": "Sem legenda"
+      }
+    ],
+    "cores": [
+      "#e7e5e0",
+      "#d97757",
+      "#121212"
+    ]
+  },
+  {
     "id": "tela-dividida",
     "nome": "Tela dividida",
     "grupo": "roxo-3d",

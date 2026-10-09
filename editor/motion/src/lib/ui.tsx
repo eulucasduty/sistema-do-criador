@@ -21,7 +21,7 @@ export const Titulo: React.FC<{ texto: string; em: number; tamanho?: number; des
   tamanho = tamanho * (fontes.escala ?? 1);
   const marcadas = destaque.map((d) => d.toLowerCase());
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", justifyContent: alinhar === "center" ? "center" : "flex-start", columnGap: tamanho * 0.24, rowGap: 0, maxWidth: largura, fontFamily: fontes.titulo, fontStyle: fontes.tituloEstilo, fontSize: tamanho, lineHeight: 1.02, color: cor ?? cores.tinta, ...style }}>
+    <div style={{ display: "flex", flexWrap: "wrap", justifyContent: alinhar === "center" ? "center" : "flex-start", columnGap: tamanho * 0.24, rowGap: 0, maxWidth: largura, fontFamily: fontes.titulo, fontStyle: fontes.tituloEstilo, fontWeight: fontes.tituloPeso, letterSpacing: fontes.tituloPeso ? "-0.03em" : undefined, fontSize: tamanho, lineHeight: 1.02, color: cor ?? cores.tinta, ...style }}>
       {texto.split(" ").map((p, i) => {
         const k = mola(t, em + i * passo, fps, "rapida");
         const limpa = p.replace(/[.,!?:;]/g, "").toLowerCase();

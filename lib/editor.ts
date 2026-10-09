@@ -31,7 +31,7 @@ export const ESTILOS_EDICAO = catalogo as EstiloEdicao[];
 /** Os grupos, na ordem em que aparecem no formulário. */
 export const GRUPOS_ESTILO: Array<{ id: string; nome: string; resumo: string }> = [
   { id: "base", nome: "Para começar", resumo: "Os três do dia a dia: o clássico, o vlog e o profissional." },
-  { id: "variacoes", nome: "Variações do Clássico", resumo: "O clássico em quatro caras, com mais motion animado: gibi, terminal, massinha e revista." },
+  { id: "variacoes", nome: "Variações do Clássico", resumo: "O clássico em cinco caras, com mais motion animado: gibi, terminal, massinha, revista e motion contínuo (motion o vídeo inteiro)." },
   { id: "roxo-3d", nome: "Roxo e 3D", resumo: "Motion em violeta: janelas, camadas de vidro, recorte de fundo e tipografia." },
   { id: "virais", nome: "Virais", resumo: "Os formatos que dominam o feed: legenda grande, corte rápido, manchete." },
   { id: "cinema", nome: "Cinema e minimal", resumo: "Contidos: pouca coisa na tela, muito acabamento." },

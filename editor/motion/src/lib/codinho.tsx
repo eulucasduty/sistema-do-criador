@@ -3,7 +3,7 @@
 // ferramenta chegando). Os dois seguem o desenho do tema (adesivo, pixel, massinha, traço, chapado).
 import React from "react";
 import { degrau, entre, seno, useAnim } from "./anim";
-import { CURVA, useTema } from "./tema";
+import { CURVA, sombraCard, useTema } from "./tema";
 
 export type HumorCodinho = "normal" | "feliz" | "bravo" | "pensando" | "digitando" | "nocaute" | "surpreso";
 const GIRA = ["·", "✢", "✳", "✶", "✻", "✽"];
@@ -115,12 +115,16 @@ export const TerminalClaude: React.FC<{
   const pensandoAgora = t >= fimDigita && t < fimPensa;
   // tons do terminal: quentes (o Claude Code de verdade) ou frios (fundo noite)
   const frio = v.fundo === "noite";
+  // na vitrine clara (estúdio) o terminal é branco, de vidro, como o Claude Code no tema claro
+  const vitrine = v.fundo === "estudio";
   const P = frio
     ? { fundo: "#0F1626", linha: "#24304A", caixa: "#33415C", texto: "#E5E7EB", apagado: "#7C879A", pensa: "#93B4F5", ok: "#3CCF91" }
-    : { fundo: "#141210", linha: "#2e2a25", caixa: "#4a433a", texto: "#efe9df", apagado: "#8f877b", pensa: "#d8b39e", ok: "#7bd88f" };
+    : vitrine
+      ? { fundo: "#ffffff", linha: "#ece9e3", caixa: "#e2ded6", texto: "#1b1b1b", apagado: "#8b867d", pensa: "#c2674a", ok: "#1f9d55" }
+      : { fundo: "#141210", linha: "#2e2a25", caixa: "#4a433a", texto: "#efe9df", apagado: "#8f877b", pensa: "#d8b39e", ok: "#7bd88f" };
   const corLinha = (tp?: LinhaTerminal["tipo"]) => (tp === "ok" ? P.ok : tp === "erro" ? "#ff6b6b" : tp === "resultado" ? P.apagado : P.texto);
-  const borda = v.sombraDura ? `${v.cardBorda}px solid ${v.contorno}` : `2px solid ${frio ? P.linha : "#34302a"}`;
-  const sombra = v.sombraDura ? `8px 8px 0 ${v.contorno}` : "0 30px 70px rgba(0,0,0,0.45)";
+  const borda = v.sombraDura ? `${v.cardBorda}px solid ${v.contorno}` : vitrine ? `1px solid ${tema.cores.borda}` : `2px solid ${frio ? P.linha : "#34302a"}`;
+  const sombra = v.sombraDura ? `8px 8px 0 ${v.contorno}` : vitrine ? sombraCard(tema) : "0 30px 70px rgba(0,0,0,0.45)";
   return (
     <div style={{ width: largura, background: P.fundo, border: borda, borderRadius: v.cardRaio * k + 8, boxShadow: sombra, fontFamily: "Mono", fontSize: fs, color: P.texto, overflow: "hidden", ...style }}>
       <div style={{ display: "flex", alignItems: "center", gap: 14 * k, padding: `${18 * k}px ${26 * k}px`, borderBottom: `1px solid ${P.linha}`, color: P.apagado, fontSize: fs * 0.8 }}>
@@ -136,14 +140,14 @@ export const TerminalClaude: React.FC<{
         </div>
         {pensandoAgora && (
           <div style={{ color: laranja }}>
-            {GIRA[degrau(t, 0.1) % GIRA.length]} <span style={{ color: P.pensa }}>Pensando…</span> <span style={{ color: "#6f675c", fontSize: fs * 0.75 }}>({Math.floor(t - fimDigita)}s · esc pra parar)</span>
+            {GIRA[degrau(t, 0.1) % GIRA.length]} <span style={{ color: P.pensa }}>Pensando…</span> <span style={{ color: vitrine ? P.apagado : "#6f675c", fontSize: fs * 0.75 }}>({Math.floor(t - fimDigita)}s · esc pra parar)</span>
           </div>
         )}
         {linhas.map((l, i) => {
           const tl = fimPensa + i * passo;
           if (t < tl) return null;
           const p = entre(t, [tl, tl + 0.18], [0, 1], CURVA.entra);
-          const marca = l.tipo === "ferramenta" ? <span style={{ color: P.ok }}>⏺ </span> : l.tipo === "resultado" ? <span style={{ color: "#6f675c" }}>{"  ⎿ "}</span> : l.tipo === "ok" ? <span>✓ </span> : l.tipo === "erro" ? <span>✗ </span> : null;
+          const marca = l.tipo === "ferramenta" ? <span style={{ color: P.ok }}>⏺ </span> : l.tipo === "resultado" ? <span style={{ color: vitrine ? P.apagado : "#6f675c" }}>{"  ⎿ "}</span> : l.tipo === "ok" ? <span>✓ </span> : l.tipo === "erro" ? <span>✗ </span> : null;
           return (
             <div key={i} style={{ color: corLinha(l.tipo), opacity: p, transform: `translateX(${(1 - p) * -20}px)`, whiteSpace: "pre-wrap", fontSize: l.tipo === "resultado" ? fs * 0.85 : fs }}>
               {marca}

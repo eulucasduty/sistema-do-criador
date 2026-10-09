@@ -5,7 +5,7 @@
 import React from "react";
 import { AbsoluteFill } from "remotion";
 import { entre, seno, useAnim } from "./anim";
-import { CURVA, useTema } from "./tema";
+import { CURVA, TemaCtx, temaNoite, useTema } from "./tema";
 
 const alfa = (rgba: string, a: number) => rgba.replace(/[\d.]+\)$/, `${a})`);
 
@@ -19,7 +19,7 @@ export const Papel: React.FC<{ pontos?: boolean }> = ({ pontos = true }) => {
   const luz = (cor: string, x: number, y: number, tam: number, blur = 60) => <div style={{ position: "absolute", width: grande * tam, height: grande * tam, borderRadius: "50%", left: x, top: y, filter: `blur(${blur}px)`, background: `radial-gradient(circle, ${cor}, transparent 62%)` }} />;
 
   if (visual.fundo === "noite") {
-    // noite: azul noite, luz azul no canto, a onda de pontos embaixo e as faixas do X à direita
+    // noite: azul noite, luz azul no canto (e outra fraca embaixo, à direita) e a onda de pontos embaixo
     const linhas = 13;
     const colunas = 30;
     const base = altura * 0.66;
@@ -32,44 +32,32 @@ export const Papel: React.FC<{ pontos?: boolean }> = ({ pontos = true }) => {
         const raio = 1.1 + p * 2.4;
         pts += `M${x.toFixed(1)} ${(y - raio).toFixed(1)}a${raio.toFixed(2)} ${raio.toFixed(2)} 0 1 0 0.01 0z`;
       }
-    const anda = seno(t, 8, 24);
     return (
       <AbsoluteFill style={{ background: cores.fundo, overflow: "hidden" }}>
         {luz(alfa(cores.brilho, 0.34), -grande * 0.35 + d1, -grande * 0.38, 1, 90)}
         <svg width={largura} height={altura} style={{ position: "absolute", left: 0, top: 0 }}>
           <path d={pts} fill="#3b6ff0" opacity={0.42} />
         </svg>
-        {/* o X da capa, só na borda direita: os dois braços da esquerda de um X que cruza fora da tela.
-            O de cima é a faixa clara; o de baixo tem a faixa azul. Desliza devagar. */}
-        <svg width={largura} height={altura} style={{ position: "absolute", left: 0, top: 0 }}>
-          <defs>
-            <linearGradient id="px-claro" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="#ffffff" stopOpacity={0.05} />
-              <stop offset="1" stopColor="#E5E7EB" stopOpacity={0.24} />
-            </linearGradient>
-          </defs>
-          {(() => {
-            const cx = largura * 1.04 + anda * 0.6;
-            const cy = altura * 0.5;
-            // braços curtos e em pé: o X fica no terço da direita, longe do conteúdo
-            const L = largura * 0.52;
-            const a = (52 * Math.PI) / 180;
-            const braco = (sinal: number, larg: number) => {
-              const ex = cx - Math.cos(a) * L;
-              const ey = cy + sinal * Math.sin(a) * L;
-              const nx = Math.sin(a) * larg * 0.5;
-              const ny = Math.cos(a) * larg * 0.5 * sinal;
-              return `M${cx - nx},${cy + ny} L${ex - nx},${ey + ny} L${ex + nx},${ey - ny} L${cx + nx},${cy - ny} Z`;
-            };
-            return (
-              <>
-                <path d={braco(-1, largura * 0.2)} fill="url(#px-claro)" />
-                <path d={braco(1, largura * 0.2)} fill="url(#px-claro)" opacity={0.7} />
-                <path d={braco(1, largura * 0.06)} fill={cores.heroi} opacity={0.9} />
-              </>
-            );
-          })()}
-        </svg>
+        {/* sem o X aqui: o X da marca entra uma vez só, na junção antes do CTA (o corte da edição) */}
+        {luz(alfa(cores.brilho, 0.16), largura * 0.45 - d2, altura * 0.55 + d1, 0.9, 110)}
+      </AbsoluteFill>
+    );
+  }
+  if (visual.fundo === "estudio" || visual.fundo === "estudio-noite") {
+    // estúdio: a vitrine. Parede lisa com a luz de uma janela entrando na diagonal (faixas de luz e
+    // de sombra da persiana, desfocadas) que anda devagar; no escuro, uma luz morna de cima.
+    const noite = visual.fundo === "estudio-noite";
+    const anda = t * 14;
+    const faixas = noite
+      ? "repeating-linear-gradient(90deg, rgba(255,255,255,0) 0px, rgba(255,255,255,0.045) 70px, rgba(255,255,255,0) 150px, rgba(255,255,255,0) 230px)"
+      : "repeating-linear-gradient(90deg, rgba(255,255,255,0) 0px, rgba(255,255,255,0.78) 64px, rgba(255,255,255,0.78) 92px, rgba(255,255,255,0) 150px, rgba(90,74,56,0.05) 190px, rgba(255,255,255,0) 230px)";
+    return (
+      <AbsoluteFill style={{ background: noite ? `radial-gradient(ellipse at 50% -10%, ${cores.fundo2}, ${cores.fundo} 62%)` : `linear-gradient(160deg, ${cores.fundo2} 0%, ${cores.fundo} 58%, ${cores.fundo} 100%)`, overflow: "hidden" }}>
+        {/* a persiana: um painel grande, girado, com as faixas andando e bem desfocado */}
+        <div style={{ position: "absolute", left: -grande * 0.5, top: -grande * 0.5, width: grande * 2, height: grande * 2, transform: `rotate(${noite ? -24 : -32}deg) translateX(${anda + d1 * 0.5}px)`, backgroundImage: faixas, filter: `blur(${noite ? 30 : 16}px)`, opacity: noite ? 1 : 0.9, WebkitMaskImage: "linear-gradient(180deg, #000 0%, #000 55%, transparent 90%)", maskImage: "linear-gradient(180deg, #000 0%, #000 55%, transparent 90%)" }} />
+        {noite ? luz(alfa(cores.brilho, 0.14), largura * 0.5 - grande * 0.45 + d2, -grande * 0.55, 0.9, 120) : luz("rgba(255,255,255,0.7)", -grande * 0.3 + d1, -grande * 0.4, 0.85, 70)}
+        {/* sombra macia no pé da parede (dá chão pros cards) */}
+        <AbsoluteFill style={{ background: `linear-gradient(180deg, transparent 55%, ${noite ? "rgba(0,0,0,0.45)" : "rgba(60,48,34,0.09)"} 100%)` }} />
       </AbsoluteFill>
     );
   }
@@ -168,7 +156,15 @@ export const Vinheta: React.FC = () => {
  *   transparente: vai por cima do vídeo do criador (sem fundo, sem cor, sem grão, sem vinheta)
  *   saida: "zoom" (atravessa a tela), "sobe" (sobe e some), "nenhuma"
  */
-export const Cena: React.FC<{ children: React.ReactNode; transparente?: boolean; saida?: "zoom" | "sobe" | "nenhuma"; tempoSaida?: number; pontos?: boolean }> = ({ children, transparente = false, saida = "sobe", tempoSaida = 0.32, pontos = true }) => {
+export const Cena: React.FC<{ children: React.ReactNode; transparente?: boolean; saida?: "zoom" | "sobe" | "nenhuma"; tempoSaida?: number; pontos?: boolean; noite?: boolean }> = ({ noite, ...resto }) => {
+  // noite: a versão escura do estilo (fundo, cards e textos), pra alternar claro e escuro no vídeo.
+  // Ponha também `noite: true` no config (a legenda da edição precisa saber que o fundo é escuro).
+  const tema = useTema();
+  if (noite) return <TemaCtx.Provider value={temaNoite(tema)}><CenaBase {...resto} /></TemaCtx.Provider>;
+  return <CenaBase {...resto} />;
+};
+
+const CenaBase: React.FC<{ children: React.ReactNode; transparente?: boolean; saida?: "zoom" | "sobe" | "nenhuma"; tempoSaida?: number; pontos?: boolean }> = ({ children, transparente = false, saida = "sobe", tempoSaida = 0.32, pontos = true }) => {
   const { t, dur } = useAnim();
   const a = dur - tempoSaida;
   const k = saida === "nenhuma" ? 0 : entre(t, [a, dur - 0.02], [0, 1], CURVA.sai);

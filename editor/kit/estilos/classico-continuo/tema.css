@@ -1,0 +1,67 @@
+      /* Tema "Clássico · Motion contínuo": a vitrine. Estúdio cinza claro com
+         a luz de uma janela entrando na diagonal, cards de vidro brancos com sombra longa e macia,
+         Inter pesada nos títulos, mono nos rótulos e o coral do Claude só no que importa. Os motions
+         animados (estúdio de motion) usam a mesma identidade, então card e motion parecem um mundo só. */
+      :root {
+        --void: #e7e5e0;
+        --void-img: repeating-linear-gradient(-58deg, rgba(255, 255, 255, 0) 0px, rgba(255, 255, 255, 0.55) 70px, rgba(255, 255, 255, 0.55) 96px, rgba(255, 255, 255, 0) 160px, rgba(90, 74, 56, 0.035) 205px, rgba(255, 255, 255, 0) 250px), linear-gradient(160deg, #f7f6f3 0%, #e7e5e0 60%);
+        --void-tam: auto, auto;
+        --card: #ffffff;
+        --card-borda: 1px solid rgba(20, 16, 10, 0.08);
+        --card-sombra: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 2px rgba(0, 0, 0, 0.05), 0 18px 40px rgba(46, 36, 24, 0.16), 0 50px 110px rgba(46, 36, 24, 0.14);
+        --card-raio: 30px;
+        --texto: #121212;
+        --dim: #8b867d;
+        --apagado: #aaa59c;
+        --acento: #d97757;
+        --acento-tinta: #ffffff;
+        --ok: #1f9d55;
+        --erro: #e0473c;
+        --tinta-borda: 1px solid rgba(20, 16, 10, 0.08);
+        --chip-sombra: 0 10px 26px rgba(46, 36, 24, 0.16);
+        --chip-raio: 999px;
+        --f-titulo: "Inter", sans-serif;
+        --titulo-estilo: normal;
+        --titulo-sombra: none;
+        --palavra-sombra: none;
+        --nome-sombra: none;
+        --f-numero: "Inter", sans-serif;
+        --numero-peso: 800;
+        --logo-fundo: #ffffff;
+        --logo-sombra: 0 20px 44px rgba(46, 36, 24, 0.18);
+        --mold: #ffffff;
+        --janela: #f6f5f2;
+        --janela-borda: rgba(20, 16, 10, 0.08);
+        --url: #ffffff;
+        --notif: #ffffff;
+        --notif-borda: rgba(20, 16, 10, 0.08);
+        --notif-texto: #4a453d;
+        --notif-sombra: 0 18px 44px rgba(46, 36, 24, 0.17);
+        --trilho: #ebe8e2;
+        --destaque-brilho: 0 0 0 4px rgba(255, 255, 255, 0.8), 0 0 30px rgba(217, 119, 87, 0.45);
+        --foco-fundo: rgba(217, 119, 87, 0.08);
+      }
+      /* títulos em Inter pesada e apertada (não a serifada): a serifada fica pra frase de efeito */
+      .cena-titulo { font-weight: 750; letter-spacing: -0.035em; font-size: 80px; line-height: 1; }
+      .lista-titulo { font-weight: 750; letter-spacing: -0.03em; font-size: 70px; }
+      /* rótulo em pílula branca com mono espaçado (o "● 01 / 05 · TASTE SKILL") */
+      .chip-ouro, .chip-rotulo { background: #ffffff; color: #121212; border: 1px solid rgba(20, 16, 10, 0.08); padding: 9px 22px; font-family: "Mono", monospace; letter-spacing: 0.14em; box-shadow: 0 10px 26px rgba(46, 36, 24, 0.16); }
+      .notif-cab { color: #8b867d; }
+      /* o que fica por cima do vídeo dele: vidro branco com sombra macia */
+      .chip-titulo { background: #ffffff; color: #121212; border: none; border-radius: 22px; box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35); padding: 14px 36px 18px; font-weight: 750; letter-spacing: -0.02em; }
+      .chip-titulo.verde, .chip-titulo.vermelho { color: #ffffff; }
+      .cta-coment, .cta-perfil { box-shadow: 0 18px 50px rgba(0, 0, 0, 0.4); }
+      .seguir { border: none; box-shadow: none; }
+
+      /* legenda "vitrine": a frase se constrói palavra por palavra, branca com sombra macia; a palavra
+         da vez fica pesada (o montador troca o peso). Nos trechos de legenda.alternativa (a frase de
+         efeito) ela vira serifada itálica em caixa alta, com as palavrinhas menores. */
+      .leg-vitrine .grupo { font-family: "Inter", sans-serif; font-weight: 500; font-size: 60px; line-height: 1.12; letter-spacing: -0.022em; color: #ffffff; text-shadow: 0 2px 16px rgba(0, 0, 0, 0.55), 0 0 2px rgba(0, 0, 0, 0.45); }
+      .leg-vitrine .p { margin: 0 0.1em; }
+      .leg-vitrine .p.dest { font-size: 1.06em; }
+      .leg-vitrine .grupo.alt { font-family: "Serifa", serif; font-style: italic; font-weight: 400; font-size: 70px; line-height: 1.02; letter-spacing: 0.005em; text-transform: uppercase; }
+      .leg-vitrine .grupo.alt .p.mi { font-size: 0.68em; }
+      .leg-vitrine .grupo.alt .p.dest { font-size: 1.12em; }
+      .leg-vitrine .grupo.no-claro { color: #121212; text-shadow: none; }
+      .leg-limpa .grupo.no-claro { color: #121212; text-shadow: none; }
+      .leg-limpa .grupo.no-claro .p.dest { color: #121212; }

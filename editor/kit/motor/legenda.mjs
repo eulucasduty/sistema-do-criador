@@ -11,6 +11,8 @@ export const limpar = (t) => String(t ?? "").replace(/^[^\p{L}\p{N}$]+|[^\p{L}\p
 
 // palavras que pedem cor sozinhas (quando o estilo liga "cores_auto")
 const DINHEIRO = /^(r\$|us\$|\$)?\d[\d.,]*(%|k|x|mil)?$|^(r\$|reais|real|milhão|milhões|bilhão|bilhões|dinheiro|grátis|gratuito|gratuita|lucro|faturamento|venda|vendas)$/i;
+// palavrinhas (artigo, preposição, conjunção): nas legendas que pedem ("miudas"), saem menores
+const MIUDAS = /^(a|o|as|os|e|é|de|da|do|das|dos|em|no|na|nos|nas|um|uma|pra|pro|por|que|se|te|me|ao|à|com|ou|tá)$/i;
 const NEGACAO = /^(nunca|jamais|erro|erros|errado|errada|pior|péssimo|péssima|proibido|pare|perde|perder|perdendo|golpe|mentira)$/i;
 
 /** Escolhe o tipo de legenda (o do plano, o do pedido ou o padrão do estilo) e junta a configuração. */
@@ -203,6 +205,9 @@ export function montarLegendas(M, camera, emendas, cenas) {
   const txt = (w) => (L.caixa === "alta" ? w.texto.toUpperCase() : L.caixa === "baixa" ? w.texto.toLowerCase() : w.texto);
   const larguraDe = (ws) => (L.fonte && L.tamanho ? M.larguraEm(ws.map(txt).join(" "), L.fonte) * L.tamanho : null);
 
+  // trechos com a legenda alternativa do estilo (a frase de efeito em outra letra): legenda.alternativa
+  // no plano = [[de, ate], …]; o bloco que começa dentro de um deles ganha a classe "alt"
+  const alternativa = (plano.legenda?.alternativa ?? []).map(([x, y]) => [Number(x), Number(y)]).filter(([x, y]) => y > x);
   const ocultar = [...cenas.filter((c) => c._semLegenda).map((c) => [c.de, c.ate]), ...(plano.legenda?.ocultar ?? []).map(([a, b]) => [Number(a), Number(b)])];
   let mostrados = 0;
   grupos.forEach((g, gi) => {
@@ -217,8 +222,9 @@ export function montarLegendas(M, camera, emendas, cenas) {
     // a entrada nunca dura mais que o bloco: senão ela termina depois do "some" e o bloco volta a
     // aparecer (e fica na tela por baixo das legendas seguintes)
     const dEnt = (d) => r3(Math.min(d, Math.max(0.03, b - a - 0.02)));
-    const noClaro = NO_CLARO && (dentro(camera.cheiasComLegenda, a + 0.02) || dentro(M.fundosClaros, a + 0.02));
+    const noClaro = NO_CLARO && !dentro(M.fundosEscuros ?? [], a + 0.02) && (dentro(camera.cheiasComLegenda, a + 0.02) || dentro(M.fundosClaros, a + 0.02));
     const C = noClaro ? NO_CLARO : NORMAL;
+    const alt = dentro(alternativa, a + 0.02);
     const info = new Map(
       g.map((w) => {
         const chave = limpar(w.texto).toLowerCase();
@@ -258,7 +264,8 @@ export function montarLegendas(M, camera, emendas, cenas) {
           const estilo = L.enfase === "palavra" && cor ? ` style="color:${cor}"` : "";
           // a linha de ênfase pode ir em caixa alta mesmo com o resto em caixa normal
           const texto = corLinha[li] && L.enfase_caixa === "alta" ? w.texto.toUpperCase() : txt(w);
-          return `<span id="g${gi}w${wi}" class="p${dest ? " dest" : ""}"${estilo}>${marca}<span class="pt">${esc(texto)}</span></span>`;
+          const miuda = L.miudas && MIUDAS.test(limpar(w.texto));
+          return `<span id="g${gi}w${wi}" class="p${dest ? " dest" : ""}${miuda ? " mi" : ""}"${estilo}>${marca}<span class="pt">${esc(texto)}</span></span>`;
         })
         .join(" ");
     let corpo;
@@ -296,7 +303,7 @@ export function montarLegendas(M, camera, emendas, cenas) {
     }
     const emoji = g.map((w) => emojis.get(w.i)).find(Boolean);
     const emojiHtml = emoji ? `<span class="leg-emoji" id="g${gi}e">${esc(emoji)}</span>` : "";
-    const classes = ["grupo", noClaro ? "no-claro" : "", L.acende === "revela" || L.acende === "acumula" ? "revela" : "", L.acende === "preenche" ? "preenche" : "", nL > 1 ? "linhas" : "", L.caixas ? "cx" : "", L.ancora === "auto" ? "pe" : "", L.alinhar === "esquerda" ? "esq" : ""].filter(Boolean).join(" ");
+    const classes = ["grupo", noClaro ? "no-claro" : "", alt ? "alt" : "", L.acende === "revela" || L.acende === "acumula" || L.acende === "constroi" ? "revela" : "", L.acende === "preenche" ? "preenche" : "", nL > 1 ? "linhas" : "", L.caixas ? "cx" : "", L.ancora === "auto" ? "pe" : "", L.alinhar === "esquerda" ? "esq" : ""].filter(Boolean).join(" ");
     if (L.alinhar === "esquerda") estiloGrupo = ` style="left:${L.x ?? 148}px;width:${1080 - (L.x ?? 148) - 40}px"`;
     M.html.legendas.push(`          <div id="g${gi}" class="${classes}"${estiloGrupo}>${L.emoji_pos === "baixo" ? "" : emojiHtml}${corpo}${L.emoji_pos === "baixo" ? emojiHtml : ""}</div>`);
     mostrados++;
@@ -336,6 +343,14 @@ export function montarLegendas(M, camera, emendas, cenas) {
         if (wb > wa) add(`tl.to(${sel}, { scale: 1, duration: 0.12, ease: "power2.inOut" }, ${wb});`);
       } else if (L.acende === "revela") {
         add(`tl.fromTo(${sel}, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.14, ease: "power2.out", immediateRender: false }, ${wa});`);
+      } else if (L.acende === "constroi") {
+        // a frase se constrói: cada palavra entra (sobe e sai do desfoque) quando é falada e fica; a
+        // da vez fica pesada e volta ao peso leve quando vem a próxima (na alternativa, só entra)
+        add(`tl.fromTo(${sel}, { opacity: 0, y: 12, filter: "blur(6px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.16, ease: "power2.out", immediateRender: false }, ${wa});`);
+        if (!alt) {
+          add(`tl.set(${sel}, { fontWeight: ${L.peso_forte ?? 750} }, ${wa});`);
+          if (wb > wa) add(`tl.set(${sel}, { fontWeight: ${L.peso_leve ?? 500} }, ${wb});`);
+        }
       } else if (L.acende === "acumula") {
         // as palavras vão se somando na linha, cada uma estoura de uma vez
         add(`tl.set(${sel}, { opacity: 1 }, ${wa});`);

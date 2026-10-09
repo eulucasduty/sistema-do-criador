@@ -183,6 +183,8 @@ canto de cima à esquerda, `w`,`h` = tamanho).
   cor, a linha inteira é pintada, ganha marca-texto…). Com `cor`, usa uma cor nomeada do estilo.
 - `legenda.emojis`: emoji preso à palavra de índice `i` (só nos estilos que usam).
 - `legenda.posicoes`: só se a automática ficar ruim num trecho (`y` = topo da legenda, em px de 1920).
+- `legenda.alternativa`: `[[de, ate], …]` trechos em que a legenda usa a letra alternativa do estilo
+  (a frase de efeito), só nos estilos que têm (o `kit/ESTILO.md` diz).
 - `rosto`: centro do rosto (entre os olhos e o nariz) e `altura` (cabelo ao queixo; o padrão é
   0.4) no quadro original. Use `rostos` quando ele muda de lugar entre as tomadas.
 - `angulos[].plano`: `aberto` (quadro inteiro), `medio`, `fechado` (o punch-in de ênfase).

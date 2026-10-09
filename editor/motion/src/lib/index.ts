@@ -9,4 +9,5 @@ export * from "./codinho";
 export * from "./efeitos";
 export * from "./ui";
 export * from "./midia";
+export * from "./vitrine";
 export * from "./fontes";

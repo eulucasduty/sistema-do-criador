@@ -21,8 +21,28 @@ export function montarEmendas(M) {
     })
     .filter((c) => c.t > 0.2 && c.t < D - 0.3 && c.estilo !== "nenhum" && !(cfg.ignorar ?? []).some((x) => Math.abs(Number(x) - c.t) < 0.12))
     .sort((a, b) => a.t - b.t);
-  const emendas = [];
+  let emendas = [];
   for (const c of brutos) if (!emendas.length || c.t - emendas[emendas.length - 1].t >= 0.55) emendas.push(c);
+
+  // A transição da junção do CTA (estilo.json `cortes.cta`, ex.: o X da marca com o clique de câmera):
+  // entra UMA vez, na emenda onde começa a fala do CTA (a mais perto do começo da cena do CTA, até
+  // 5 s antes: o "se você quer…" costuma vir antes do "comenta"; sem emenda ali, no começo da cena),
+  // e em nenhuma outra emenda.
+  const JUNCAO = ESTILO.cortes?.cta?.estilo ? { estilo: ESTILO.cortes.cta.estilo, som: ESTILO.cortes.cta.som ?? null } : null;
+  if (JUNCAO) {
+    for (const c of emendas)
+      if (c.estilo === JUNCAO.estilo) {
+        avisar(`o corte "${JUNCAO.estilo}" é só da junção do CTA neste estilo: o de ${r3(c.t)} s virou "${CORTE.estilo}"`);
+        Object.assign(c, { estilo: CORTE.estilo, som: CORTE.som });
+      }
+    const cta = (plano.cenas ?? []).filter((c) => c.tipo === "cta").at(-1);
+    const tCta = Number(cta?.de);
+    if (Number.isFinite(tCta) && tCta > 0.4 && tCta < D - 0.5) {
+      const perto = emendas.filter((c) => c.t >= tCta - 5 && c.t <= tCta + 0.35).sort((a, b) => Math.abs(a.t - tCta) - Math.abs(b.t - tCta))[0];
+      if (perto) Object.assign(perto, JUNCAO);
+      else emendas = [...emendas.filter((c) => Math.abs(c.t - tCta) >= 0.55), { t: tCta, ...JUNCAO }].sort((a, b) => a.t - b.t);
+    }
+  }
 
   const usa = new Set();
   for (const c of emendas) {

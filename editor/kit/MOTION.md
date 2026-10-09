@@ -4,7 +4,8 @@
 jurados dando nota, uma coisa virando outra). Aí você faz um **motion**: um vídeo animado curto,
 escrito em React com o Remotion, que entra na edição como a cena `motion`. É o que deixa a edição
 com cara de vídeo animado e não de slide. Os exemplos de verdade estão em `kit/motion-exemplos/`
-(arena, matamata, juizes e claude-code): **leia antes de escrever o primeiro**.
+(arena, matamata, juizes, claude-code e os `vitrine-*`, que se montam com a fala): **leia antes de
+escrever o primeiro**.
 
 **A identidade é do estilo, não sua:** o mesmo motion sai diferente em cada estilo (fundo, textura,
 cards, letras e o desenho dos personagens: chapado no padrão, adesivo no Gibi, pixel art no
@@ -17,7 +18,7 @@ e os componentes.
 - Quando o `kit/ESTILO.md` mandar (o estilo padrão pede 1 a 2 por vídeo, na ideia principal).
 - Fora isso, quando a ideia é uma cena com personagem, processo ou metáfora que nenhum componente
   mostra bem. Dado simples (número, lista, logo) continua sendo componente.
-- No máximo **3 por vídeo**, de **2,5 a 10 s** cada.
+- No máximo **3 por vídeo** (a não ser que o `kit/ESTILO.md` peça mais), de **2,5 a 10 s** cada.
 
 ## Como fazer (o ciclo)
 
@@ -38,7 +39,9 @@ e os componentes.
 import React from "react";
 import { Cena, Camera, Claudinho, Titulo, mola, entre, useAnim } from "@motion";
 
-export const config = { duracao: 3.71, area: "tela-cheia" }; // "tela-cheia" | "faixa" | "sobre"
+export const config = { duracao: 3.71, area: "tela-cheia" }; // "tela-cheia" | "faixa" | "sobre"; noite: true se a Cena for noite
+// opcional: o som de cada batida (a edição toca no lugar certo, no tempo do motion)
+export const sons = [{ em: 0.4, som: "pop" }, { em: 2.1, som: "impacto", volume: 0.7 }];
 
 export default function Motion() {
   const { t, fps } = useAnim(); // t = segundos desde o começo do motion
@@ -132,6 +135,39 @@ Coisas de verdade:
   `<Imagem arquivo="materiais/m1.png">` (print ou material, sempre com Ken Burns), `<Icone nome="bot">`
   (Lucide, os nomes de `kit/icones/nomes.txt`)
 - Também tem `AbsoluteFill`, `Sequence`, `Img` e `staticFile` do Remotion.
+
+## A vitrine (motion que se monta com a fala)
+
+Pro jeito "motion o vídeo inteiro" (o estilo Motion contínuo pede; nos outros, use quando servir):
+um motion por assunto que vai ganhando peças, **cada uma na palavra em que ele fala dela**. Exemplos:
+`kit/motion-exemplos/vitrine-*.tsx`.
+
+- `<Foco em recua? volta? sai? de="baixo" | "cima" | "esquerda" | "direita" | "perto" | "longe">`: a
+  entrada da vitrine (vem desfocada, menor, e assenta). `recua` = vai pro fundo quando outra coisa
+  entra na frente; `volta` = volta pra frente; `sai` = some rápido.
+- `<Vidro largura inclina? destaque? pad>`: o card de vidro (sombra longa); `inclina` em graus põe
+  um 3D que respira.
+- `<Etiqueta texto numero={[1, 5]} em>`: a pílula "● 01 / 05 · NOME" (capítulo de lista).
+- `<IconeApp tamanho fundo="card" | "escuro" | cor>`: ícone de app com sombra de objeto; dentro,
+  `<Img src={staticFile("logos/x.svg")}>` ou `<Icone>`.
+- `<Rolo valor="1.000" em dur prefixo="US$" sufixo="mil" tamanho cor>`: número de caça-níquel
+  (cada algarismo gira e para). Antes do `em` fica um esqueleto pulsando: o valor é surpresa.
+- `<Embaralha texto em dur>`: o texto se decodificando (letras sorteadas na cor de destaque).
+- `<Anotacao texto em tipo="erro" | "ok" | "heroi" numero? style={{ left, top }}>`: a pílula de
+  revisão apontando um detalhe (posição absoluta).
+- `<Carimbo texto em cor? tamanho giro>`: bate de cima, torto, com tremida (ponha `tremores` na
+  `Camera` no mesmo instante).
+- `<Cursor caminho={[{ em, x, y }]} cliques={[t]} some?>`: o mouse andando e clicando.
+- `<Janela url largura altura inclina?>`: navegador com as 3 bolinhas; dentro, `<Imagem>` (print
+  real) ou o que precisar.
+- `<Barra em dur rotulo>` (instalando 0 → 100%, fica verde) e `<Checklist itens={[{ texto, em }]}>`
+  (cada item ganha o check na hora).
+- `<Mapa largura altura>` (cidade desenhada) + `<Pinos n em dur x y w h some? duplicados?>` (pinos
+  em onda; `pinosAte(t, n, em, dur)` dá quantos já apareceram, pra um contador andar junto) +
+  `<Mira em x y w h texto?>` (os cantos de HUD travando no alvo).
+- `<Sublinha em>`: o traço que se desenha embaixo da palavra que importa.
+- `<Cena noite>` (com `noite: true` no config): a mesma identidade no escuro, pro contraste.
+- `TerminalClaude` fica de vidro branco na vitrine clara.
 
 ## Nunca
 

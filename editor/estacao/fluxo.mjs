@@ -167,6 +167,17 @@ export async function versaoWeb(arquivo, limiteMB = 48) {
   return saida;
 }
 
+/** Minutos que o estilo da oficina pede pra IA ("tempo_edicao" no estilo.json), ou null (o padrão). */
+function tempoDoEstilo(pasta) {
+  try {
+    const id = JSON.parse(fs.readFileSync(path.join(pasta, "dados", "pedido.json"), "utf8")).opcoes?.estilo;
+    const m = Number(JSON.parse(fs.readFileSync(path.join(pasta, "kit", "estilos", String(id), "estilo.json"), "utf8")).tempo_edicao);
+    return m >= 10 && m <= 180 ? m : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Edição completa numa pasta local.
  *  - versão 1: bruto + materiais → oficina nova
@@ -202,7 +213,9 @@ export async function editar({ pasta, base, bruto, materiais, pedido, perfil, ve
   await aoPreparar(pasta); // a estação põe aqui os sons da biblioteca do criador (dados/sons.json)
 
   aviso(`${ia.nome} está montando a edição`);
-  let cerebro = await ia.rodar(pasta, promptEdicao({ versao, ajuste, perfil: p, motor: ia.id, antigo }), { aoPasso });
+  // estilo que pede muito motion animado (o Motion contínuo: 6 a 9 por vídeo) ganha mais tempo
+  const minutos = tempoDoEstilo(pasta);
+  let cerebro = await ia.rodar(pasta, promptEdicao({ versao, ajuste, perfil: p, motor: ia.id, antigo }), { aoPasso, ...(minutos ? { minutos } : {}) });
   if (ia.id === "codex") cerebro = await rodadaDasLogos(pasta, ia, cerebro, { aviso, aoPasso });
   if (!fs.existsSync(path.join(pasta, "index.html"))) throw new Error(`${ia.nome} terminou sem montar o vídeo (sem index.html)`);
 

@@ -6,6 +6,7 @@
 //   tela-cheia  cobre a tela (aceita "pip" pra ele ficar numa janelinha; a legenda fica embaixo)
 //   faixa       a faixa de cima da tela dividida (ele embaixo)
 //   sobre       transparente, por cima do vídeo dele
+// Os sons de cada batida vêm do motion (export const sons → motions/<id>.json → sons).
 import fs from "node:fs";
 import { esc } from "./util.mjs";
 import { registrar } from "./cenas.mjs";
@@ -27,6 +28,11 @@ registrar("motion", {
     const info = infoDo(c);
     if (!info) return M.avisar(`cena ${c.i} (motion): motions/${c.motion}.json não existe; rode node kit/motion.mjs render ${c.motion}`);
     c._info = info;
+    // motion de tela cheia em fundo claro (o estilo diz que os motions dele são claros, e este não é
+    // noite): a legenda que cai em cima dele troca pra tinta escura
+    if (M.ESTILO.motion_claro && info.area === "tela-cheia" && !info.noite) M.fundosClaros.push([c.de, c.ate]);
+    // motion noite em tela cheia: a legenda continua clara em cima dele
+    if (info.area === "tela-cheia" && info.noite) M.fundosEscuros?.push([c.de, c.ate]);
     const dur = c.ate - c.de;
     if (Math.abs(dur - info.duracao) > 0.15) M.avisar(`cena ${c.i} (motion ${c.motion}): a cena tem ${dur.toFixed(2)} s e o motion tem ${info.duracao} s; acerte o "ate" (ou a duracao do motion e renderize de novo)`);
   },
@@ -39,6 +45,9 @@ registrar("motion", {
     M.add(`tl.fromTo("#${id}-mc", { opacity: 0 }, { opacity: 1, duration: 0.06, ease: "none" }, ${c.de});`);
     // no fim, o motion se dissolve no vídeo dele (o motion já tirou o conteúdo da frente)
     M.add(`tl.to("#${id}-mc", { opacity: 0, duration: 0.2, ease: "power1.in" }, ${Math.max(c.de + 0.1, Math.round((c.ate - 0.2) * 1000) / 1000)});`);
-    if (onde === "cheia" && c.som !== false) M.somCena(c, c.som ?? "whoosh", Math.max(0, c.de - 0.06), 0.7);
+    // os sons das batidas que o motion declarou (export const sons); sem eles, um whoosh na entrada
+    const batidas = Array.isArray(info.sons) ? info.sons.filter((s) => c.de + s.em < c.ate - 0.1) : [];
+    if (batidas.length && c.som !== false) for (const s of batidas) M.somCena(c, s.som, Math.round((c.de + s.em) * 1000) / 1000, s.volume ?? 0.55);
+    else if (onde === "cheia" && c.som !== false) M.somCena(c, c.som ?? "whoosh", Math.max(0, c.de - 0.06), 0.7);
   },
 });
