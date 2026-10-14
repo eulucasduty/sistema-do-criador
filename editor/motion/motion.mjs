@@ -79,6 +79,22 @@ try {
   }
 } catch {}
 
+// o cache do webpack (node_modules/.cache/webpack) cresce a cada motion e chegou a 17 GB: passou de
+// 3 GB, zera (o motion seguinte só monta uns segundos mais devagar)
+try {
+  const wp = path.join(ESTUDIO, "node_modules", ".cache", "webpack");
+  let total = 0;
+  const somar = (d) => {
+    for (const f of fs.readdirSync(d, { withFileTypes: true })) {
+      const p = path.join(d, f.name);
+      if (f.isDirectory()) somar(p);
+      else total += fs.statSync(p).size;
+    }
+  };
+  if (fs.existsSync(wp)) somar(wp);
+  if (total > 3 * 1024 ** 3) fs.rmSync(wp, { recursive: true, force: true });
+} catch {}
+
 const ARQ = path.join(PASTA, "motions", `${id}.tsx`);
 if (!fs.existsSync(ARQ)) {
   console.error(`não achei motions/${id}.tsx na oficina`);
