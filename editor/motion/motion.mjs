@@ -69,6 +69,15 @@ for (const sub of ["pacote", "publico", "entradas"]) {
   }
 }
 
+// o Remotion deixa uma pasta de ~170 MB nos temporários a cada render (remotion-v…-assets…) e não
+// apaga: com 6 a 9 motions por vídeo isso enchia o disco. Some a de mais de 1 hora.
+try {
+  for (const d of fs.readdirSync(os.tmpdir())) {
+    if (!/^remotion-/.test(d)) continue;
+    const p = path.join(os.tmpdir(), d);
+    if (Date.now() - fs.statSync(p).mtimeMs > 3600_000) fs.rmSync(p, { recursive: true, force: true });
+  }
+} catch {}
 
 const ARQ = path.join(PASTA, "motions", `${id}.tsx`);
 if (!fs.existsSync(ARQ)) {
