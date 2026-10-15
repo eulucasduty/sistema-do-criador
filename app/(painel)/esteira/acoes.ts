@@ -8,7 +8,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { esquecerConfig, salvarConfig } from "@/lib/config";
 import type { EnvioParte } from "@/lib/editor";
 import { BUCKET, MAX_BYTES, MAX_SLIDES, analisarComTrava, buscarDeNovo, caminhoNovo, referenciaPorLink } from "@/lib/esteira/referencia";
-import { copiarCarrossel, gerarRoteiro } from "@/lib/esteira/criacao";
+import { copiarCarrossel } from "@/lib/esteira/criacao";
 import { atualizarPersona, lerPersona } from "@/lib/esteira/persona";
 import { ETAPAS, TRAVOU_MS } from "./regras";
 
@@ -206,19 +206,8 @@ export async function buscarDeNovoAcao(formData: FormData) {
 
 // ── criação ─────────────────────────────────────────────────────────
 
-/** "Criar roteiro" de um reel: a sua versão do formato, na sua voz. */
-export async function criarRoteiro(formData: FormData) {
-  await exigirEquipe();
-  const id = String(formData.get("id"));
-  let erro: string | undefined;
-  try {
-    await gerarRoteiro(id, String(formData.get("pedido") ?? ""));
-  } catch (e) {
-    erro = `roteiro: ${(e as Error).message}`;
-  }
-  revalidatePath(`/esteira/${id}`);
-  redirect(erro ? volta(id, erro) : `${volta(id)}#roteiro`);
-}
+// O "Criar roteiro" de um reel virou roteiro pra teleprompter: roteiroDaEsteira, em
+// app/(painel)/roteiros/acoes.ts (escrito pela estação, com o padrão viral e a checagem anti-IA).
 
 /** "Copiar carrossel": slides + legenda na sua voz, no visual escolhido. */
 export async function copiarCarrosselAcao(formData: FormData) {

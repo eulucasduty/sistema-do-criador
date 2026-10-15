@@ -303,6 +303,56 @@ const EDICOES = [
   { id: "ed100000-0000-4000-8000-000000000003", titulo: "bastidor do app", status: "na_fila", etapa: null, versao: 1, origem_id: null, roteiro: null, ajuste: null, opcoes: { legenda: "bangers", cor: "quente" }, video: { partes: [], nome: "bastidor.mov", tamanho: 60_000_000, tipo: "video/quicktime" }, resultado: null, resumo: null, log: [], erro: null, uso: null, estacao: null, criado_por: "demo", criado_em: ha(1), atualizado_em: ha(1), iniciado_em: null, concluido_em: null },
 ];
 
+const ROTEIROS = [
+  {
+    id: "c1000000-0000-4000-8000-000000000001",
+    titulo: "Os três potes do salário",
+    origem: "tema",
+    tema: "como dividir o salário sem planilha",
+    direcao: null,
+    palavra_cta: "POTES",
+    duracao_alvo: 45,
+    referencia_id: null,
+    status: "pronto",
+    etapa: null,
+    transcricao: null,
+    analise: null,
+    versoes: [
+      {
+        titulo: "Os três potes do salário",
+        palavra_cta: "POTES",
+        gancho: ["Se o seu salário some todo mês,", "faz o teste dos três potes."],
+        corpo: [
+          "Você cria três caixinhas no app do seu banco.",
+          "Uma pra conta fixa, uma pra gastar e uma que você não encosta.",
+          "Aí no dia que o salário cai, você já divide na hora.",
+          "Só que a ordem importa: primeiro as caixinhas, depois os boletos.",
+          "Eu faço isso faz [quanto tempo] e foi o que mais me ajudou.",
+        ],
+        cta: ["Se você quer a planilha pra dividir, comenta POTES aqui embaixo que eu te mando no direct."],
+        dicas: ["gravação de tela do app com as três caixinhas", "print do extrato no começo do mês"],
+        legenda: "O teste dos três potes que salvou o meu mês 👇\n\nComenta POTES que eu te mando a planilha.\n\n#financas #dinheiro #salario",
+        de_onde_veio: "o tema que você escreveu",
+        checagem: { aprovado: true, graves: [], leves: [], preencher: ["[quanto tempo]"], palavras: 92, segundos: 28 },
+        leitor: [],
+        reescritas: [{ motivos: ["contradição de IA (não é X, é Y): Isso não é sorte, é método."] }],
+        duracao_alvo: 45,
+        direcao: null,
+        gerado_em: ha(40),
+        modelo: "Claude · opus (plano do Claude, estação PC-da-Ana)",
+        custo_usd: 0,
+        equivalente_api_usd: 0.31,
+      },
+    ],
+    erro: null,
+    estacao: "PC-da-Ana",
+    custo_usd: 0,
+    criado_em: ha(45),
+    atualizado_em: ha(40),
+  },
+  { id: "c1000000-0000-4000-8000-000000000002", titulo: null, origem: "esteira", tema: null, direcao: "mais curto", palavra_cta: null, duracao_alvo: 45, referencia_id: REFERENCIAS[0].id, status: "aguardando_estacao", etapa: "esperando a estação", transcricao: null, analise: null, versoes: [], erro: null, estacao: null, custo_usd: 0.004, criado_em: ha(2), atualizado_em: ha(1) },
+];
+
 const TABELAS: Record<string, any[]> = {
   equipe: [{ id: "q1", usuario_id: "demo", nome: "Ana", papel: "dono", criado_em: ha(60 * 24 * 40) }],
   configuracao: Object.entries({
@@ -314,6 +364,7 @@ const TABELAS: Record<string, any[]> = {
     lembrete_comentario: { ativo: true, horas: 12, por_minuto: 5, textos: ["{arroba} chegou lá? te mandei na dm 👀"] },
     pausa_por_eco_horas: 48,
     estacao_edicao: { visto_em: ha(0.2), maquina: "PC-da-Ana", ocupada: true, edicao_id: EDICOES[1].id, motor: "claude", motor_ok: true, motor_conferido_em: ha(1) },
+    estacao_roteiros: { visto_em: ha(0.2), maquina: "PC-da-Ana", ocupada: false, roteiro_id: null },
     relogio: { visto_em: ha(0.5), modo: "cron" },
     editor: { motor: "claude", modelo: null },
   }).map(([chave, valor], i) => ({ id: `cfg${i}`, chave, valor, atualizado_em: ha(i) })),
@@ -346,6 +397,7 @@ const TABELAS: Record<string, any[]> = {
   referencia: REFERENCIAS,
   meu_reel: [],
   edicao: EDICOES,
+  roteiro: ROTEIROS,
   edicao_material: [{ id: "em1", edicao_id: EDICOES[0].id, ordem: 0, tipo: "imagem", descricao: "print do app do banco que eu cito aos 20s", arquivo: { partes: [], nome: "print.png", tamanho: 300_000, tipo: "image/png" }, url: null, criado_em: ha(80) }],
   edicao_som: [
     { id: "s1", nome: "meu-click", funcao: "obturador", principal: true, descricao: "click seco que eu uso nas emendas", origem: "criador", arquivo: "sons/meu-click.mp3", tipo: "audio/mpeg", tamanho: 20_000, volume: 1, ativo: true, criado_em: ha(60 * 24), atualizado_em: ha(60 * 24) },

@@ -23,7 +23,8 @@ type Parte =
 
 type Mensagem = { role: "system" | "user" | "assistant"; content: string | Parte[] };
 
-async function completar(opcoes: {
+/** Uma chamada crua (várias mensagens): os roteiros usam pra ouvir o áudio de uma referência. */
+export async function completar(opcoes: {
   modelo?: string;
   mensagens: Mensagem[];
   maxTokens?: number;

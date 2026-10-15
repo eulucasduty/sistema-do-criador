@@ -3,7 +3,7 @@
 O sistema de produção de conteúdo pra criador do Instagram, rodando nas **suas** contas:
 
 - **Esteira de referências**: cole o link de um reel ou carrossel que bombou (ou suba o vídeo/os prints). A IA assiste, transcreve e explica por que funcionou.
-- **Roteiro na sua voz**: a IA assiste os seus últimos reels, monta a sua persona e escreve a sua versão do formato, sem copiar frase de ninguém.
+- **Roteiros pra teleprompter**: sobre um tema ou a partir de um vídeo que viralizou (o arquivo, o link do Instagram ou um reel da Esteira). Na sua voz (a IA assiste os seus últimos reels e monta a sua persona), no padrão dos vídeos que viralizam, sem copiar frase de ninguém e com uma checagem anti-IA que reescreve o que soa como robô. Sai em gancho, corpo e CTA, uma ideia por linha, com um teleprompter que roda na tela do celular. Quem escreve é a estação no seu computador, com a mesma IA do editor.
 - **Cópia de carrossel**: a sua versão do carrossel da referência, com os slides prontos em PNG (no visual da referência ou da sua marca) e a legenda.
 - **Editor de vídeo com IA** (o principal): você sobe o vídeo cru + prints e gravações de tela, escolhe um dos **36 estilos de edição** (do clássico com legenda acendendo e as quatro variações dele, aos virais de legenda gigante, tela dividida, 3D, documentário, texto atrás de você, telejornal) e ele volta editado, com legenda, **motion animado de verdade** (vídeos curtos com personagens, câmera e impacto, feitos em Remotion), cards que se mexem a cena inteira, efeitos sonoros e o seu CTA. Roda no seu computador com a IA que você já assina (Claude ou ChatGPT) ou pela OpenRouter.
 - **Automações do Instagram** (o "ManyChat" grátis): comentou a palavra → resposta pública + material na DM, com portão de seguidor, sequência de mensagens com botão, lembretes e follow-ups.
@@ -23,7 +23,7 @@ Tudo fica no seu nome: o banco é seu, a hospedagem é sua, o app da Meta é seu
 | [OpenRouter](https://openrouter.ai) | a IA que assiste e escreve (você paga só o que usar; US$ 5 duram bastante) |
 | [Meta for Developers](https://developers.facebook.com) | o seu app pro Instagram |
 
-E pro editor de vídeo: um computador (Windows ou Mac) e uma assinatura do **Claude** (Pro/Max) **ou** do **ChatGPT** (Plus/Pro). Não tem nenhuma das duas? Dá pra usar a OpenRouter, pagando por vídeo.
+E pro editor de vídeo e os roteiros: um computador (Windows ou Mac) e uma assinatura do **Claude** (Pro/Max) **ou** do **ChatGPT** (Plus/Pro). Não tem nenhuma das duas? Dá pra usar a OpenRouter, pagando por vídeo.
 
 O Instagram precisa ser **conta profissional** (criador ou empresa).
 
@@ -72,7 +72,7 @@ O **Início** te guia, com o status de cada passo ao vivo:
 2. Seu perfil
 3. Instagram: o seu app na Meta (o passo mais longo, uns 20 min)
 4. O relógio (um clique)
-5. A estação de edição no seu computador (um comando)
+5. A estação no seu computador (um comando): edita os vídeos e escreve os roteiros
 6. A sua primeira automação
 
 ---
@@ -81,11 +81,11 @@ O **Início** te guia, com o status de cada passo ao vivo:
 
 - **Supabase, Vercel, GitHub e Meta**: grátis no uso de um criador. (O plano grátis da Vercel é pra uso pessoal; se o seu uso crescer, tem o Pro, ou dá pra rodar em servidor próprio com o `Dockerfile`.)
 - **OpenRouter**: centavos por referência analisada e por roteiro; o agente do direct custa frações de centavo por resposta.
-- **Editor de vídeo**: zero de API se você usa a sua assinatura do Claude ou do ChatGPT. Pela OpenRouter, paga por vídeo.
+- **Editor de vídeo e roteiros**: zero de API se você usa a sua assinatura do Claude ou do ChatGPT. Pela OpenRouter, paga por vídeo (e uns centavos por roteiro).
 
 ## Atualizar
 
-Quando sair versão nova: abra a sua cópia no GitHub e clique em **Sync fork → Update branch**. A Vercel atualiza sozinha. A estação do computador se atualiza rodando o instalador de novo.
+Quando sair versão nova: abra a sua cópia no GitHub e clique em **Sync fork → Update branch**. A Vercel atualiza sozinha. A estação do computador se atualiza rodando o instalador de novo. Se a versão nova trouxer tabela nova no banco, o **Início** avisa e mostra o SQL pra copiar e colar no SQL Editor do Supabase (1 minuto, pode rodar de novo sem medo).
 
 ## Problemas comuns
 

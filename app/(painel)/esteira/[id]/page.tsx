@@ -11,7 +11,9 @@ import { AutoAtualizar } from "../../editor/atualizar";
 import { BaixarTodos, BotaoGerar } from "../botoes";
 import { CompletarArquivo } from "../enviar";
 import { ETAPAS, ehVideo, estadoDaAnalise } from "../regras";
-import { apagarReferencia, buscarDeNovoAcao, copiarCarrosselAcao, criarRoteiro, moverReferencia, reanalisar, salvarReferencia } from "../acoes";
+import { apagarReferencia, buscarDeNovoAcao, copiarCarrosselAcao, moverReferencia, reanalisar, salvarReferencia } from "../acoes";
+import { DURACAO_PADRAO, DURACOES, STATUS_ROTEIRO } from "@/lib/roteiro/comum";
+import { roteiroDaEsteira } from "../../roteiros/acoes";
 
 export const dynamic = "force-dynamic";
 // Roteiro, cópia de carrossel e "buscar de novo" rodam nas ações desta página (a análise, depois da resposta)
@@ -21,10 +23,11 @@ export default async function PaginaReferencia({ params, searchParams }: PagePro
   const { id } = await params;
   const q = await searchParams;
   const supabase = await createClient();
-  const [{ data: r }, { data: cfgPersona }, perfil] = await Promise.all([
+  const [{ data: r }, { data: cfgPersona }, perfil, { data: feitosDaqui }] = await Promise.all([
     supabase.from("referencia").select("*").eq("id", id).maybeSingle(),
     supabase.from("configuracao").select("valor").eq("chave", "persona").maybeSingle(),
     lerPerfil(),
+    supabase.from("roteiro").select("id, titulo, status, criado_em").eq("referencia_id", id).order("criado_em", { ascending: false }).limit(10),
   ]);
   if (!r) notFound();
   const a = r.analise as Analise | null;
@@ -337,19 +340,42 @@ export default async function PaginaReferencia({ params, searchParams }: PagePro
           {reel && a ? (
             <section id="roteiro" className="card space-y-4 p-4">
               <div>
-                <h2 className="font-display text-lg uppercase tracking-wide">Seu roteiro</h2>
+                <h2 className="font-display text-lg uppercase tracking-wide">Roteiro pro teleprompter</h2>
                 <p className="text-xs text-suave">
-                  O formato e o mecanismo dessa referência, com o seu assunto, na sua voz (Minha persona). Número que não dá pra provar vem [entre colchetes]
-                  pra você preencher.
+                  O assunto e a estrutura dessa referência num roteiro seu, na sua voz (Minha persona), no padrão viral, sem as falas do outro criador e com a
+                  checagem anti-IA. Quem escreve é a estação no seu PC. Número que não dá pra provar vem [entre colchetes] pra você preencher.
                 </p>
               </div>
-              <form action={criarRoteiro} className="space-y-2">
+              <form action={roteiroDaEsteira} className="space-y-2">
                 <input type="hidden" name="id" value={r.id} />
                 <textarea name="pedido" rows={2} placeholder="direção (opcional): ex. fala pra quem está começando · puxa pro meu produto · mais curto" className="campo" />
-                <BotaoGerar rotulo={roteiros.length ? "Criar outra versão" : "Criar roteiro"} gerando="Escrevendo… (uns 30 s)" />
+                <div className="grid grid-cols-[1fr_auto] gap-2">
+                  <input name="palavra" placeholder="PALAVRA do comenta (opcional)" className="campo uppercase" autoCapitalize="characters" />
+                  <select name="duracao" defaultValue={String(DURACAO_PADRAO)} className="campo">
+                    {DURACOES.map((d) => (
+                      <option key={d.valor} value={d.valor}>
+                        {d.nome}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <BotaoGerar rotulo="Criar roteiro" gerando="Mandando…" />
               </form>
+              {(feitosDaqui ?? []).length ? (
+                <ul className="space-y-1.5">
+                  {(feitosDaqui ?? []).map((f) => (
+                    <li key={f.id}>
+                      <Link href={`/roteiros/${f.id}`} className="flex items-center justify-between gap-2 rounded-xl border-2 border-linha px-3 py-2 text-sm hover:border-marca">
+                        <span className="truncate font-bold">{f.titulo || "roteiro"}</span>
+                        <span className="shrink-0 text-xs text-apagado">{f.status === "pronto" ? dataCurta(f.criado_em) : (STATUS_ROTEIRO[f.status]?.nome ?? f.status)} →</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              {roteiros.length ? <p className="pt-2 text-xs font-bold text-apagado">ROTEIROS ANTIGOS (antes do teleprompter)</p> : null}
               {roteiros.map((rt, i) => (
-                <details key={rt.gerado_em} open={i === 0} className="rounded-xl border-2 border-linha p-3">
+                <details key={rt.gerado_em} className="rounded-xl border-2 border-linha p-3">
                   <summary className="cursor-pointer text-sm font-bold">
                     {rt.titulo}{" "}
                     <span className="font-normal text-apagado">

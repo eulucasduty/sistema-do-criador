@@ -21,6 +21,7 @@ import path from "node:path";
 import { editar, versaoWeb } from "../editor/estacao/fluxo.mjs";
 import { acharPrograma, COMO_INSTALAR, FERRAMENTAS, faltaNoFfmpeg, garantirFerramentas } from "../editor/estacao/ferramentas.mjs";
 import { configMotor, conferirMotor, lerChaveOpenRouter, lerConfigMotor, MOTORES, prepararMotor } from "../editor/estacao/motor.mjs";
+import { ligarRoteiros } from "../editor/estacao/roteiros.mjs";
 import { conectar, esquecerSessao, ARQUIVO_SESSAO } from "../editor/estacao/sessao.mjs";
 import { sincronizarSons } from "../editor/estacao/sons.mjs";
 
@@ -50,6 +51,7 @@ const hora = () => new Date().toLocaleTimeString("pt-BR");
 const agora = () => new Date().toISOString();
 let db = null;
 let atual = null;
+let roteiros = null;
 
 // ── o que a estação precisa no PC (o motor de IA é conferido à parte) ──
 function conferirFerramentas() {
@@ -327,6 +329,8 @@ async function principal() {
   console.log("Esperando pedidos do painel. Deixe esta janela aberta (Ctrl+C pra parar).");
   await batida();
   setInterval(() => batida().catch((e) => console.error(`[${hora()}] batida falhou: ${e.message}`)), 30_000);
+  // Os roteiros pra teleprompter: um laço à parte, com a mesma IA (editor/estacao/roteiros.mjs)
+  roteiros = ligarRoteiros({ db, maquina: MAQUINA, pronto: () => motor.ok === true, log: (m) => console.log(`[${hora()}] ${m}`) });
 
   for (;;) {
     // Quem edita não está pronto: não pega pedido (eles esperam na fila) até resolver
@@ -375,6 +379,7 @@ async function principal() {
 process.on("SIGINT", async () => {
   console.log("\nParando a estação…");
   if (db) await db.from("configuracao").upsert({ chave: "estacao_edicao", valor: valorDaBatida(false) }, { onConflict: "chave" });
+  await roteiros?.parar();
   setTimeout(() => process.exit(0), 300); // um respiro pra conexão fechar (no Windows, sair na hora quebra o node)
 });
 
