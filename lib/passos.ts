@@ -1,4 +1,6 @@
 import "server-only";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { lerConfig, PERFIL_PADRAO, type Perfil, type Persona } from "@/lib/config";
 import { estacaoLigada, type BatidaEstacao } from "@/lib/editor";
@@ -33,6 +35,8 @@ export type Situacao = {
   referencias: number;
   edicoes: number;
   alertasAbertos: number;
+  /** SQL de atualização que ainda não rodou no banco (versão nova do sistema). */
+  migracoesFaltando: Migracao[];
 };
 
 export async function lerSituacao(): Promise<Situacao> {
@@ -80,7 +84,35 @@ export async function lerSituacao(): Promise<Situacao> {
     referencias: refs.count ?? 0,
     edicoes: eds.count ?? 0,
     alertasAbertos: alertas.count ?? 0,
+    migracoesFaltando: await migracoesFaltando(),
   };
+}
+
+// ── Atualizações do banco ──────────────────────────────────────────
+// Quem instalou antes de uma versão nova precisa rodar o SQL novo uma vez. Cada migration depois
+// da 001 entra aqui com uma tabela que ela cria: sem a tabela, o SQL ainda não rodou.
+
+export type Migracao = { arquivo: string; tabela: string; pra_que: string };
+export const MIGRACOES: Migracao[] = [{ arquivo: "002_roteiros.sql", tabela: "roteiro", pra_que: "os roteiros pra teleprompter" }];
+
+const naoExiste = (e: { code?: string; message?: string } | null) =>
+  Boolean(e && (e.code === "42P01" || e.code === "PGRST205" || /does not exist|Could not find the table/i.test(e.message ?? "")));
+
+/** As migrations que ainda não rodaram neste banco. */
+export async function migracoesFaltando(): Promise<Migracao[]> {
+  const db = createAdminClient();
+  const testes = await Promise.all(MIGRACOES.map((m) => db.from(m.tabela).select("id", { count: "exact", head: true })));
+  return MIGRACOES.filter((_, i) => naoExiste(testes[i].error));
+}
+
+/** O SQL de uma migration, pra copiar e colar no SQL Editor. */
+export function sqlDaMigracao(arquivo: string): string {
+  if (!/^\d{3}_[a-z0-9_]+\.sql$/.test(arquivo)) return "";
+  try {
+    return readFileSync(path.join(process.cwd(), "supabase", "migrations", arquivo), "utf8");
+  } catch {
+    return "";
+  }
 }
 
 export type ProblemaBanco = { tipo: "variaveis" | "sql" | "outro"; mensagem: string };

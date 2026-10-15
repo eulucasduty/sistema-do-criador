@@ -2,6 +2,7 @@ import Link from "next/link";
 import { lerSituacao } from "@/lib/passos";
 import { haQuanto } from "@/lib/formato";
 import { Copiar } from "./copiar";
+import { AtualizarBanco } from "./atualizar-banco";
 import { PassoEstacao } from "./editor/passo-estacao";
 import { conectarInstagram, ligarRelogio, salvarChaveIA, salvarSegredoDoApp, testarIA } from "./conexoes/acoes";
 
@@ -126,10 +127,15 @@ export default async function Inicio({ searchParams }: PageProps<"/">) {
           id="hospedagem"
           n={1}
           titulo="Banco e hospedagem"
-          estado="ok"
-          aberto={false}
-          resumo={`Se você está vendo esta tela, o Supabase e a hospedagem estão funcionando. Endereço do sistema: ${s.url}`}
+          estado={s.migracoesFaltando.length ? "atencao" : "ok"}
+          aberto={s.migracoesFaltando.length > 0}
+          resumo={
+            s.migracoesFaltando.length
+              ? `Versão nova: falta rodar o SQL de atualização no Supabase (${s.migracoesFaltando.map((m) => m.pra_que).join(", ")}).`
+              : `Se você está vendo esta tela, o Supabase e a hospedagem estão funcionando. Endereço do sistema: ${s.url}`
+          }
         >
+          <AtualizarBanco faltando={s.migracoesFaltando} />
           <p>
             Já feito na instalação: o projeto no Supabase com o SQL rodado e o sistema publicado na Vercel com as 3 chaves do Supabase. Daqui pra
             frente, tudo é colado aqui mesmo no painel.
@@ -308,7 +314,7 @@ export default async function Inicio({ searchParams }: PageProps<"/">) {
               ? `Ligada em ${s.estacao.maquina ?? "seu PC"}${s.estacao.ocupada ? " · editando agora" : " · esperando pedidos"}`
               : s.estacao.visto_em
                 ? `Desligada (vista ${haQuanto(s.estacao.visto_em)}). Ligue quando for editar.`
-                : "O editor de vídeo roda no seu computador, com a IA que você já assina (Claude ou ChatGPT) ou pela OpenRouter. Instala com um comando."
+                : "O editor de vídeo (e quem escreve os seus roteiros) roda no seu computador, com a IA que você já assina (Claude ou ChatGPT) ou pela OpenRouter. Instala com um comando."
           }
         >
           <PassoEstacao batida={s.estacao} endereco={s.url} />

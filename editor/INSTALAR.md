@@ -2,8 +2,10 @@
 
 A **estação** é o programa que edita os vídeos que você manda pelo painel. Ela roda no seu
 computador (Windows ou Mac): trata a cor e o som, transcreve a fala, chama a IA pra montar a
-edição e renderiza o vídeo final. Enquanto ela estiver aberta, o painel mostra "estação ligada"
-e os pedidos saem sozinhos. Fechou a janela ou desligou o computador, os pedidos esperam na fila.
+edição e renderiza o vídeo final. Ela também escreve os **roteiros pra teleprompter** que você
+pede em **Roteiros** (com a mesma IA, sem esperar a edição de vídeo terminar). Enquanto ela
+estiver aberta, o painel mostra "estação ligada" e os pedidos saem sozinhos. Fechou a janela ou
+desligou o computador, os pedidos esperam na fila.
 
 ## Quem edita: escolha uma das três
 
@@ -11,7 +13,7 @@ e os pedidos saem sozinhos. Fechou a janela ou desligou o computador, os pedidos
 |---|---|---|
 | **Claude** | você assina o **Claude Pro ou Max** | nada a mais: usa o seu plano |
 | **ChatGPT** | você assina o **ChatGPT Plus ou Pro** | nada a mais: usa o seu plano (pelo Codex, da OpenAI) |
-| **OpenRouter** | não tem nenhum dos dois | paga por vídeo, **uns R$ 10** (de R$ 5 a R$ 15, conforme o tamanho) |
+| **OpenRouter** | não tem nenhum dos dois | paga por vídeo, **uns R$ 10** (de R$ 5 a R$ 15, conforme o tamanho); roteiro, centavos |
 
 O instalador pergunta qual você quer. Depois dá pra trocar quando quiser no painel:
 **Editor de vídeo → Quem edita os seus vídeos** (a estação pega a troca sozinha, sem reiniciar).
@@ -113,7 +115,9 @@ Cada vídeo pronto sobe pro painel e fica também numa cópia no seu PC (`Vídeo
 - **Bateu no limite do plano** (Claude ou ChatGPT): o pedido volta pra fila sozinho e a estação
   tenta de novo a cada 20 minutos, até o limite voltar (o painel mostra o horário da próxima
   tentativa). Não precisa fazer nada; se tiver pressa, troque quem edita no painel. O vídeo já
-  tratado e transcrito fica guardado: a nova tentativa não refaz essa parte.
+  tratado e transcrito fica guardado: a nova tentativa não refaz essa parte. Com roteiro é igual: volta pra fila e a estação tenta de novo sozinha.
+- **Os roteiros ficam "esperando a estação" com ela ligada**: a estação é de uma versão antiga.
+  Rode o comando da instalação de novo (ele atualiza) e abra o atalho de novo.
 - **O painel mostra a estação desligada**: a janela foi fechada, o computador dormiu ou caiu a
   internet. Abra o atalho de novo; o pedido que estava no meio volta pra fila sozinho.
 - **Demora**: é normal levar vários minutos por vídeo; o render é a parte mais pesada. Deixe o

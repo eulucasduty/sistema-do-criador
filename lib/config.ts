@@ -18,6 +18,8 @@ type Chave =
   | "followup_agente"
   | "lembrete_comentario"
   | "estacao_edicao"
+  | "estacao_roteiros"
+  | "padrao_viral"
   | "relogio";
 
 /** Quem é o criador: vai pro editor (CTA, legenda), pro roteirista e pro agente. */
