@@ -323,6 +323,16 @@ export default async function Inicio({ searchParams }: PageProps<"/">) {
           }
         >
           <PassoEstacao batida={s.estacao} endereco={s.url} />
+          <p className="text-xs">
+            A mesma estação faz as <T>cópias de carrossel</T> da Esteira, com a mesma IA, em paralelo com os vídeos.
+            {s.carrossel.ligada ? <span className="text-ok"> Ligada{s.carrossel.batida.ocupada ? ": copiando um carrossel agora" : ""}.</span> : null}
+          </p>
+          {!s.carrossel.banco && (
+            <Aviso tipo="erro">
+              Falta atualizar o banco pra copiar carrosséis: abra o SQL Editor do Supabase, cole o arquivo supabase/migrations/004_carrossel.sql (do seu
+              GitHub) e clique em Run.
+            </Aviso>
+          )}
         </Passo>
 
         <Passo

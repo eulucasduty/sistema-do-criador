@@ -21,18 +21,21 @@ export default async function PaginaEsteira({ searchParams }: PageProps<"/esteir
   const aba = q.aba === "carrosseis" ? "carrosseis" : "reels";
   const verDescartadas = q.descartadas === "1";
   const supabase = await createClient();
-  const [{ data: refs }, { data: cfgPersona }, facebook] = await Promise.all([
+  const [{ data: refs }, { data: cfgPersona }, facebook, { data: copiados }] = await Promise.all([
     supabase
       .from("referencia")
       .select(
         "id, tipo, etapa, origem, autor, legenda, arquivo, arquivo_tipo, erro, criado_em, atualizado_em, aguardando_video, sem_video_motivo, slides, " +
-          "resumo:analise->>resumo, formato:analise->>formato, gancho:analise->gancho->>texto_ou_fala, roteiro_em:roteiros->0->>gerado_em, copia_em:copia->>gerado_em",
+          "resumo:analise->>resumo, formato:analise->>formato, gancho:analise->gancho->>texto_ou_fala, roteiro_em:roteiros->0->>gerado_em",
       )
       .order("criado_em", { ascending: false })
       .limit(300),
     supabase.from("configuracao").select("valor, atualizado_em").eq("chave", "persona").maybeSingle(),
     lerFacebook(),
+    // Carrosséis com a cópia pronta (consulta à parte: sem a migration 004, só não mostra o selo)
+    supabase.from("referencia").select("id, pronta:copia_cli->>gerado_em").not("copia_cli", "is", null).limit(1000),
   ]);
+  const comCopia = new Set(((copiados ?? []) as Array<{ id: string; pronta?: string | null; copia_cli?: unknown }>).filter((c) => c.pronta || c.copia_cli).map((c) => c.id));
   const todas = ((refs ?? []) as unknown as Card[]).map((r) => ({ ...r, analise: r.resumo ?? r.formato ?? r.gancho }));
   const reels = todas.filter((r) => r.tipo === "reel");
   const carrosseis = todas.filter((r) => r.tipo !== "reel");
@@ -104,7 +107,7 @@ export default async function PaginaEsteira({ searchParams }: PageProps<"/esteir
           <div className="max-w-2xl text-sm">
             <h2 className="rotulo">Minha persona</h2>
             <p className="mt-1 text-suave">
-              Os roteiros e carrosséis saem escritos nesta voz. A IA assiste os seus últimos 15 reels (precisa do Instagram conectado) e anota como você
+              Os roteiros saem escritos nesta voz. A IA assiste os seus últimos 15 reels (precisa do Instagram conectado) e anota como você
               abre, os bordões, o ritmo e o CTA. Dá pra editar à mão.
             </p>
             <p className="mt-2 text-xs text-apagado">
@@ -211,7 +214,7 @@ export default async function PaginaEsteira({ searchParams }: PageProps<"/esteir
                           <div className="mt-2 flex flex-wrap gap-1">
                             {r.roteiro_em && <span className="chip">roteiro</span>}
                             {slides > 0 && <span className="chip">capa + {slides}</span>}
-                            {r.copia_em && <span className="chip bg-marca text-[#05070e]">cópia pronta</span>}
+                            {comCopia.has(r.id) && <span className="chip bg-marca text-[#05070e]">cópia pronta</span>}
                           </div>
                           <p className="mt-2 text-[11px] text-apagado">
                             {r.autor ? `@${r.autor} · ` : ""}
@@ -251,5 +254,4 @@ type Card = {
   formato: string | null;
   gancho: string | null;
   roteiro_em: string | null;
-  copia_em: string | null;
 };

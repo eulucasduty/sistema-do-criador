@@ -12,7 +12,9 @@
     "estacao": "node --env-file-if-exists=.env.local scripts/estacao-edicao.mjs",
     "editor:testar": "node --env-file-if-exists=.env.local scripts/testar-editor.mjs",
     "editor:catalogo": "node scripts/catalogo-estilos.mjs",
-    "sons:gerar": "node --env-file-if-exists=.env.local scripts/gerar-sons.mjs"
+    "sons:gerar": "node --env-file-if-exists=.env.local scripts/gerar-sons.mjs",
+    "carrossel:verificar": "node --import tsx --test scripts/testar-carrossel-contrato.mjs",
+    "carrossel:testar": "node --env-file-if-exists=.env.local scripts/testar-carrossel.mjs"
   },
   "dependencies": {
     "@langchain/core": "1.2.12",
@@ -24,6 +26,7 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "server-only": "0.0.1",
+    "sharp": "0.35.4",
     "zod": "4.6.5"
   },
   "devDependencies": {

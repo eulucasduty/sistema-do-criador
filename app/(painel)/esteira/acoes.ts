@@ -8,9 +8,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { esquecerConfig, salvarConfig } from "@/lib/config";
 import type { EnvioParte } from "@/lib/editor";
 import { BUCKET, MAX_BYTES, MAX_SLIDES, analisarComTrava, buscarDeNovo, caminhoNovo, referenciaPorLink } from "@/lib/esteira/referencia";
-import { copiarCarrossel } from "@/lib/esteira/criacao";
+import { conferirReferencias, ehVideo as ehVideoSlide, referenciasDoCarrossel, tipoDoArquivo } from "@/lib/esteira/carrossel";
 import { atualizarPersona, lerPersona } from "@/lib/esteira/persona";
-import { ETAPAS, TRAVOU_MS } from "./regras";
+import { ETAPAS, TRAVOU_MS, ehTipoDeSlide } from "./regras";
 
 // Ações da Esteira. Arquivo (vídeo ou prints) nunca passa por aqui: o navegador sobe direto
 // pro bucket com o link assinado que `linksDeEnvio` cria, e depois avisa quais caminhos subiu.
@@ -60,6 +60,10 @@ export async function apagarReferencia(formData: FormData) {
   const db = createAdminClient();
   const { data: r } = await db.from("referencia").select("arquivo, slides").eq("id", id).single();
   const arquivos = [r?.arquivo, ...(r?.slides ?? [])].filter((c): c is string => Boolean(c));
+  // A cópia do carrossel (PNG e MP4, com as capas dos vídeos) vai junto
+  const { data: c } = await db.from("referencia").select("copia_cli").eq("id", id).maybeSingle();
+  const copia = ((c?.copia_cli as { arquivos?: string[] } | null)?.arquivos ?? []).filter((a) => a.startsWith("carrosseis/"));
+  arquivos.push(...copia, ...copia.filter(ehVideoSlide).map((a) => a.replace(/\.[^.]+$/, ".png")));
   if (arquivos.length) await db.storage.from(BUCKET).remove(arquivos);
   await db.from("referencia").delete().eq("id", id);
   revalidatePath("/esteira", "layout");
@@ -87,15 +91,22 @@ export async function adicionarPorLink(formData: FormData) {
 
 export type ArquivoEnvio = { tipo: string; tamanho: number };
 
-/** Confere o lote (1 vídeo, ou até 12 prints PNG/JPG/WEBP) e cria um link de envio por arquivo. */
-export async function linksDeEnvio(arquivos: ArquivoEnvio[]): Promise<{ envios: EnvioParte[] } | { erro: string }> {
+/**
+ * Confere o lote e cria um link de envio por arquivo: 1 vídeo (reel) ou, com `carrossel`, até 20
+ * slides (fotos PNG/JPG/WEBP e vídeos misturados, na ordem).
+ */
+export async function linksDeEnvio(arquivos: ArquivoEnvio[], carrossel = false): Promise<{ envios: EnvioParte[] } | { erro: string }> {
   try {
     await exigirEquipe();
-    if (!Array.isArray(arquivos) || !arquivos.length) return { erro: "escolha o vídeo ou os prints" };
+    if (!Array.isArray(arquivos) || !arquivos.length) return { erro: carrossel ? "escolha as fotos e os vídeos dos slides" : "escolha o vídeo ou os prints" };
     const videos = arquivos.filter((a) => String(a.tipo).startsWith("video/"));
-    if (videos.length && arquivos.length > 1) return { erro: "é um vídeo só (reel) ou só prints (carrossel), não os dois juntos" };
-    if (!videos.length && arquivos.some((a) => !IMAGEM.test(String(a.tipo)))) return { erro: "os prints têm que ser PNG, JPG ou WEBP" };
-    if (arquivos.length > MAX_SLIDES) return { erro: `no máximo ${MAX_SLIDES} prints` };
+    if (carrossel) {
+      if (arquivos.some((a) => !ehTipoDeSlide(String(a.tipo)))) return { erro: "os slides têm que ser foto (PNG, JPG ou WEBP) ou vídeo" };
+    } else {
+      if (videos.length && arquivos.length > 1) return { erro: "é um vídeo só (reel) ou só prints (carrossel), não os dois juntos" };
+      if (!videos.length && arquivos.some((a) => !IMAGEM.test(String(a.tipo)))) return { erro: "os prints têm que ser PNG, JPG ou WEBP" };
+    }
+    if (arquivos.length > MAX_SLIDES) return { erro: `no máximo ${MAX_SLIDES} slides, contando a capa` };
     for (const a of arquivos) {
       if (!(a.tamanho > 0)) return { erro: "tem arquivo vazio" };
       if (a.tamanho > MAX_BYTES) return { erro: `arquivo maior que ${Math.round(MAX_BYTES / 1048576)} MB${videos.length ? ": exporte o vídeo em 1080p" : ""}` };
@@ -114,7 +125,8 @@ export async function linksDeEnvio(arquivos: ArquivoEnvio[]): Promise<{ envios: 
   }
 }
 
-type Subidos = { caminhos: string[]; tipos: string[] };
+/** `carrossel`: os arquivos são slides (fotos e vídeos misturados), não o vídeo de um reel. */
+type Subidos = { caminhos: string[]; tipos: string[]; carrossel?: boolean };
 
 function conferirSubidos(s: Subidos): string | null {
   if (!Array.isArray(s.caminhos) || !s.caminhos.length || s.caminhos.length > MAX_SLIDES) return "nenhum arquivo subiu";
@@ -129,7 +141,7 @@ export async function novaReferenciaPorArquivo(d: Subidos & { notas?: string; au
     await exigirEquipe();
     const problema = conferirSubidos(d);
     if (problema) return { erro: problema };
-    const video = d.tipos[0].startsWith("video/");
+    const video = !d.carrossel && d.tipos[0].startsWith("video/");
     const url = String(d.url ?? "").trim().split("?")[0];
     const { data, error } = await createAdminClient()
       .from("referencia")
@@ -155,8 +167,8 @@ export async function novaReferenciaPorArquivo(d: Subidos & { notas?: string; au
 }
 
 /**
- * O arquivo que faltava numa referência: o vídeo do reel, ou os prints do carrossel
- * (somam aos que já estão, ou substituem todos). A análise recomeça com tudo.
+ * O arquivo que faltava numa referência: o vídeo do reel, ou os slides do carrossel (fotos e
+ * vídeos; somam aos que já estão, ou substituem todos). A análise recomeça com tudo.
  */
 export async function completarReferencia(d: Subidos & { id: string; substituir?: boolean }): Promise<{ ok: true } | { erro: string }> {
   try {
@@ -166,7 +178,7 @@ export async function completarReferencia(d: Subidos & { id: string; substituir?
     const db = createAdminClient();
     const { data: ref } = await db.from("referencia").select("id, tipo, arquivo, arquivo_tipo, slides").eq("id", d.id).single();
     if (!ref) return { erro: "referência não encontrada" };
-    const video = d.tipos[0].startsWith("video/");
+    const video = !d.carrossel && d.tipos[0].startsWith("video/");
     const recomecar = { aguardando_video: false, sem_video_motivo: null, tentativas: 0, erro: null, analise: null, assistido: null };
     const antigos = [ref.arquivo, ...(ref.slides ?? [])].filter((c): c is string => Boolean(c));
 
@@ -174,17 +186,25 @@ export async function completarReferencia(d: Subidos & { id: string; substituir?
       await db.from("referencia").update({ ...recomecar, tipo: "reel", arquivo: d.caminhos[0], arquivo_tipo: d.tipos[0], slides: [] }).eq("id", d.id);
       if (antigos.length) await db.storage.from(BUCKET).remove(antigos);
     } else {
-      // Sem arquivo, com vídeo no lugar, ou pedindo pra substituir: o 1º print vira a capa.
-      // Senão, entram depois dos que já estão.
-      const eraVideo = Boolean(ref.arquivo_tipo?.includes("video") || ref.arquivo?.endsWith(".mp4"));
-      const trocar = d.substituir || !ref.arquivo || eraVideo;
-      const todos = (trocar ? d.caminhos : [...antigos, ...d.caminhos]).slice(0, MAX_SLIDES);
-      await db
-        .from("referencia")
-        .update({ ...recomecar, tipo: ref.tipo === "reel" ? "carrossel" : ref.tipo === "post" && todos.length > 1 ? "carrossel" : ref.tipo, arquivo: todos[0], arquivo_tipo: trocar ? d.tipos[0] : undefined, slides: todos.slice(1) })
-        .eq("id", d.id);
-      const sobra = antigos.filter((c) => !todos.includes(c));
-      if (sobra.length) await db.storage.from(BUCKET).remove(sobra);
+      // Sem arquivo, com o vídeo de um reel no lugar, ou pedindo pra substituir: o 1º slide vira
+      // a capa. Senão, entram depois dos que já estão (atômico: dois envios juntos não se perdem).
+      const eraReel = ref.tipo === "reel" || (!d.carrossel && Boolean(ref.arquivo_tipo?.includes("video") || ref.arquivo?.endsWith(".mp4")));
+      const trocar = d.substituir || !ref.arquivo || eraReel;
+      if (trocar) {
+        const todos = d.caminhos.slice(0, MAX_SLIDES);
+        await db
+          .from("referencia")
+          .update({ ...recomecar, tipo: ref.tipo === "reel" ? "carrossel" : ref.tipo === "post" && todos.length > 1 ? "carrossel" : ref.tipo, arquivo: todos[0], arquivo_tipo: d.tipos[0], slides: todos.slice(1) })
+          .eq("id", d.id);
+        const sobra = antigos.filter((c) => !todos.includes(c));
+        if (sobra.length) await db.storage.from(BUCKET).remove(sobra);
+      } else {
+        const { error } = await db.rpc("anexar_slides_carrossel", { p_referencia: d.id, p_caminhos: d.caminhos, p_tipo_capa: d.tipos[0] });
+        if (error) {
+          await db.storage.from(BUCKET).remove(d.caminhos);
+          return { erro: error.message };
+        }
+      }
     }
     analisarDepois(d.id);
     revalidatePath("/esteira", "layout");
@@ -209,19 +229,61 @@ export async function buscarDeNovoAcao(formData: FormData) {
 // O "Criar roteiro" de um reel virou roteiro pra teleprompter: roteiroDaEsteira, em
 // app/(painel)/roteiros/acoes.ts (escrito pela estação, com o padrão viral e a checagem anti-IA).
 
-/** "Copiar carrossel": slides + legenda na sua voz, no visual escolhido. */
+/**
+ * "Copiar carrossel": só põe o pedido na fila da estação (o seu PC), com a lista dos slides
+ * congelada na ordem de agora. A IA de "Quem edita" faz a arte lá; a página acompanha sozinha.
+ */
 export async function copiarCarrosselAcao(formData: FormData) {
   await exigirEquipe();
   const id = String(formData.get("id"));
-  const visual = formData.get("visual") === "marca" ? "marca" : "referencia";
   let erro: string | undefined;
   try {
-    await copiarCarrossel(id, { pedido: String(formData.get("pedido") ?? ""), visual });
+    const db = createAdminClient();
+    const { data: ref } = await db.from("referencia").select("id, tipo, arquivo, slides").eq("id", id).single();
+    if (!ref) throw new Error("referência não encontrada");
+    if (ref.tipo === "reel") throw new Error("essa referência é um reel");
+    const referencias = referenciasDoCarrossel(ref);
+    conferirReferencias(referencias, Number(formData.get("total_esperado")));
+    const { error } = await db.from("carrossel_trabalho").insert({
+      referencia_id: id,
+      headline: String(formData.get("headline") ?? "").trim().slice(0, 500) || null,
+      modo_texto: formData.get("modo_texto") === "reformular" ? "reformular" : "traduzir",
+      pedido: String(formData.get("pedido") ?? "").trim().slice(0, 5000) || null,
+      referencias,
+    });
+    if (error?.code === "23505") throw new Error("esse carrossel já está na fila ou sendo feito");
+    if (error) throw new Error(/carrossel_trabalho|schema cache/i.test(error.message) ? "falta rodar a migration 004 (carrosséis) no banco" : error.message);
   } catch (e) {
     erro = `cópia: ${(e as Error).message}`;
   }
   revalidatePath(`/esteira/${id}`);
   redirect(erro ? volta(id, erro) : `${volta(id)}#copia`);
+}
+
+/** A ordem dos slides (e os que saem): só com arquivos que já são desta referência. */
+export async function ordenarSlides(formData: FormData) {
+  await exigirEquipe();
+  const id = String(formData.get("id"));
+  const db = createAdminClient();
+  const { data: ref } = await db.from("referencia").select("arquivo, slides").eq("id", id).single();
+  if (!ref) redirect(volta(id, "referência não encontrada"));
+  const atuais = referenciasDoCarrossel(ref);
+  let caminhos: unknown = [];
+  try {
+    caminhos = JSON.parse(String(formData.get("ordem")));
+  } catch {}
+  if (!Array.isArray(caminhos) || !caminhos.length || new Set(caminhos).size !== caminhos.length || caminhos.some((c) => !atuais.includes(c)))
+    redirect(volta(id, "ordem inválida"));
+  const lista = caminhos as string[];
+  const { error } = await db
+    .from("referencia")
+    .update({ arquivo: lista[0], arquivo_tipo: tipoDoArquivo(lista[0]), slides: lista.slice(1), analise: null, assistido: null, tentativas: 0, erro: null })
+    .eq("id", id);
+  if (error) redirect(volta(id, error.message));
+  // Os que saíram da seleção ficam no storage: um pedido de cópia já na fila pode usar
+  analisarDepois(id);
+  revalidatePath("/esteira", "layout");
+  redirect(volta(id));
 }
 
 // ── persona ─────────────────────────────────────────────────────────

@@ -105,10 +105,12 @@ function explicar(msg) {
  * Roda o Codex na oficina. Mesmo contrato do rodarClaude: resolve com { resumo, passos, uso, sessao }.
  * `retomar`: id da sessão pra continuar a conversa (a segunda rodada, depois das logos).
  */
-export function rodarCodex(pasta, prompt, { modelo = null, esforco = process.env.EDITOR_ESFORCO || "high", minutos = 50, aoPasso = () => {}, retomar = null } = {}) {
+export function rodarCodex(pasta, prompt, { modelo = null, esforco = process.env.EDITOR_ESFORCO || "high", minutos = 50, aoPasso = () => {}, retomar = null, agentsMd = null } = {}) {
   if (!FERRAMENTAS.codex) return Promise.reject(new Error("o Codex não está instalado neste PC (npm install -g @openai/codex)"));
-  // Sem o kit na pasta (a escrita de legenda e material): só o pedido, sem o manual da edição
-  if (!retomar && fs.existsSync(path.join(pasta, "kit", "EDITOR.md"))) escreverAgentsMd(pasta);
+  // `agentsMd`: outro kit (ex.: o de carrossel) manda as instruções dele no lugar das do editor.
+  // Sem o kit na pasta (a escrita de legenda e material): só o pedido, sem o manual da edição.
+  if (agentsMd) fs.writeFileSync(path.join(pasta, "AGENTS.md"), agentsMd);
+  else if (!retomar && fs.existsSync(path.join(pasta, "kit", "EDITOR.md"))) escreverAgentsMd(pasta);
   const config = [
     'web_search="disabled"',
     `model_reasoning_effort="${esforco}"`,

@@ -3,13 +3,16 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dataCurta, haQuanto } from "@/lib/formato";
-import { lerPerfil } from "@/lib/config";
 import type { Analise, Assistido } from "@/lib/esteira/referencia";
-import { roteiroEmTexto, type CopiaCarrossel, type Roteiro } from "@/lib/esteira/criacao";
+import { roteiroEmTexto, type Roteiro } from "@/lib/esteira/criacao";
+import { STATUS_ATIVOS, estacaoCarrosselLigada, referenciasDoCarrossel, type BatidaCarrossel, type PedidoCarrossel, type ResultadoCarrossel } from "@/lib/esteira/carrossel";
+import { configEditor, nomeDoMotor } from "@/lib/editor";
 import { Copiar } from "../../copiar";
 import { AutoAtualizar } from "../../editor/atualizar";
-import { BaixarTodos, BotaoGerar } from "../botoes";
+import { BotaoGerar } from "../botoes";
+import { CopiaCarrossel } from "../copia-carrossel";
 import { CompletarArquivo } from "../enviar";
+import { SlidesReferencia } from "../slides-referencia";
 import { ETAPAS, ehVideo, estadoDaAnalise } from "../regras";
 import { apagarReferencia, buscarDeNovoAcao, copiarCarrosselAcao, moverReferencia, reanalisar, salvarReferencia } from "../acoes";
 import { DURACAO_PADRAO, DURACOES, STATUS_ROTEIRO } from "@/lib/roteiro/comum";
@@ -23,18 +26,29 @@ export default async function PaginaReferencia({ params, searchParams }: PagePro
   const { id } = await params;
   const q = await searchParams;
   const supabase = await createClient();
-  const [{ data: r }, { data: cfgPersona }, perfil, { data: feitosDaqui }] = await Promise.all([
+  const [{ data: r }, { data: cfgPersona }, perfil, { data: feitosDaqui }, { data: trabalhos }, { data: cfgCarrossel }] = await Promise.all([
     supabase.from("referencia").select("*").eq("id", id).maybeSingle(),
     supabase.from("configuracao").select("valor").eq("chave", "persona").maybeSingle(),
     lerPerfil(),
     supabase.from("roteiro").select("id, titulo, status, criado_em").eq("referencia_id", id).order("criado_em", { ascending: false }).limit(10),
+    // A cópia de carrossel (migration 004): sem a tabela, a seção avisa
+    supabase.from("carrossel_trabalho").select("*").eq("referencia_id", id).order("criado_em", { ascending: false }).limit(1),
+    supabase.from("configuracao").select("chave, valor").in("chave", ["estacao_carrosseis", "editor"]),
   ]);
   if (!r) notFound();
   const a = r.analise as Analise | null;
   const assistido = r.assistido as Assistido | null;
   const roteiros = (r.roteiros ?? []) as Roteiro[];
-  const copia = r.copia as CopiaCarrossel | null;
   const reel = r.tipo === "reel";
+  // Cópia de carrossel pela estação: o último pedido, a versão pronta e quem faz
+  const copia = (r.copia_cli ?? null) as ResultadoCarrossel | null;
+  const trabalho = (trabalhos?.[0] ?? null) as PedidoCarrossel | null;
+  const semTabela = trabalhos === null;
+  const cfg = new Map((cfgCarrossel ?? []).map((c) => [c.chave, c.valor]));
+  const ligada = estacaoCarrosselLigada(cfg.get("estacao_carrosseis") as BatidaCarrossel | null);
+  const motor = configEditor(cfg.get("editor"));
+  const produzindo = Boolean(trabalho && STATUS_ATIVOS.includes(trabalho.status));
+  const slidesRef = referenciasDoCarrossel(r);
   const estado = estadoDaAnalise(r);
   const temPersona = Boolean((cfgPersona?.valor as { guia?: string } | null)?.guia?.trim());
 
@@ -47,7 +61,7 @@ export default async function PaginaReferencia({ params, searchParams }: PagePro
   }
   const url = r.arquivo ? assinados.get(r.arquivo) : undefined;
   const video = ehVideo(r);
-  const falta = reel ? "o vídeo deste reel" : r.tipo === "carrossel" ? "os prints deste carrossel" : "o arquivo deste post";
+  const falta = reel ? "o vídeo deste reel" : r.tipo === "carrossel" ? "os slides deste carrossel" : "o arquivo deste post";
 
   return (
     <div className="max-w-6xl">
@@ -60,7 +74,7 @@ export default async function PaginaReferencia({ params, searchParams }: PagePro
       <div className="mt-4 grid gap-6 lg:grid-cols-[320px_1fr]">
         {/* ── coluna da mídia ── */}
         <div className="space-y-4">
-          {url ? (
+          {url && (reel || slidesRef.length < 2) ? (
             video ? (
               <video src={url} controls playsInline className="w-full rounded-xl bg-black" />
             ) : (
@@ -79,7 +93,7 @@ export default async function PaginaReferencia({ params, searchParams }: PagePro
                 </a>
               )}
               <p className="text-xs text-suave">
-                {reel ? "Salva o reel no celular (ou grava a tela) e sobe aqui:" : "Tira print de cada slide e sobe aqui, a capa primeiro:"}
+                {reel ? "Salva o reel no celular (ou grava a tela) e sobe aqui:" : "Salva os slides (fotos ou vídeos) e sobe aqui, a capa primeiro:"}
               </p>
               <CompletarArquivo id={r.id} aceita={reel ? "video" : r.tipo === "carrossel" ? "prints" : "ambos"} temImagens={Boolean(r.arquivo) && !video} />
               {r.url && (
@@ -92,22 +106,15 @@ export default async function PaginaReferencia({ params, searchParams }: PagePro
             </div>
           ) : !reel ? (
             <div className="card space-y-2 p-3 text-sm">
-              {(r.slides ?? []).length > 0 && (
-                <div className="grid grid-cols-3 gap-1.5">
-                  {(r.slides as string[]).map((s, i) => {
-                    const u = assinados.get(s);
-                    return u ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img key={s} src={u} alt={`slide ${i + 2}`} className="aspect-[4/5] w-full rounded-md object-cover" />
-                    ) : null;
-                  })}
-                </div>
+              {slidesRef.length > 1 && (
+                <SlidesReferencia key={slidesRef.join()} id={r.id} slides={slidesRef.map((caminho) => ({ caminho, url: assinados.get(caminho) ?? "" }))} />
               )}
               <p className="text-xs text-suave">
-                {(r.slides ?? []).length ? `Capa + ${(r.slides ?? []).length} slides.` : "Só a capa."} Pra cópia ficar fiel, a IA precisa ver todos os slides.
+                {slidesRef.length < 2 ? "Só a capa: a cópia precisa de todos os slides. " : "Confere se estão todos, na ordem. "}
+                Os que faltarem (fotos ou vídeos) entram no fim; salve a ordem antes de copiar.
               </p>
               <details>
-                <summary className="cursor-pointer text-xs text-marca">Subir prints dos slides</summary>
+                <summary className="cursor-pointer text-xs text-marca">Subir slides</summary>
                 <div className="mt-2">
                   <CompletarArquivo id={r.id} aceita="prints" temImagens={Boolean(r.arquivo)} />
                 </div>
@@ -423,80 +430,75 @@ export default async function PaginaReferencia({ params, searchParams }: PagePro
             </section>
           ) : null}
 
-          {/* ── cópia do carrossel ── */}
-          {!reel && a ? (
+          {/* ── cópia do carrossel (feita pela estação no seu PC) ── */}
+          {!reel ? (
             <section id="copia" className="card space-y-4 p-4">
               <div>
                 <h2 className="font-display text-lg uppercase tracking-wide">Copiar carrossel</h2>
                 <p className="text-xs text-suave">
-                  A sua versão: mesmo formato e progressão da referência, com o seu conteúdo e a sua voz. Sai pronto em PNG (1080x1350) com a sua foto e o
-                  seu @, mais a legenda.
-                </p>
-              </div>
-              <form action={copiarCarrosselAcao} className="space-y-2">
-                <input type="hidden" name="id" value={r.id} />
-                <div className="flex flex-wrap gap-4 text-sm">
-                  <label className="flex items-center gap-2">
-                    <input type="radio" name="visual" value="referencia" defaultChecked={copia?.visual !== "marca"} /> Igual à referência
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input type="radio" name="visual" value="marca" defaultChecked={copia?.visual === "marca"} /> Minha marca
-                    <span className="flex gap-1">
-                      {[perfil.cores.fundo, perfil.cores.texto, perfil.cores.destaque].map((c, i) => (
-                        <span key={`${c}-${i}`} title={c} className="h-4 w-4 rounded border-2 border-tinta" style={{ background: c }} />
-                      ))}
-                    </span>
-                  </label>
-                </div>
-                <p className="text-xs text-apagado">
-                  As cores da sua marca ficam no{" "}
+                  Todos os slides em português, com a mesma mensagem, as cores, as fotos e a composição da referência. Troque a headline da capa se quiser. A
+                  sua foto e o seu @ (do{" "}
                   <Link href="/perfil" className="underline">
                     Perfil
                   </Link>
-                  .
+                  ) entram em todos os slides (PNG 1080×1350). Slide em vídeo na referência sai em MP4: a parte parada traduzida e o motion do original.
                 </p>
-                <textarea name="pedido" rows={2} placeholder="direção (opcional): ex. troca o assunto por [tema] · CTA comenta LISTA" className="campo" />
-                <BotaoGerar rotulo={copia ? "Gerar outra cópia" : "Copiar carrossel"} gerando="Escrevendo… (uns 30 s)" />
-              </form>
-
-              {copia ? (
-                <div className="space-y-3">
-                  <p className="text-sm font-bold">
-                    {copia.titulo}{" "}
-                    <span className="font-normal text-apagado">
-                      · {copia.slides.length} slides · comenta {copia.palavra_cta} · {dataCurta(copia.gerado_em)}
-                    </span>
-                  </p>
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                    {copia.slides.map((_, i) => {
-                      const src = `/esteira/${r.id}/slide/${i + 1}?v=${encodeURIComponent(copia.gerado_em)}`;
-                      return (
-                        <a key={i} href={src} download={`carrossel-${String(i + 1).padStart(2, "0")}.png`} className="block">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={src} alt={`slide ${i + 1}`} loading="lazy" className="aspect-[4/5] w-full rounded-lg border-2 border-tinta object-cover" />
-                        </a>
-                      );
-                    })}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <BaixarTodos
-                      arquivos={copia.slides.map((_, i) => ({
-                        url: `/esteira/${r.id}/slide/${i + 1}?v=${encodeURIComponent(copia.gerado_em)}`,
-                        nome: `carrossel-${String(i + 1).padStart(2, "0")}.png`,
-                      }))}
+              </div>
+              <p className="text-xs text-apagado">
+                Quem faz é a estação no seu PC, com a mesma IA que edita os seus vídeos ({nomeDoMotor(motor.motor)}, em{" "}
+                <Link href="/editor" className="underline">
+                  Editor de vídeo
+                </Link>
+                ). {ligada ? "Estação ligada." : "A estação está desligada: o pedido espera na fila até ela ligar."}
+              </p>
+              {semTabela ? (
+                <p className="rounded-lg bg-quente/10 px-3 py-2 text-xs text-quente">
+                  Falta atualizar o banco: rode o arquivo supabase/migrations/004_carrossel.sql no SQL Editor do Supabase (ou npm run migrar).
+                </p>
+              ) : (
+                <form action={copiarCarrosselAcao} className="space-y-2">
+                  <input type="hidden" name="id" value={r.id} />
+                  <label className="block text-xs font-bold">
+                    Quantos slides o original tem (com a capa)
+                    <input
+                      name="total_esperado"
+                      type="number"
+                      min={2}
+                      max={20}
+                      required
+                      defaultValue={a?.quantidade_slides && a.quantidade_slides >= 2 ? Math.min(20, a.quantidade_slides) : Math.max(2, slidesRef.length)}
+                      className="campo mt-1 max-w-32"
                     />
-                    <Copiar texto={copia.legenda} rotulo="Copiar legenda" className="btn btn-sm btn-2" />
-                  </div>
-                  <div className="rounded-lg bg-superficie-2 p-3 text-sm">
-                    <p className="text-xs font-bold text-apagado">LEGENDA</p>
-                    <p className="mt-1 whitespace-pre-wrap">{copia.legenda}</p>
-                  </div>
-                  <p className="text-xs text-apagado">
-                    Da referência: {copia.de_onde_veio}
-                    {copia.pedido ? ` · direção: ${copia.pedido}` : ""} · {copia.modelo.split("/").pop()} · US$ {copia.custo_usd}
-                  </p>
-                </div>
-              ) : null}
+                  </label>
+                  <label className="block text-xs font-bold">
+                    Headline da capa (opcional)
+                    <textarea
+                      name="headline"
+                      rows={2}
+                      maxLength={500}
+                      defaultValue={trabalho?.headline ?? ""}
+                      placeholder="Vazio: traduz a headline original."
+                      className="campo mt-1"
+                    />
+                  </label>
+                  <label className="block text-xs font-bold">
+                    Do segundo slide em diante
+                    <select name="modo_texto" defaultValue={trabalho?.modo_texto ?? "traduzir"} className="campo mt-1">
+                      <option value="traduzir">Traduzir fiel pro português</option>
+                      <option value="reformular">Reescrever em português, mesma mensagem</option>
+                    </select>
+                  </label>
+                  <textarea name="pedido" rows={2} placeholder="ajustes (opcional): ex. marca no canto de cima · mantém o laranja da referência" className="campo" />
+                  <BotaoGerar
+                    rotulo={produzindo ? "Já está na fila / sendo feito" : copia ? "Fazer outra cópia" : "Copiar carrossel"}
+                    gerando="Mandando pra estação…"
+                    className="btn"
+                    disabled={produzindo || slidesRef.length < 2}
+                  />
+                  {slidesRef.length < 2 && <p className="text-xs text-morno">Suba os outros slides pra copiar o carrossel inteiro.</p>}
+                </form>
+              )}
+              <CopiaCarrossel id={r.id} trabalho={trabalho} resultado={copia} ligada={ligada} />
             </section>
           ) : null}
         </div>
