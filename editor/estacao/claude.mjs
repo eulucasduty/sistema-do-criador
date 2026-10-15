@@ -95,9 +95,10 @@ export function ambienteClaude({ openrouter } = {}) {
  * (turnos, tempo, tokens; no plano, o custo é só a referência do que seria na API, não é cobrado).
  * `openrouter: { chave }` troca o provedor (motor "openrouter"; `modelo` vira o da OpenRouter).
  */
-export function rodarClaude(pasta, prompt, { modelo = process.env.EDITOR_MODELO || "opus", esforco = process.env.EDITOR_ESFORCO || "high", minutos = 50, aoPasso = () => {}, openrouter = null } = {}) {
+export function rodarClaude(pasta, prompt, { modelo = process.env.EDITOR_MODELO || "opus", esforco = process.env.EDITOR_ESFORCO || "high", minutos = 50, aoPasso = () => {}, openrouter = null, permitidas = PERMITIDAS } = {}) {
   return new Promise((resolve, reject) => {
-    const args = ["-p", "--output-format", "stream-json", "--verbose", "--model", modelo, "--effort", esforco, "--tools", FERRAMENTAS_DA_IA, "--setting-sources", "project,local", "--strict-mcp-config", "--no-session-persistence", "--disallowedTools", ...PROIBIDAS, "--allowedTools", ...PERMITIDAS];
+    // `permitidas`: outro kit (ex.: o de carrossel) troca a lista dos comandos liberados
+    const args = ["-p", "--output-format", "stream-json", "--verbose", "--model", modelo, "--effort", esforco, "--tools", FERRAMENTAS_DA_IA, "--setting-sources", "project,local", "--strict-mcp-config", "--no-session-persistence", "--disallowedTools", ...PROIBIDAS, "--allowedTools", ...permitidas];
     const [cmd, ...antes] = comoRodar(CLAUDE);
     const p = spawn(cmd, [...antes, ...args], { cwd: pasta, env: ambienteClaude({ openrouter: openrouter && { ...openrouter, modelo } }), windowsHide: true });
     let resto = "";

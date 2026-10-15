@@ -12,6 +12,8 @@
 // e "editor", a cada pedido), baixa o vídeo e os materiais do storage (em partes), faz a edição
 // (editor/estacao/fluxo.mjs: oficina → IA → render) e sobe o vídeo pronto pro painel.
 // O vídeo final também fica no PC (EDITOR_SAIDA; padrão: Vídeos/Creator System).
+// A cópia de carrossel da Esteira roda junto, em paralelo (editor/estacao/carrosseis.mjs;
+// ESTACAO_CARROSSEIS=0 desliga).
 // Pra parar: Ctrl+C.
 
 import { spawnSync } from "node:child_process";
@@ -22,6 +24,7 @@ import { editar, versaoWeb } from "../editor/estacao/fluxo.mjs";
 import { acharPrograma, COMO_INSTALAR, FERRAMENTAS, faltaNoFfmpeg, garantirFerramentas } from "../editor/estacao/ferramentas.mjs";
 import { configMotor, conferirMotor, lerChaveOpenRouter, lerConfigMotor, MOTORES, prepararMotor } from "../editor/estacao/motor.mjs";
 import { conectar, esquecerSessao, ARQUIVO_SESSAO } from "../editor/estacao/sessao.mjs";
+import { iniciarCarrosseis } from "../editor/estacao/carrosseis.mjs";
 import { sincronizarSons } from "../editor/estacao/sons.mjs";
 
 const AJUDA = `Estação de edição do Creator System
@@ -33,6 +36,7 @@ const AJUDA = `Estação de edição do Creator System
   npm run estacao -- --motor codex    (1ª vez) já salva quem edita: claude, codex ou openrouter
 
 Quem edita: você escolhe no painel (Editor de vídeo → "Quem edita os seus vídeos").
+A mesma IA faz as cópias de carrossel da Esteira (ESTACAO_CARROSSEIS=0 no .env.local desliga).
 Guia: editor/INSTALAR.md`;
 
 const argv = process.argv.slice(2);
@@ -50,6 +54,7 @@ const hora = () => new Date().toLocaleTimeString("pt-BR");
 const agora = () => new Date().toISOString();
 let db = null;
 let atual = null;
+let carrosseis = null;
 
 // ── o que a estação precisa no PC (o motor de IA é conferido à parte) ──
 function conferirFerramentas() {
@@ -327,6 +332,7 @@ async function principal() {
   console.log("Esperando pedidos do painel. Deixe esta janela aberta (Ctrl+C pra parar).");
   await batida();
   setInterval(() => batida().catch((e) => console.error(`[${hora()}] batida falhou: ${e.message}`)), 30_000);
+  if (process.env.ESTACAO_CARROSSEIS !== "0") carrosseis = iniciarCarrosseis({ db, maquina: MAQUINA, motorPronto: async () => (await conferirMotorAgora()).ok });
 
   for (;;) {
     // Quem edita não está pronto: não pega pedido (eles esperam na fila) até resolver
@@ -375,6 +381,7 @@ async function principal() {
 process.on("SIGINT", async () => {
   console.log("\nParando a estação…");
   if (db) await db.from("configuracao").upsert({ chave: "estacao_edicao", valor: valorDaBatida(false) }, { onConflict: "chave" });
+  await carrosseis?.parar().catch(() => {});
   setTimeout(() => process.exit(0), 300); // um respiro pra conexão fechar (no Windows, sair na hora quebra o node)
 });
 

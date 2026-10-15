@@ -4,7 +4,7 @@ O sistema de produção de conteúdo pra criador do Instagram, rodando nas **sua
 
 - **Esteira de referências**: cole o link de um reel ou carrossel que bombou (ou suba o vídeo/os prints). A IA assiste, transcreve e explica por que funcionou.
 - **Roteiro na sua voz**: a IA assiste os seus últimos reels, monta a sua persona e escreve a sua versão do formato, sem copiar frase de ninguém.
-- **Cópia de carrossel**: a sua versão do carrossel da referência, com os slides prontos em PNG (no visual da referência ou da sua marca) e a legenda.
+- **Cópia de carrossel**: o carrossel da referência (de qualquer idioma) em português, slide por slide, com as cores, as fotos e a composição do original, a headline da capa que você quiser e a sua foto + o seu @ em todos. Sai em PNG 1080×1350 (slide em vídeo sai em MP4), com a legenda. Quem faz é a estação no seu computador, com a mesma IA do editor.
 - **Editor de vídeo com IA** (o principal): você sobe o vídeo cru + prints e gravações de tela, escolhe um dos **36 estilos de edição** (do clássico com legenda acendendo e as quatro variações dele, aos virais de legenda gigante, tela dividida, 3D, documentário, texto atrás de você, telejornal) e ele volta editado, com legenda, **motion animado de verdade** (vídeos curtos com personagens, câmera e impacto, feitos em Remotion), cards que se mexem a cena inteira, efeitos sonoros e o seu CTA. Roda no seu computador com a IA que você já assina (Claude ou ChatGPT) ou pela OpenRouter.
 - **Automações do Instagram** (o "ManyChat" grátis): comentou a palavra → resposta pública + material na DM, com portão de seguidor, sequência de mensagens com botão, lembretes e follow-ups.
 - **Agente de IA no direct** (opcional): conversa com quem respondeu a automação, tira dúvida e oferece o seu link.
@@ -72,7 +72,7 @@ O **Início** te guia, com o status de cada passo ao vivo:
 2. Seu perfil
 3. Instagram: o seu app na Meta (o passo mais longo, uns 20 min)
 4. O relógio (um clique)
-5. A estação de edição no seu computador (um comando)
+5. A estação de edição no seu computador (um comando): ela edita os vídeos e faz as cópias de carrossel
 6. A sua primeira automação
 
 ---
@@ -87,6 +87,8 @@ O **Início** te guia, com o status de cada passo ao vivo:
 
 Quando sair versão nova: abra a sua cópia no GitHub e clique em **Sync fork → Update branch**. A Vercel atualiza sozinha. A estação do computador se atualiza rodando o instalador de novo.
 
+Se a versão nova trouxer arquivo novo em `supabase/migrations` (ex.: `004_carrossel.sql`, a cópia de carrossel), abra o **SQL Editor** do Supabase, cole o arquivo inteiro e clique em **Run** (rodar de novo não estraga nada). Quem roda o sistema pelo terminal pode usar `npm run migrar`. O Início avisa quando falta.
+
 ## Problemas comuns
 
 - **"Falta um passo da instalação"**: a tela diz qual variável falta. Depois de mudar variável na Vercel, vá em **Deployments → ⋯ → Redeploy**.
@@ -94,6 +96,7 @@ Quando sair versão nova: abra a sua cópia no GitHub e clique em **Sync fork �
 - **Comentário de outra pessoa não chega**: o app da Meta ainda está em modo Desenvolvimento. Publique (modo Ao vivo).
 - **O relógio não liga**: no Supabase, **Database → Extensions**, ligue `pg_cron` e `pg_net` e clique em ligar de novo.
 - **Reel sem vídeo na Esteira**: conta pessoal e reel com música licenciada a Meta não libera. Suba o arquivo.
+- **Cópia de carrossel parada em "esperando a estação"**: a estação do seu computador está desligada. Abra o atalho **Estação de edição**; o pedido sai sozinho.
 
 ## Servidor próprio (opcional)
 

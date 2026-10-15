@@ -10,7 +10,8 @@ Sistema de produção de conteúdo de UM criador do Instagram: Esteira de refer�
 - `app/api/webhooks/instagram` — webhook da Meta (comentários, DMs, botões). `app/api/relogio` — a batida do relógio (o Supabase chama a cada minuto via pg_cron). `app/r/[codigo]` — link rastreado das DMs.
 - `lib/instagram/` — cliente da API (`api.ts`), o motor das automações (`receber.ts`), envio registrado (`enviar.ts`), follow-ups (`followup.ts`), Business Discovery pra post de outra conta (`descoberta.ts`).
 - `lib/agente/` — o agente do direct: turno (`turno.ts`), contexto, ferramentas, auditor determinístico, prompt padrão, grafo LangGraph.
-- `lib/esteira/` — referências e análise (Gemini vê e ouve o vídeo), persona tirada dos reels do criador, roteiro e carrossel (Claude via OpenRouter), render dos slides em PNG.
+- `lib/esteira/` — referências e análise (Gemini vê e ouve o vídeo, inclusive os slides em vídeo dos carrosséis), persona tirada dos reels do criador, roteiro (Claude via OpenRouter) e o contrato da cópia de carrossel (`carrossel.ts`).
+- `carrosseis/` — a cópia de carrossel feita pela estação: `produzir.mjs` (oficina → IA de "Quem edita" → conferência) e `kit/` (o manual `CRIAR.md` que a IA lê, o renderizador com Chrome sem janela, recortes, slide em vídeo com ffmpeg, a marca do perfil). O painel só enfileira (`carrossel_trabalho`, migration 004); `editor/estacao/carrosseis.mjs` roda junto da estação de edição. Detalhes em `carrosseis/README.md`.
 - `lib/relogio.ts` + `lib/rotinas.ts` + `lib/trava.ts` — o que roda sozinho (modo cron na Vercel, modo servidor com `RELOGIO=ligado`).
 - `editor/` — o editor de vídeo: `kit/` (a oficina HyperFrames e o manual `EDITOR.md` que o Claude lê) e `estacao/` (o que roda no PC). `scripts/estacao-edicao.mjs` liga a estação.
 - `supabase/migrations/` — o banco inteiro. Tudo no schema `criador`, RLS em todas as tabelas com `criador_privado.eh_da_equipe()`.

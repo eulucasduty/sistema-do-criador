@@ -2,6 +2,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { lerConfig, PERFIL_PADRAO, type Perfil, type Persona } from "@/lib/config";
 import { estacaoLigada, type BatidaEstacao } from "@/lib/editor";
+import { estacaoCarrosselLigada, type BatidaCarrossel } from "@/lib/esteira/carrossel";
 import type { ContaInstagram } from "@/lib/instagram/api";
 import type { ContaFacebook } from "@/lib/instagram/descoberta";
 import type { BatidaRelogio } from "@/lib/relogio";
@@ -26,6 +27,8 @@ export type Situacao = {
   relogioAgendado: boolean | null;
   estacao: BatidaEstacao;
   estacaoLigada: boolean;
+  /** Cópia de carrossel pela estação: o banco já tem a migration 004? e a batida dessa parte. */
+  carrossel: { banco: boolean; batida: BatidaCarrossel; ligada: boolean };
   automacoes: number;
   automacoesAtivas: number;
   agenteAtivo: boolean;
@@ -37,7 +40,7 @@ export type Situacao = {
 
 export async function lerSituacao(): Promise<Situacao> {
   const db = createAdminClient();
-  const [{ data: configs }, { data: ultimo }, auto, autoAtivas, { data: agente }, refs, eds, alertas, agendado] = await Promise.all([
+  const [{ data: configs }, { data: ultimo }, auto, autoAtivas, { data: agente }, refs, eds, alertas, agendado, carrosseis] = await Promise.all([
     db.from("configuracao").select("chave, valor"),
     db.from("evento_recebido").select("recebido_em, tipo").order("recebido_em", { ascending: false }).limit(1).maybeSingle(),
     db.from("ig_automacao").select("id", { count: "exact", head: true }),
@@ -47,11 +50,13 @@ export async function lerSituacao(): Promise<Situacao> {
     db.from("edicao").select("id", { count: "exact", head: true }),
     db.from("alerta").select("id", { count: "exact", head: true }).eq("resolvido", false),
     db.rpc("relogio_agendado"),
+    db.from("carrossel_trabalho").select("id", { count: "exact", head: true }),
   ]);
   const cfg = Object.fromEntries((configs ?? []).map((c) => [c.chave, c.valor])) as Record<string, unknown>;
   const perfilSalvo = (cfg.perfil ?? {}) as Partial<Perfil>;
   const relogio = (cfg.relogio ?? {}) as BatidaRelogio;
   const estacao = (cfg.estacao_edicao ?? { visto_em: null, maquina: null }) as BatidaEstacao;
+  const batidaCarrossel = (cfg.estacao_carrosseis ?? {}) as BatidaCarrossel;
   return {
     url: urlDoApp(),
     vercel: Boolean(process.env.VERCEL),
@@ -73,6 +78,7 @@ export async function lerSituacao(): Promise<Situacao> {
     relogioAgendado: agendado.error ? null : Boolean(agendado.data),
     estacao,
     estacaoLigada: estacaoLigada(estacao),
+    carrossel: { banco: !carrosseis.error, batida: batidaCarrossel, ligada: estacaoCarrosselLigada(batidaCarrossel) },
     automacoes: auto.count ?? 0,
     automacoesAtivas: autoAtivas.count ?? 0,
     agenteAtivo: Boolean(agente?.ativo),

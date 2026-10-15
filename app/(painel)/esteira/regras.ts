@@ -38,5 +38,7 @@ export const ehVideo = (r: { arquivo: string | null; arquivo_tipo: string | null
 
 // Os limites do envio (os mesmos de lib/esteira/referencia.ts, que só roda no servidor)
 export const MAX_MB = 45; // o storage grátis aceita até 50 MB por arquivo
-export const MAX_PRINTS = 12;
+export const MAX_PRINTS = 20; // slides do carrossel, contando a capa (lib/esteira/carrossel.ts)
 export const TIPOS_PRINT = "image/png,image/jpeg,image/webp";
+/** Slide de carrossel: foto ou vídeo (slide em vídeo sai em MP4 na cópia). */
+export const ehTipoDeSlide = (tipo: string) => TIPOS_PRINT.split(",").includes(tipo) || tipo.startsWith("video/");

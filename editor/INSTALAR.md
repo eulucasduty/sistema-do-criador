@@ -96,6 +96,21 @@ as edições saiam.
 
 Cada vídeo pronto sobe pro painel e fica também numa cópia no seu PC (`Vídeos/Creator System`).
 
+### Cópia de carrossel
+
+A mesma estação faz as cópias de carrossel da Esteira (**Copiar carrossel** na página do
+carrossel), com a mesma IA que edita os vídeos, em paralelo com as edições. Não precisa instalar
+nada a mais: ela usa o **Google Chrome** do computador (ou o Edge; sem nenhum dos dois, o Chrome
+que o kit de edição baixa) e o ffmpeg que o instalador já pôs.
+
+- Precisa do banco atualizado: rode `supabase/migrations/004_carrossel.sql` no SQL Editor do
+  Supabase uma vez (o Início avisa quando falta).
+- A estação entra com o mesmo login e só mexe nos slides da Esteira (lê os originais e sobe a cópia
+  em `esteira/carrosseis/`).
+- Os arquivos de cada cópia (originais, HTML, slides) ficam em `carrosseis/oficina/` na pasta do
+  sistema. Pode apagar quando quiser: a cópia já está no painel.
+- Pra desligar só essa parte: `ESTACAO_CARROSSEIS=0` no `.env.local`.
+
 ---
 
 ## Problemas comuns
@@ -165,6 +180,7 @@ seu banco: não mande pra ninguém.
 | `WHISPER_BIN` / `WHISPER_MODEL` | caminho do `whisper-cli` e do modelo | procura sozinha |
 | `CLAUDE_BIN` / `CODEX_BIN` | caminho do Claude Code / do Codex | procura sozinha |
 | `CHROME_BIN` | caminho do Chrome (ou Edge/Chromium) | procura sozinha |
+| `ESTACAO_CARROSSEIS` | `0` desliga a cópia de carrossel nesta estação | ligada |
 
 O modelo de cada IA se escolhe no painel (Quem edita → Avançado). O padrão: Opus no Claude, o da
 sua conta no ChatGPT e `anthropic/claude-sonnet-5.5` na OpenRouter.
@@ -182,6 +198,15 @@ mostra a lista com as legendas de cada um). Sem ele, vale o estilo padrão.
 
 (`--motor codex` ou `--motor openrouter` também valem; na OpenRouter, com `OPENROUTER_API_KEY` no
 `.env.local`.) O resultado fica em `editor/oficina/teste-<data>/renders/final.mp4`.
+
+Carrossel: ponha os slides numa pasta (01.png, 02.jpg, 03.mp4…) e rode
+
+```
+npm run carrossel:testar -- "caminho/da/pasta" --motor claude --usuario @seuperfil --headline "Headline nova da capa"
+```
+
+Os slides saem em `carrosseis/oficina/teste-<data>/saida/`. `npm run carrossel:verificar` testa só
+o kit (Chrome, ffmpeg e a conferência dos slides), sem IA.
 
 ### Segurança
 
