@@ -66,6 +66,10 @@ function descrever(b) {
   return b.name;
 }
 
+/** O plano (ou o provedor) bateu no limite de uso: volta sozinho depois de um tempo. */
+const LIMITE = /usage limit|hit your .{0,24}limit|limit reached|out of extra usage|rate.?limit/i;
+const falha = (msg) => Object.assign(new Error(msg), { limite: LIMITE.test(msg) });
+
 /**
  * O ambiente do Claude Code. Sem `openrouter`: só o login do plano (nenhuma chave de API).
  * Com `openrouter: { chave, modelo, rapido }`: a OpenRouter como provedor, pelas variáveis que ela
@@ -143,8 +147,8 @@ export function rodarClaude(pasta, prompt, { modelo = process.env.EDITOR_MODELO 
     });
     p.on("close", (codigo) => {
       clearTimeout(relogio);
-      if (!final) return reject(new Error(`o Claude saiu sem resultado (código ${codigo}): ${erro.slice(-800)}`));
-      if (final.is_error || final.subtype !== "success") return reject(new Error(`o Claude não terminou (${final.subtype}): ${String(final.result ?? erro).slice(0, 600)}`));
+      if (!final) return reject(falha(`o Claude saiu sem resultado (código ${codigo}): ${erro.slice(-800)}`));
+      if (final.is_error || final.subtype !== "success") return reject(falha(`o Claude não terminou (${final.subtype}): ${String(final.result ?? erro).slice(0, 600)}`));
       resolve({
         resumo: String(final.result ?? "").trim(),
         passos,

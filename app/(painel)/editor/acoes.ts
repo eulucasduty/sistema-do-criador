@@ -147,6 +147,26 @@ export async function tentarDeNovo(formData: FormData) {
   revalidatePath(`/editor/${id}`);
 }
 
+/**
+ * Monta de novo uma edição pronta com o kit de agora e o mesmo plano, sem a IA (não gasta nada):
+ * serve depois de atualizar o sistema, quando o kit corrigiu algo. A estação só consegue se a
+ * oficina da edição estiver no PC dela; senão, a edição volta a ficar pronta como estava.
+ */
+export async function montarDeNovo(formData: FormData) {
+  await exigirEquipe();
+  const id = String(formData.get("id"));
+  const db = createAdminClient();
+  const { data: ed } = await db.from("edicao").select("opcoes, status, log").eq("id", id).single();
+  if (!ed || ed.status !== "pronto") redirect(`/editor/${id}?erro=${encodeURIComponent("só dá pra montar de novo uma edição pronta")}`);
+  const log = [...(Array.isArray(ed.log) ? ed.log : []), { t: new Date().toISOString(), msg: "montar de novo com o kit atualizado (sem IA)" }].slice(-250);
+  await db
+    .from("edicao")
+    .update({ status: "na_fila", etapa: "na fila pra montar de novo com o kit atualizado (sem IA)", opcoes: { ...((ed.opcoes as object | null) ?? {}), remontar: true }, log })
+    .eq("id", id)
+    .eq("status", "pronto");
+  revalidatePath(`/editor/${id}`);
+}
+
 /** Apaga o pedido e todos os arquivos dele no storage (o que ficou no PC continua lá). */
 export async function apagarEdicao(formData: FormData) {
   await exigirEquipe();

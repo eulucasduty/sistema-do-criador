@@ -9,6 +9,7 @@ import { atualizarDoInstagram, salvarPerfil } from "./acoes";
 export const dynamic = "force-dynamic";
 
 const LOOKS = [
+  { id: "original", nome: "Original", texto: "Sem filtro nenhum: a cor fica como você mandou. Pra quem já acerta a cor antes de subir." },
   { id: "natural", nome: "Natural", texto: "Só corrige (HDR do iPhone, nitidez leve). Bom pra quem já grava com luz boa." },
   { id: "quente", nome: "Quente", texto: "Um pouco mais de contraste e calor, pele saudável." },
   { id: "contraste", nome: "Contraste forte", texto: "Mais escuro e contrastado, com nitidez: o look de edição de criador." },
@@ -100,7 +101,7 @@ export default async function PaginaPerfil({ searchParams }: PageProps<"/perfil"
           <h2 className="font-display text-lg uppercase tracking-wide">Vídeo</h2>
           <fieldset>
             <legend className="rotulo">Look (cor do vídeo)</legend>
-            <div className="mt-2 grid gap-2 sm:grid-cols-3">
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
               {LOOKS.map((l) => (
                 <label key={l.id} className="flex cursor-pointer gap-2 rounded-xl border-2 border-borda p-3 text-sm has-[:checked]:border-marca">
                   <input type="radio" name="cor" value={l.id} defaultChecked={p.cor === l.id} className="mt-1 accent-[var(--color-marca)]" />

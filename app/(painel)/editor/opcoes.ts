@@ -3,7 +3,8 @@
 // O estilo de edição e a legenda de cada um vêm do catálogo do kit (lib/editor.ts).
 
 export const LOOKS_VIDEO = [
-  { valor: "natural", nome: "Natural", detalhe: "como a câmera gravou" },
+  { valor: "original", nome: "Original", detalhe: "sem filtro nenhum (você já acertou a cor)" },
+  { valor: "natural", nome: "Natural", detalhe: "como a câmera gravou, com nitidez leve" },
   { valor: "quente", nome: "Quente", detalhe: "contraste suave, tom um pouco mais quente" },
   { valor: "contraste", nome: "Contraste forte", detalhe: "mais escuro, mais contraste, rosto quente" },
 ] as const;

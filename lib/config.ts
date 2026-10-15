@@ -29,7 +29,7 @@ export type Perfil = {
   tom: string | null; // como você fala (gírias, bordões, jeito)
   regras: string | null; // o que nunca pode aparecer nos vídeos (o editor segue)
   foto_url: string | null; // foto de perfil (vem do Instagram)
-  cor: "natural" | "quente" | "contraste"; // look do vídeo no editor
+  cor: "original" | "natural" | "quente" | "contraste"; // look do vídeo no editor (original = sem filtro)
   estilo: string | null; // estilo de edição padrão (editor/kit/estilos/<id>); vazio = o padrão do kit
   legenda: string; // tipo de legenda padrão (vale quando o estilo escolhido tem esse tipo)
   cores: { fundo: string; texto: string; destaque: string }; // sua marca (carrossel no visual "minha marca")

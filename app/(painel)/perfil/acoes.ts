@@ -22,7 +22,7 @@ export async function salvarPerfil(formData: FormData) {
     publico: texto(formData.get("publico"), 400),
     tom: texto(formData.get("tom"), 1500),
     regras: texto(formData.get("regras"), 1500),
-    cor: cor === "quente" || cor === "contraste" ? cor : "natural",
+    cor: cor === "original" || cor === "quente" || cor === "contraste" ? cor : "natural",
     estilo,
     legenda: legendaValida(estilo, antes.legenda),
     cores: {
