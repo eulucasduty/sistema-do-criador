@@ -87,11 +87,9 @@ O **Início** te guia, com o status de cada passo ao vivo:
 
 ## Atualizar
 
-Quando sair versão nova: abra a sua cópia no GitHub e clique em **Sync fork → Update branch**. A Vercel atualiza sozinha. A estação do computador se atualiza rodando o instalador de novo. Se a versão nova trouxer tabela nova no banco, o **Início** avisa e mostra o SQL pra copiar e colar no SQL Editor do Supabase (1 minuto, pode rodar de novo sem medo).
+Quando sair versão nova: abra a sua cópia no GitHub e clique em **Sync fork → Update branch**. A Vercel atualiza sozinha. A estação do computador se atualiza rodando o instalador de novo.
 
-Se a versão nova trouxer um arquivo novo em `supabase/migrations` (ex.: `003_postagem_materiais.sql`, do postar com 1 clique e dos Materiais), abra o arquivo no GitHub, copie tudo, cole no **SQL Editor** do Supabase e clique em **Run**. Pode rodar de novo sem medo: não estraga nada. O painel avisa quando falta.
-
-Se a versão nova trouxer arquivo novo em `supabase/migrations` (ex.: `004_carrossel.sql`, a cópia de carrossel), abra o **SQL Editor** do Supabase, cole o arquivo inteiro e clique em **Run** (rodar de novo não estraga nada). Quem roda o sistema pelo terminal pode usar `npm run migrar`. O Início avisa quando falta.
+Se a versão nova trouxer tabela nova no banco (um arquivo novo em `supabase/migrations`, como `004_carrossel.sql`), o **Início** avisa e mostra o SQL pra copiar: cole no **SQL Editor** do Supabase e clique em **Run** (1 minuto; pode rodar de novo sem medo, não estraga nada). Quem roda o sistema pelo terminal pode usar `npm run migrar`.
 
 ## Problemas comuns
 
