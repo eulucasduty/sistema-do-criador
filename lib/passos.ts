@@ -93,7 +93,10 @@ export async function lerSituacao(): Promise<Situacao> {
 // da 001 entra aqui com uma tabela que ela cria: sem a tabela, o SQL ainda não rodou.
 
 export type Migracao = { arquivo: string; tabela: string; pra_que: string };
-export const MIGRACOES: Migracao[] = [{ arquivo: "002_roteiros.sql", tabela: "roteiro", pra_que: "os roteiros pra teleprompter" }];
+export const MIGRACOES: Migracao[] = [
+  { arquivo: "002_roteiros.sql", tabela: "roteiro", pra_que: "os roteiros pra teleprompter" },
+  { arquivo: "003_postagem_materiais.sql", tabela: "entrega", pra_que: "postar com 1 clique e os Materiais" },
+];
 
 const naoExiste = (e: { code?: string; message?: string } | null) =>
   Boolean(e && (e.code === "42P01" || e.code === "PGRST205" || /does not exist|Could not find the table/i.test(e.message ?? "")));
