@@ -29,9 +29,7 @@ function sqlDaInstalacao(): string {
       .filter((f) => /^\d{3}_[a-z0-9_]+\.sql$/.test(f))
       .sort()
       .map((f) => readFileSync(path.join(pasta, f), "utf8"))
-      .join("
-
-");
+      .join("\n\n");
   } catch {
     return "";
   }
