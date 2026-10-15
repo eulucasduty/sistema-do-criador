@@ -8,6 +8,7 @@ import { hojeSP, horaSP } from "@/lib/formato";
 import { descreverImagem, iaConfigurada, precoDoModelo, transcreverAudio } from "@/lib/ia/openrouter";
 import { digitandoIG, instagramConfigurado, perfilDe } from "@/lib/instagram/api";
 import { enviarRegistrado } from "@/lib/instagram/enviar";
+import { entregaDoComentario } from "@/lib/entregas/servidor";
 import { auditar, type Auditoria } from "./auditor";
 import { linksPermitidos, montarMensagens, type ContatoModelo, type ContextoInstagram, type Extras, type MsgModelo, type OfertaModelo } from "./contexto";
 import { criarFerramentas, novosEfeitos, type Efeitos, type TipoPassagem } from "./ferramentas";
@@ -259,7 +260,7 @@ export function contatoParaModelo(c: Linha): ContatoModelo {
 }
 
 /** De qual automação a pessoa veio e o que foi prometido. */
-async function contextoDoInstagram(db: Db, contatoId: string): Promise<{ contexto: ContextoInstagram | null; fluxo: Linha | null; automacao: Linha | null }> {
+async function contextoDoInstagram(db: Db, contatoId: string, codigo: string | null): Promise<{ contexto: ContextoInstagram | null; fluxo: Linha | null; automacao: Linha | null }> {
   const { data: f } = await db
     .from("ig_fluxo")
     .select("id, etapa, comentario_texto, automacao:automacao_id (*)")
@@ -270,14 +271,17 @@ async function contextoDoInstagram(db: Db, contatoId: string): Promise<{ context
   if (!f) return { contexto: null, fluxo: null, automacao: null };
   const automacao = (Array.isArray(f.automacao) ? f.automacao[0] : f.automacao) as Linha | null;
   if (!automacao) return { contexto: null, fluxo: f, automacao: null };
+  // A palavra que ela comentou tem material no ar (Materiais, /m/<endereço>): o material é a página dele
+  const material = await entregaDoComentario(db, f.comentario_texto, (automacao.palavras as string[] | null) ?? []);
+  const linkDoMaterial = material ? (codigo ? `${urlDoApp()}/r/${codigo}?a=${automacao.id}&ir=m&m=${material.slug}` : `${urlDoApp()}/m/${material.slug}`) : null;
   return {
     fluxo: f,
     automacao,
     contexto: {
       automacao: automacao.nome,
       comentario: f.comentario_texto ?? null,
-      material: automacao.contexto ?? null,
-      link: automacao.link_entrega ?? null,
+      material: material ? `${material.titulo}${material.subtitulo ? ` (${material.subtitulo})` : ""}, numa página com o passo a passo` : (automacao.contexto ?? null),
+      link: linkDoMaterial ?? automacao.link_entrega ?? null,
       entregue: f.etapa === "entregue" || f.etapa === "com_agente",
       exigeSeguir: Boolean(automacao.exigir_seguir),
     },
@@ -353,7 +357,7 @@ export async function processarConversa(conversaId: string, pegoEm: string): Pro
   // se ele não chamar a ferramenta, o código passa do mesmo jeito depois do envio
   const perguntouIA = perguntouSeEhIA(textoDoLote);
 
-  const ig = await contextoDoInstagram(db, contato.id);
+  const ig = await contextoDoInstagram(db, contato.id, contato.codigo ?? null);
   const ofertas = await ofertasDoContato(contato.codigo ?? null);
 
   // ── o modelo ─────────────────────────────────────────────────────
@@ -424,7 +428,7 @@ export async function processarConversa(conversaId: string, pegoEm: string): Pro
   // O material foi mandado pelo agente: a automação conta como entregue
   const tags = new Set<string>(contato.tags ?? []);
   if (ig.fluxo && ig.automacao) {
-    const link = ig.automacao.link_entrega as string | null;
+    const link = (ig.contexto?.link ?? ig.automacao.link_entrega) as string | null;
     const jaEntregue = ig.fluxo.etapa === "entregue" || ig.fluxo.etapa === "com_agente";
     if (!jaEntregue && link && enviados.some((b) => b.includes(link))) {
       await db.from("ig_fluxo").update({ etapa: "entregue", entregue_em: agoraISO }).eq("id", ig.fluxo.id);

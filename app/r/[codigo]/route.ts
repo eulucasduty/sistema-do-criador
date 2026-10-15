@@ -1,5 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { lerConfig, lerPerfil, type Oferta } from "@/lib/config";
+import { ENTREGAS_PADRAO, lerConfig, lerPerfil, type ConfigEntregas, type Oferta } from "@/lib/config";
+import { urlDoApp } from "@/lib/app";
+import { SLUG_VALIDO } from "@/lib/entregas/blocos";
 
 // Link com o código do contato (vai na DM do Instagram): conta o clique e leva pro
 // destino. Assim você sabe quem clicou em quê, e o agente sabe se a pessoa já abriu.
@@ -7,6 +9,8 @@ import { lerConfig, lerPerfil, type Oferta } from "@/lib/config";
 // ?ir=…
 //   oferta-<n>  → a oferta n (Agente → Ofertas); marca o contato com a tag clicou_oferta
 //   <número>    → o botão daquela mensagem da sequência da automação (?a=<automação>)
+//   m           → o material do CTA (&m=<endereço>): a página pública /m/<endereço>
+//   convite     → o convite que vai depois do material (Materiais → Na DM)
 //   (nada)      → o link do material da automação (?a=<automação>), ou o seu perfil
 
 export const dynamic = "force-dynamic";
@@ -31,6 +35,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ codigo: 
     if (contato && !(contato.tags ?? []).includes("clicou_oferta")) {
       await db.from("contato").update({ tags: [...(contato.tags ?? []), "clicou_oferta"] }).eq("id", contato.id);
     }
+  } else if (ir === "m" && SLUG_VALIDO.test(q.get("m") ?? "")) {
+    destino = `${urlDoApp()}/m/${q.get("m")}`;
+  } else if (ir === "convite") {
+    const cfg = { ...ENTREGAS_PADRAO, ...(await lerConfig<Partial<ConfigEntregas>>("entregas", {})) };
+    if (/^https:\/\//i.test(cfg.convite_link)) destino = cfg.convite_link;
   } else if (auto) {
     const { data: a } = await db.from("ig_automacao").select("link_entrega, entrega_mensagens").eq("id", auto).maybeSingle();
     const url =

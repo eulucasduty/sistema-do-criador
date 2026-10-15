@@ -9,6 +9,7 @@ import { apagarEdicao, cancelarEdicao, pedirAjuste, tentarDeNovo } from "../acoe
 import { AutoAtualizar } from "../atualizar";
 import { EstacaoDesligada } from "../estacao";
 import { nomeDoLook } from "../opcoes";
+import { CartaoPostagem } from "../postagem";
 
 export const dynamic = "force-dynamic";
 
@@ -155,6 +156,7 @@ export default async function PaginaEdicao({ params, searchParams }: PageProps<"
                     : " · no plano"}
               </p>
             )}
+            <CartaoPostagem edicaoId={e.id} duracao={resultado?.duracao} />
             <form action={pedirAjuste} className="card space-y-2 p-4">
               <input type="hidden" name="id" value={e.id} />
               <h2 className="rotulo">Pedir ajuste</h2>

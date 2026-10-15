@@ -1,12 +1,13 @@
 import "server-only";
 import { after } from "next/server";
 import { createAdminClient, type Db } from "@/lib/supabase/admin";
-import { lerConfig } from "@/lib/config";
+import { ENTREGAS_PADRAO, lerConfig, type ConfigEntregas } from "@/lib/config";
 import { criarAlerta } from "@/lib/alertas";
 import { urlDoApp } from "@/lib/app";
 import { ehDeTeste } from "@/lib/agente/turno";
 import { contaInstagram, digitandoIG, ErroInstagram, perfilDe, responderComentario } from "./api";
 import { enviarRegistrado } from "./enviar";
+import { entregaDoComentario } from "@/lib/entregas/servidor";
 
 // Webhook do Instagram (o app Meta do criador) → o que o sistema faz, igual ManyChat:
 //   comentário com a palavra → resposta pública sorteada + 1ª DM (resposta privada)
@@ -328,7 +329,7 @@ async function processarMensagem(db: Db, m: Json, contaId: string) {
 
   // De qual automação ela veio: o botão diz (AUTO:<id>); senão, o fluxo mais recente dela
   const doBotao = payload?.startsWith("AUTO:") ? payload.slice(5) : null;
-  let consulta = db.from("ig_fluxo").select("id, etapa, atualizado_em, automacao:automacao_id (*)").eq("contato_id", contato.id);
+  let consulta = db.from("ig_fluxo").select("id, etapa, atualizado_em, comentario_texto, automacao:automacao_id (*)").eq("contato_id", contato.id);
   if (doBotao) consulta = consulta.eq("automacao_id", doBotao);
   const { data: fluxo } = await consulta.order("atualizado_em", { ascending: false }).limit(1).maybeSingle();
   const a = (Array.isArray(fluxo?.automacao) ? fluxo?.automacao[0] : fluxo?.automacao) as Automacao | null | undefined;
@@ -413,10 +414,22 @@ async function avancarAutomacao(db: Db, contato: Json, fluxo: Json, a: Automacao
   if (!pegou?.length) return;
 
   const sequencia = (a.entrega_mensagens ?? []).filter((m) => (m.texto ?? "").trim() || m.botao_url);
-  const mensagens = sequencia.length ? sequencia : [{ texto: a.dm_entrega || "tá aqui 👇 {link}" }];
+  let mensagens: Array<{ texto?: string; botao_titulo?: string; botao_url?: string; ir?: string }> = sequencia.length ? sequencia : [{ texto: a.dm_entrega || "tá aqui 👇 {link}" }];
   const app = urlDoApp();
+
+  // A palavra que ela comentou tem um material no ar com "mandar na DM" (Materiais, /m/<endereço>):
+  // vai o link da página do material e, se você configurou, o convite, no lugar da sequência
+  const material = await entregaDoComentario(db, fluxo.comentario_texto, a.palavras ?? []);
+  if (material) {
+    const cfg = { ...ENTREGAS_PADRAO, ...(await lerConfig<Partial<ConfigEntregas>>("entregas", {})) };
+    mensagens = [{ texto: cfg.dm_texto || ENTREGAS_PADRAO.dm_texto, botao_titulo: cfg.dm_botao || ENTREGAS_PADRAO.dm_botao, ir: `m&m=${material.slug}` }];
+    if (cfg.convite_texto.trim() && /^https:\/\//i.test(cfg.convite_link)) mensagens.push({ texto: cfg.convite_texto, botao_titulo: cfg.convite_botao || "entrar", ir: "convite" });
+  }
+
   for (const [i, m] of mensagens.entries()) {
     const texto = substituir(m.texto ?? "", { nome, link: a.link_entrega }) || (m.botao_titulo ?? "👇");
+    // O link do botão passa pelo /r pra contar o clique (o material e o convite têm destino próprio)
+    const ir = m.ir ?? (m.botao_url ? String(i) : null);
     await digitandoIG(igsid);
     await dormir(Math.min(900 + texto.length * 20, 3500));
     await enviarRegistrado(db, {
@@ -424,9 +437,8 @@ async function avancarAutomacao(db: Db, contato: Json, fluxo: Json, a: Automacao
       contatoId: contato.id,
       igsid,
       texto,
-      // O link do botão passa pelo /r pra contar o clique
-      botoes: m.botao_url ? [{ titulo: m.botao_titulo || "abrir", url: `${app}/r/${contato.codigo}?a=${a.id}&ir=${i}` }] : undefined,
-      metadados: { automacao: a.id, entrega: i },
+      botoes: ir ? [{ titulo: m.botao_titulo || "abrir", url: `${app}/r/${contato.codigo}?a=${a.id}&ir=${ir}` }] : undefined,
+      metadados: { automacao: a.id, entrega: i, ...(material ? { material: material.slug } : {}) },
     });
   }
 

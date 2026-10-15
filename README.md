@@ -6,6 +6,8 @@ O sistema de produção de conteúdo pra criador do Instagram, rodando nas **sua
 - **Roteiro na sua voz**: a IA assiste os seus últimos reels, monta a sua persona e escreve a sua versão do formato, sem copiar frase de ninguém.
 - **Cópia de carrossel**: a sua versão do carrossel da referência, com os slides prontos em PNG (no visual da referência ou da sua marca) e a legenda.
 - **Editor de vídeo com IA** (o principal): você sobe o vídeo cru + prints e gravações de tela, escolhe um dos **36 estilos de edição** (do clássico com legenda acendendo e as quatro variações dele, aos virais de legenda gigante, tela dividida, 3D, documentário, texto atrás de você, telejornal) e ele volta editado, com legenda, **motion animado de verdade** (vídeos curtos com personagens, câmera e impacto, feitos em Remotion), cards que se mexem a cena inteira, efeitos sonoros e o seu CTA. Roda no seu computador com a IA que você já assina (Claude ou ChatGPT) ou pela OpenRouter.
+- **Postar com 1 clique**: quando o vídeo fica pronto, a estação escreve a legenda na sua voz (com o "comenta X" do CTA). Você muda o que quiser e um botão posta como Reel na sua conta, pela API oficial. Ele ainda avisa se alguma automação responde a palavra do CTA.
+- **Materiais**: o que você entrega no "comenta X" vira uma página no celular (passo a passo, prompts com botão de copiar, links, templates), em `/m/<palavra>`, com o seu @, a sua foto e as cores da sua marca. A estação monta o rascunho a partir do que você falou no vídeo; você revisa e publica, e quem comenta recebe o link na DM.
 - **Automações do Instagram** (o "ManyChat" grátis): comentou a palavra → resposta pública + material na DM, com portão de seguidor, sequência de mensagens com botão, lembretes e follow-ups.
 - **Agente de IA no direct** (opcional): conversa com quem respondeu a automação, tira dúvida e oferece o seu link.
 
@@ -87,12 +89,16 @@ O **Início** te guia, com o status de cada passo ao vivo:
 
 Quando sair versão nova: abra a sua cópia no GitHub e clique em **Sync fork → Update branch**. A Vercel atualiza sozinha. A estação do computador se atualiza rodando o instalador de novo.
 
+Se a versão nova trouxer um arquivo novo em `supabase/migrations` (ex.: `003_postagem_materiais.sql`, do postar com 1 clique e dos Materiais), abra o arquivo no GitHub, copie tudo, cole no **SQL Editor** do Supabase e clique em **Run**. Pode rodar de novo sem medo: não estraga nada. O painel avisa quando falta.
+
 ## Problemas comuns
 
 - **"Falta um passo da instalação"**: a tela diz qual variável falta. Depois de mudar variável na Vercel, vá em **Deployments → ⋯ → Redeploy**.
 - **O webhook não verifica na Meta**: copie de novo o token de verificação que o Início mostra (passo 4) e confira a URL de callback.
 - **Comentário de outra pessoa não chega**: o app da Meta ainda está em modo Desenvolvimento. Publique (modo Ao vivo).
 - **O relógio não liga**: no Supabase, **Database → Extensions**, ligue `pg_cron` e `pg_net` e clique em ligar de novo.
+- **"O token do Instagram não tem a permissão de publicar"** (no Postar no Instagram): no app da Meta, **Casos de uso → Instagram → Personalizar → Permissões e recursos**, adicione `instagram_business_content_publish`, gere o token de novo e troque em **Conexões → Instagram**.
+- **A legenda ou o material não sai da fila**: quem escreve é a estação no seu computador. Abra o atalho **Estação de edição**.
 - **Reel sem vídeo na Esteira**: conta pessoal e reel com música licenciada a Meta não libera. Suba o arquivo.
 
 ## Servidor próprio (opcional)

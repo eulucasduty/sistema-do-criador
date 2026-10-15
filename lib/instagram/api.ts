@@ -272,3 +272,45 @@ export async function digitandoIG(igsid: string): Promise<void> {
     await chamar("POST", "/me/messages", { recipient: { id: igsid }, sender_action: "typing_on" });
   } catch {}
 }
+
+// ── publicar Reel (o botão "Postar no Instagram" do editor) ─────────
+// O fluxo da Meta: cria o container com o link do vídeo (ela baixa e processa), espera o
+// status_code virar FINISHED e publica. Precisa da permissão instagram_business_content_publish
+// no token. Limite da Meta: 100 posts por dia pela API.
+
+/** Cria o container do Reel. `capaMs`: o instante do vídeo usado de capa. Devolve o id do container. */
+export async function criarContainerReel(p: { videoUrl: string; legenda: string; feed: boolean; capaMs?: number | null }): Promise<string> {
+  const quem = (await contaInstagram()).ig_user_id || "me";
+  const r = await chamar<{ id?: string }>("POST", `/${encodeURIComponent(quem)}/media`, {
+    media_type: "REELS",
+    video_url: p.videoUrl,
+    caption: p.legenda,
+    share_to_feed: p.feed,
+    ...(p.capaMs != null && p.capaMs >= 0 ? { thumb_offset: Math.round(p.capaMs) } : {}),
+  });
+  if (!r?.id) throw new ErroInstagram(0, null, "a Meta não devolveu o container");
+  return r.id;
+}
+
+/** IN_PROGRESS | FINISHED | ERROR | EXPIRED | PUBLISHED (o `status` traz o motivo do erro). */
+export async function statusDoContainer(id: string): Promise<{ status_code?: string; status?: string }> {
+  if (SIMULADO) return { status_code: "FINISHED" };
+  return chamar("GET", `/${encodeURIComponent(id)}?fields=status_code,status`);
+}
+
+/** Publica o container pronto. Devolve o id da mídia publicada. */
+export async function publicarContainer(id: string): Promise<string> {
+  const quem = (await contaInstagram()).ig_user_id || "me";
+  const r = await chamar<{ id?: string }>("POST", `/${encodeURIComponent(quem)}/media_publish`, { creation_id: id });
+  if (!r?.id) throw new ErroInstagram(0, null, "a Meta não devolveu a mídia publicada");
+  return r.id;
+}
+
+/** O link público do post. */
+export async function linkDaMidia(id: string): Promise<string | null> {
+  try {
+    return (await chamar<{ permalink?: string }>("GET", `/${encodeURIComponent(id)}?fields=permalink`)).permalink ?? null;
+  } catch {
+    return null;
+  }
+}

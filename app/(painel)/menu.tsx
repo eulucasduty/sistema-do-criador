@@ -23,6 +23,12 @@ const ICONES: Record<string, React.ReactNode> = {
       <path d="m6.2 5.3 3.1 3.9M12.4 3.4l3.1 4M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" />
     </>
   ),
+  materiais: (
+    <>
+      <path d="M21 8v13H3V8" />
+      <path d="M1 3h22v5H1zM10 12h4" />
+    </>
+  ),
   automacoes: (
     <>
       <rect x="2" y="2" width="20" height="20" rx="5" />
@@ -58,6 +64,7 @@ const ITENS = [
   { href: "/esteira", rotulo: "Esteira", icone: "esteira" },
   { href: "/editor", rotulo: "Editor de vídeo", icone: "editor" },
   { href: "/instagram", rotulo: "Automações", icone: "automacoes" },
+  { href: "/materiais", rotulo: "Materiais", icone: "materiais" },
   { href: "/contatos", rotulo: "Leads", icone: "leads", contador: true },
   { href: "/agente", rotulo: "Agente de IA", icone: "agente" },
   { href: "/perfil", rotulo: "Meu perfil", icone: "perfil" },

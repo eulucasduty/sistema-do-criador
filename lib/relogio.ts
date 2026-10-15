@@ -4,12 +4,14 @@ import { processarConversa } from "@/lib/agente/turno";
 import { rodarRotinas } from "@/lib/rotinas";
 import { passoDaEsteira } from "@/lib/esteira/referencia";
 import { passoDoFollowup } from "@/lib/instagram/followup";
+import { passoDasPostagens } from "@/lib/postagem/publicar";
 import { salvarConfig } from "@/lib/config";
 import { pegarTrava, soltarTrava } from "@/lib/trava";
 
 // O relógio: o que o sistema faz sozinho, sem ninguém clicar.
 //
 //   conversas · a cada 5 s — pega até 3 conversas com a espera vencida e o agente responde
+//   postagens · a cada 15 s — confere o processamento do Reel e publica (botão "Postar" do editor)
 //   followup  · a cada 1 min — os toques de quem parou de responder
 //   esteira   · a cada 1 min — analisa referência que ficou sem análise
 //   rotinas   · a cada 5 min — reabrir conversas, limpeza, token e foto do Instagram
@@ -95,8 +97,13 @@ export async function batida(duracaoMs = 50_000): Promise<{ conversas: number }>
   await salvarConfig("relogio", { visto_em: new Date().toISOString(), modo: "cron" } satisfies BatidaRelogio);
   const passos = passosDoMinuto();
   let conversas = 0;
+  let postagensEm = 0;
   while (Date.now() < fim) {
     const volta = Date.now();
+    if (!SIMULADO && volta - postagensEm >= 15_000 && fim - volta > 25_000) {
+      postagensEm = volta;
+      await tentar("postagens", passoDasPostagens);
+    }
     try {
       conversas += await conversasVencidas();
     } catch (e) {
@@ -130,6 +137,7 @@ export function iniciarRelogio() {
   ligado = true;
   console.log("[relogio] ligado no modo servidor: conversas a cada 5 s, o resto a cada 1 min");
   laco("conversas", 5_000, conversasVencidas);
+  if (!SIMULADO) laco("postagens", 15_000, passoDasPostagens);
   laco("minuto", 60_000, async () => {
     await salvarConfig("relogio", { visto_em: new Date().toISOString(), modo: "servidor" } satisfies BatidaRelogio);
     await passosDoMinuto();
