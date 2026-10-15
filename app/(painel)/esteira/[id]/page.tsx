@@ -26,10 +26,9 @@ export default async function PaginaReferencia({ params, searchParams }: PagePro
   const { id } = await params;
   const q = await searchParams;
   const supabase = await createClient();
-  const [{ data: r }, { data: cfgPersona }, perfil, { data: feitosDaqui }, { data: trabalhos }, { data: cfgCarrossel }] = await Promise.all([
+  const [{ data: r }, { data: cfgPersona }, { data: feitosDaqui }, { data: trabalhos }, { data: cfgCarrossel }] = await Promise.all([
     supabase.from("referencia").select("*").eq("id", id).maybeSingle(),
     supabase.from("configuracao").select("valor").eq("chave", "persona").maybeSingle(),
-    lerPerfil(),
     supabase.from("roteiro").select("id, titulo, status, criado_em").eq("referencia_id", id).order("criado_em", { ascending: false }).limit(10),
     // A cópia de carrossel (migration 004): sem a tabela, a seção avisa
     supabase.from("carrossel_trabalho").select("*").eq("referencia_id", id).order("criado_em", { ascending: false }).limit(1),
