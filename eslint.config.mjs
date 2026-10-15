@@ -16,6 +16,9 @@ const eslintConfig = defineConfig([
     "editor/oficina/**",
     // HyperFrames e GSAP que a estação instala sozinha
     "editor/ferramentas/**",
+    // O estúdio de motion (Remotion) é um projeto à parte, com cache gerado; os exemplos são só referência pra IA
+    "editor/motion/**",
+    "editor/kit/motion-exemplos/**",
   ]),
 ]);
 
