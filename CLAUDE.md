@@ -12,8 +12,10 @@ Sistema de produção de conteúdo de UM criador do Instagram: Esteira de refer�
 - `lib/agente/` — o agente do direct: turno (`turno.ts`), contexto, ferramentas, auditor determinístico, prompt padrão, grafo LangGraph.
 - `lib/esteira/` — referências e análise (Gemini vê e ouve o vídeo), persona tirada dos reels do criador, carrossel (Claude via OpenRouter), render dos slides em PNG.
 - `lib/roteiro/` — roteiros pra teleprompter. O servidor só transcreve e analisa a referência (`referencia.ts`, `processar.ts`); quem escreve é a estação (`editor/estacao/roteiros.mjs`, com o motor escolhido no painel). O escritor (`escritor.mjs`), a checagem anti-IA (`anti-ia.mjs`) e o padrão viral inicial (`padrao-inicial.mjs`) são JavaScript puro: o painel e a estação usam os mesmos arquivos. A voz vem do perfil + persona + reels do criador.
+- `lib/postagem/publicar.ts` — postar o vídeo editado como Reel (container → processamento → publicar). O botão só cria o container; a página aberta e o relógio (a cada 15 s) conferem e publicam, com trava contra post duplo. A legenda é escrita pela estação.
+- `lib/entregas/` + `app/(painel)/materiais` + `app/m/[slug]` — Materiais: o que o criador entrega no "comenta X", numa página pública `/m/<endereço>` com o perfil e as cores dele. Com "mandar na DM", a automação manda o link no lugar da sequência (`lib/instagram/receber.ts`) e o agente recebe o material no contexto.
 - `lib/relogio.ts` + `lib/rotinas.ts` + `lib/trava.ts` — o que roda sozinho (modo cron na Vercel, modo servidor com `RELOGIO=ligado`).
-- `editor/` — o editor de vídeo: `kit/` (a oficina HyperFrames e o manual `EDITOR.md` que o Claude lê) e `estacao/` (o que roda no PC, inclusive a escrita dos roteiros em `roteiros.mjs` + `texto.mjs`). `scripts/estacao-edicao.mjs` liga a estação.
+- `editor/` — o editor de vídeo: `kit/` (a oficina HyperFrames e o manual `EDITOR.md` que o Claude lê) e `estacao/` (o que roda no PC, inclusive a escrita dos roteiros em `roteiros.mjs` + `texto.mjs`). `scripts/estacao-edicao.mjs` liga a estação. `estacao/escrita.mjs` é a parte que escreve (legenda do post e rascunho dos materiais), num laço à parte com o mesmo motor da edição.
 - `supabase/migrations/` — o banco inteiro. Tudo no schema `criador`, RLS em todas as tabelas com `criador_privado.eh_da_equipe()`.
 
 ## Regras

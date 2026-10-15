@@ -53,6 +53,10 @@ export default async function PaginaConexoes({ searchParams }: PageProps<"/conex
               : "Conta não conectada"}
           </Linha>
           {ig.erro && <p className="pl-4 text-quente">Atenção: {ig.erro}</p>}
+          <p className="pl-4 text-xs text-apagado">
+            Pra postar com 1 clique (Editor de vídeo), o token precisa da permissão <span className="font-mono">instagram_business_content_publish</span>: adicione
+            no app da Meta (Casos de uso → Instagram → Personalizar → Permissões e recursos) e gere o token de novo.
+          </p>
           <form action={conectarInstagram} className="flex gap-2 pl-4">
             <input name="token" type="password" placeholder="token do Instagram (IGAA…)" className="campo font-mono" />
             <button className="btn btn-sm btn-2 shrink-0">{ig.token ? "Trocar" : "Conectar"}</button>

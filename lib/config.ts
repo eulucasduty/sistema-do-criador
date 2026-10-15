@@ -20,7 +20,8 @@ type Chave =
   | "estacao_edicao"
   | "estacao_roteiros"
   | "padrao_viral"
-  | "relogio";
+  | "relogio"
+  | "entregas";
 
 /** Quem é o criador: vai pro editor (CTA, legenda), pro roteirista e pro agente. */
 export type Perfil = {
@@ -69,6 +70,13 @@ export type Oferta = { nome: string; link: string; para_quem: string };
 export type FollowupAgente = { horas: number; antes_da_oferta: string; depois_da_oferta: string };
 /** Quem não respondeu a 1ª DM: resposta pública de novo no comentário ({arroba} = @ da pessoa). */
 export type LembreteComentario = { ativo: boolean; horas: number; por_minuto: number; textos: string[] };
+
+/**
+ * Materiais (/m/<endereço>): a mensagem da DM que leva o link do material e o convite que vai
+ * depois dela e no fim da página (grupo, lista, produto). Convite sem texto ou sem link não vai.
+ */
+export type ConfigEntregas = { dm_texto: string; dm_botao: string; convite_texto: string; convite_botao: string; convite_link: string };
+export const ENTREGAS_PADRAO: ConfigEntregas = { dm_texto: "tá aqui o material 👇", dm_botao: "abrir o material", convite_texto: "", convite_botao: "quero entrar", convite_link: "" };
 
 // Chaves e tokens ficam na tabela "segredo" (só o dono lê); o resto em "configuracao"
 const SEGREDOS: ReadonlySet<Chave> = new Set<Chave>(["ia", "meta_app", "instagram", "facebook"]);

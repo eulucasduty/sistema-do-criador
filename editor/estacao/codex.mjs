@@ -107,7 +107,8 @@ function explicar(msg) {
  */
 export function rodarCodex(pasta, prompt, { modelo = null, esforco = process.env.EDITOR_ESFORCO || "high", minutos = 50, aoPasso = () => {}, retomar = null } = {}) {
   if (!FERRAMENTAS.codex) return Promise.reject(new Error("o Codex não está instalado neste PC (npm install -g @openai/codex)"));
-  if (!retomar) escreverAgentsMd(pasta);
+  // Sem o kit na pasta (a escrita de legenda e material): só o pedido, sem o manual da edição
+  if (!retomar && fs.existsSync(path.join(pasta, "kit", "EDITOR.md"))) escreverAgentsMd(pasta);
   const config = [
     'web_search="disabled"',
     `model_reasoning_effort="${esforco}"`,

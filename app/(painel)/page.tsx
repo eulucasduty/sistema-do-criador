@@ -210,7 +210,7 @@ export default async function Inicio({ searchParams }: PageProps<"/">) {
               ? `@${s.instagram.username} conectado · último evento ${haQuanto(s.ultimoEventoIg?.recebido_em)}`
               : s.instagram.erro
                 ? `Atenção: ${s.instagram.erro}`
-                : "O passo mais longo (uns 20 min, uma vez só). É o que liga as automações, o agente e a sua persona."
+                : "O passo mais longo (uns 20 min, uma vez só). É o que liga as automações, o agente, a sua persona e o postar com 1 clique."
           }
         >
           {q.ig === "ok" && <Aviso tipo="ok">Instagram conectado e inscrito nos webhooks.</Aviso>}
@@ -240,6 +240,11 @@ export default async function Inicio({ searchParams }: PageProps<"/">) {
                 <button className="btn btn-sm btn-2 shrink-0">{s.env.appSecret ? "Trocar" : "Salvar"}</button>
               </form>
               {s.env.appSecret && <span className="mt-1 block text-ok">✓ chave secreta salva</span>}
+            </li>
+            <li>
+              Em <T>Casos de uso → Instagram → Personalizar → Permissões e recursos</T>, confira se <T>instagram_business_content_publish</T> está adicionada (se não estiver, clique em{" "}
+              <T>Adicionar</T>). É ela que deixa o sistema postar os seus Reels com 1 clique. Conectou antes de ligar essa permissão? Gere o token de novo
+              (passo abaixo) e troque.
             </li>
             <li>
               Em <T>Gerar tokens de acesso</T>: <T>Adicionar conta</T> → entre com o seu Instagram → aceite as permissões → <T>Gerar token</T>. Copie

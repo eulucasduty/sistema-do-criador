@@ -27,6 +27,7 @@ import { pouparMaquina } from "../editor/estacao/preparar.mjs";
 import { ligarRoteiros } from "../editor/estacao/roteiros.mjs";
 import { conectar, esquecerSessao, ARQUIVO_SESSAO } from "../editor/estacao/sessao.mjs";
 import { sincronizarSons } from "../editor/estacao/sons.mjs";
+import { falaECta, iniciarEscrita } from "../editor/estacao/escrita.mjs";
 
 const AJUDA = `Estação de edição do Creator System
 
@@ -244,6 +245,15 @@ async function processar(ed, ia) {
     concluido_em: agora(),
   });
 
+  // Postar no Instagram: a fala e a palavra do CTA vão pra edição e a legenda entra na fila da
+  // escrita (editor/estacao/escrita.mjs). À parte: sem a migration 003, a edição segue normal.
+  const { fala, cta } = falaECta(pasta);
+  const { error: eFala } = await db.from("edicao").update({ transcricao: fala || null, cta_palavra: cta }).eq("id", ed.id);
+  const { error: ePost } = eFala
+    ? { error: eFala }
+    : await db.from("postagem").upsert({ edicao_id: ed.id, status: "aguardando_estacao", palavra: cta, etapa: "na fila da estação: a IA escreve a legenda" }, { onConflict: "edicao_id", ignoreDuplicates: true });
+  if (ePost) console.error(`[${hora()}] a legenda do post não entrou na fila: ${ePost.message}`);
+
   // O bruto e os materiais já estão tratados na oficina: libera o storage e o disco
   const partes = [...(ed.video?.partes ?? [])];
   const { data: mats } = await db.from("edicao_material").select("arquivo").eq("edicao_id", ed.id);
@@ -353,6 +363,8 @@ async function principal() {
   setInterval(() => batida().catch((e) => console.error(`[${hora()}] batida falhou: ${e.message}`)), 30_000);
   // Os roteiros pra teleprompter: um laço à parte, com a mesma IA (editor/estacao/roteiros.mjs)
   roteiros = ligarRoteiros({ db, maquina: MAQUINA, pronto: () => motor.ok === true, log: (m) => console.log(`[${hora()}] ${m}`) });
+  // A escrita (legenda do post e rascunho dos materiais) roda junto, num laço à parte
+  if (process.env.ESTACAO_ESCRITA !== "0") iniciarEscrita({ db, maquina: MAQUINA, raiz: RAIZ, pastaDe, pronto: () => motor.ok === true }).catch((e) => console.error(`[${hora()}] a escrita parou: ${e.message}`));
 
   let pausaAte = 0;
   for (;;) {
