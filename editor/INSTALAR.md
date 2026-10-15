@@ -110,12 +110,20 @@ Cada vídeo pronto sobe pro painel e fica também numa cópia no seu PC (`Vídeo
     coloque crédito na OpenRouter.
 
   Os vídeos esperam na fila até resolver; não precisa mandar de novo.
-- **Bateu no limite do plano** (Claude ou ChatGPT): o pedido vai pra "Erro" com o horário em que o
-  limite volta. Espere e clique em **Tentar de novo**, ou troque quem edita no painel.
+- **Bateu no limite do plano** (Claude ou ChatGPT): o pedido volta pra fila sozinho e a estação
+  tenta de novo a cada 20 minutos, até o limite voltar (o painel mostra o horário da próxima
+  tentativa). Não precisa fazer nada; se tiver pressa, troque quem edita no painel. O vídeo já
+  tratado e transcrito fica guardado: a nova tentativa não refaz essa parte.
 - **O painel mostra a estação desligada**: a janela foi fechada, o computador dormiu ou caiu a
   internet. Abra o atalho de novo; o pedido que estava no meio volta pra fila sozinho.
 - **Demora**: é normal levar vários minutos por vídeo; o render é a parte mais pesada. Deixe o
-  computador na tomada e configurado pra não dormir enquanto edita.
+  computador na tomada e configurado pra não dormir enquanto edita. A estação usa só metade do
+  processador (e em prioridade baixa), pra você seguir usando o computador; se for deixar ele só
+  editando, `EDITOR_CPU=100` no `.env.local` faz ela usar tudo (veja os opcionais abaixo).
+- **Atualizei o sistema e quero um vídeo antigo com as correções novas**: na página da edição,
+  clique em **Montar de novo com o kit atualizado**. A estação refaz o vídeo com o mesmo plano, sem
+  a IA (não gasta nada). Só funciona no PC onde a edição foi feita (a pasta dela fica em
+  `editor/oficina`); se não achar, a edição continua como estava.
 - **A foto do perfil não aparece no fim do vídeo**: o link da foto do Instagram vence de tempos em
   tempos. Atualize o perfil no painel. Sem foto, o vídeo sai com a inicial do seu nome.
 
@@ -160,6 +168,7 @@ seu banco: não mande pra ninguém.
 |---|---|---|
 | `EDITOR_SAIDA` | pasta onde a cópia do vídeo pronto fica no seu PC | `Vídeos/Creator System` |
 | `EDITOR_ESFORCO` | quanto a IA pensa (`low`, `medium`, `high`) | `high` (OpenRouter: `medium`) |
+| `EDITOR_CPU` | quanto do processador a edição usa, em % (de 10 a 100) | `50` |
 | `OPENROUTER_API_KEY` | chave da OpenRouter só neste PC (vale por cima da do painel) | a do painel |
 | `FFMPEG_BIN` | caminho do ffmpeg (o ffprobe tem que estar na mesma pasta) | procura sozinha |
 | `WHISPER_BIN` / `WHISPER_MODEL` | caminho do `whisper-cli` e do modelo | procura sozinha |
@@ -182,6 +191,10 @@ mostra a lista com as legendas de cada um). Sem ele, vale o estilo padrão.
 
 (`--motor codex` ou `--motor openrouter` também valem; na OpenRouter, com `OPENROUTER_API_KEY` no
 `.env.local`.) O resultado fica em `editor/oficina/teste-<data>/renders/final.mp4`.
+
+`--cor` é o look: `original` (sem filtro nenhum), `natural`, `quente` ou `contraste`. Pra montar de
+novo uma edição que já está pronta (o mesmo plano, com o kit de agora, sem a IA):
+`npm run editor:testar -- --remontar editor/oficina/<pasta da edição>`.
 
 ### Segurança
 

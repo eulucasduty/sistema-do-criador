@@ -1,14 +1,15 @@
 // Recorte da pessoa (sem o fundo) nos trechos que o plano pede: texto atrás dela, troca de cenário,
 // profundidade, "sair" da moldura. O montador lista os trechos em dados/recortes.json; aqui cada um
 // vira um .webm com transparência (hyperframes remove-background: um modelo que roda no próprio PC,
-// uns 15 s de processamento por segundo de vídeo; na primeira vez ele baixa o modelo). Depois o
+// uns 25 s de processamento por segundo de vídeo com metade do processador; na primeira vez ele
+// baixa o modelo). Depois o
 // montador roda de novo e encaixa.
 
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { comandoHyperframes } from "./ferramentas.mjs";
-import { FERRAMENTAS, rodar } from "./preparar.mjs";
+import { FERRAMENTAS, NUCLEOS, rodar } from "./preparar.mjs";
 
 function rodarShell(comando, { cwd, timeoutMs }) {
   return new Promise((resolve, reject) => {
@@ -50,14 +51,14 @@ export async function gerarRecortes(pasta, { aviso = () => {} } = {}) {
   const pendentes = recortesPendentes(pasta);
   if (!pendentes.length) return 0;
   const total = pendentes.reduce((s, p) => s + (p.ate - p.de), 0);
-  aviso(`recortando você do fundo: ${pendentes.length} trecho(s), ${Math.round(total)} s de vídeo (leva uns ${Math.max(1, Math.ceil((total * 15) / 60))} min)`);
+  aviso(`recortando você do fundo: ${pendentes.length} trecho(s), ${Math.round(total)} s de vídeo (leva uns ${Math.max(1, Math.ceil((total * 25) / 60))} min)`);
   fs.mkdirSync(path.join(pasta, "recortes"), { recursive: true });
   for (const [k, p] of pendentes.entries()) {
     const dur = Math.round((p.ate - p.de) * 1000) / 1000;
     const trecho = `recortes/_trecho-${k}.mp4`;
     // o trecho exato do vídeo já tratado (mesma cor e mesmo quadro do render), sem áudio
-    await rodar(FERRAMENTAS.ffmpeg, ["-y", "-v", "error", "-ss", String(p.de), "-t", String(dur), "-i", "assets/video.mp4", "-an", "-r", "30", "-c:v", "libx264", "-preset", "fast", "-crf", "14", "-pix_fmt", "yuv420p", trecho], { cwd: pasta, timeoutMs: 10 * 60_000 });
-    await rodarShell(`${comandoHyperframes()} remove-background ${trecho} -o ${p.arquivo} --quality balanced`, { cwd: pasta, timeoutMs: Math.max(10, Math.ceil(dur)) * 60_000 });
+    await rodar(FERRAMENTAS.ffmpeg, ["-y", "-v", "error", "-ss", String(p.de), "-t", String(dur), "-i", "assets/video.mp4", "-an", "-r", "30", "-c:v", "libx264", "-preset", "fast", "-crf", "14", "-threads", String(NUCLEOS), "-pix_fmt", "yuv420p", trecho], { cwd: pasta, timeoutMs: 10 * 60_000 });
+    await rodarShell(`${comandoHyperframes()} remove-background ${trecho} -o ${p.arquivo} --quality balanced`, { cwd: pasta, timeoutMs: Math.max(10, Math.ceil(dur * 1.5)) * 60_000 });
     fs.rmSync(path.join(pasta, trecho), { force: true });
     if (!fs.existsSync(path.join(pasta, p.arquivo))) throw new Error(`o recorte ${p.arquivo} não saiu`);
     aviso(`recorte ${k + 1} de ${pendentes.length} pronto`);

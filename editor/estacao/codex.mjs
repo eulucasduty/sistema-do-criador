@@ -90,10 +90,13 @@ function descrever(item) {
   return null;
 }
 
+/** O plano do ChatGPT bateu no limite de uso do Codex (volta sozinho depois de um tempo). */
+const LIMITE = /usage limit|rate limit|hit your/i;
+
 /** Erro do Codex em português simples (o original vai junto). */
 function explicar(msg) {
   const m = String(msg ?? "").trim();
-  if (/usage limit|rate limit|hit your/i.test(m)) return `o seu plano do ChatGPT bateu no limite de uso do Codex (espere o horário que ele diz ou troque quem edita no painel): ${m.slice(0, 300)}`;
+  if (LIMITE.test(m)) return `o seu plano do ChatGPT bateu no limite de uso do Codex (espere o horário que ele diz ou troque quem edita no painel): ${m.slice(0, 300)}`;
   if (/log ?in|auth|unauthori[sz]ed|401|token/i.test(m)) return `o Codex não está logado no ChatGPT (no terminal: codex login): ${m.slice(0, 300)}`;
   return m.slice(0, 600);
 }
@@ -176,7 +179,10 @@ export function rodarCodex(pasta, prompt, { modelo = null, esforco = process.env
     });
     p.on("close", (codigo) => {
       clearTimeout(relogio);
-      if (codigo !== 0 || falha || !resumo) return reject(new Error(`o ChatGPT não terminou (código ${codigo}): ${explicar(falha ?? erro.slice(-800))}`));
+      if (codigo !== 0 || falha || !resumo) {
+        const motivo = falha ?? erro.slice(-800);
+        return reject(Object.assign(new Error(`o ChatGPT não terminou (código ${codigo}): ${explicar(motivo)}`), { limite: LIMITE.test(String(motivo ?? "")) }));
+      }
       resolve({
         resumo,
         passos,

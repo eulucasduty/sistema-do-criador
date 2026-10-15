@@ -5,7 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { haQuanto } from "@/lib/formato";
 import { FINAIS, PASSO_DA_IA, STATUS_EDICAO, estacaoLigada, nomeDaLegenda, nomeDoEstilo, nomeDoMotor, type BatidaEstacao } from "@/lib/editor";
 import { BotaoGerar } from "../../esteira/botoes";
-import { apagarEdicao, cancelarEdicao, pedirAjuste, tentarDeNovo } from "../acoes";
+import { apagarEdicao, cancelarEdicao, montarDeNovo, pedirAjuste, tentarDeNovo } from "../acoes";
 import { AutoAtualizar } from "../atualizar";
 import { EstacaoDesligada } from "../estacao";
 import { nomeDoLook } from "../opcoes";
@@ -167,6 +167,11 @@ export default async function PaginaEdicao({ params, searchParams }: PageProps<"
               />
               <BotaoGerar rotulo="Mandar o ajuste" gerando="Mandando…" className="btn btn-sm" />
               <p className="text-xs text-apagado">Vira a versão {e.versao + 1}: o editor parte desta e muda só o que você pediu.</p>
+            </form>
+            <form action={montarDeNovo} className="space-y-1">
+              <input type="hidden" name="id" value={e.id} />
+              <BotaoGerar rotulo="Montar de novo com o kit atualizado" gerando="Voltando pra fila…" className="btn btn-sm btn-2" />
+              <p className="text-xs text-apagado">Atualizou o sistema? Refaz este vídeo com o mesmo plano e o kit novo, sem a IA (não gasta nada). Precisa da oficina desta edição no PC da estação.</p>
             </form>
           </div>
         </section>
