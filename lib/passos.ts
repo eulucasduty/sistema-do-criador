@@ -1,7 +1,10 @@
 import "server-only";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { lerConfig, PERFIL_PADRAO, type Perfil, type Persona } from "@/lib/config";
 import { estacaoLigada, type BatidaEstacao } from "@/lib/editor";
+import { estacaoCarrosselLigada, type BatidaCarrossel } from "@/lib/esteira/carrossel";
 import type { ContaInstagram } from "@/lib/instagram/api";
 import type { ContaFacebook } from "@/lib/instagram/descoberta";
 import type { BatidaRelogio } from "@/lib/relogio";
@@ -26,12 +29,16 @@ export type Situacao = {
   relogioAgendado: boolean | null;
   estacao: BatidaEstacao;
   estacaoLigada: boolean;
+  /** Cópia de carrossel pela estação: o banco já tem a migration 004? e a batida dessa parte. */
+  carrossel: { banco: boolean; batida: BatidaCarrossel; ligada: boolean };
   automacoes: number;
   automacoesAtivas: number;
   ofertas: number;
   referencias: number;
   edicoes: number;
   alertasAbertos: number;
+  /** SQL de atualização que ainda não rodou no banco (versão nova do sistema). */
+  migracoesFaltando: Migracao[];
 };
 
 export async function lerSituacao(): Promise<Situacao> {
@@ -45,11 +52,13 @@ export async function lerSituacao(): Promise<Situacao> {
     db.from("edicao").select("id", { count: "exact", head: true }),
     db.from("alerta").select("id", { count: "exact", head: true }).eq("resolvido", false),
     db.rpc("relogio_agendado"),
+    db.from("carrossel_trabalho").select("id", { count: "exact", head: true }),
   ]);
   const cfg = Object.fromEntries((configs ?? []).map((c) => [c.chave, c.valor])) as Record<string, unknown>;
   const perfilSalvo = (cfg.perfil ?? {}) as Partial<Perfil>;
   const relogio = (cfg.relogio ?? {}) as BatidaRelogio;
   const estacao = (cfg.estacao_edicao ?? { visto_em: null, maquina: null }) as BatidaEstacao;
+  const batidaCarrossel = (cfg.estacao_carrosseis ?? {}) as BatidaCarrossel;
   return {
     url: urlDoApp(),
     vercel: Boolean(process.env.VERCEL),
@@ -71,13 +80,46 @@ export async function lerSituacao(): Promise<Situacao> {
     relogioAgendado: agendado.error ? null : Boolean(agendado.data),
     estacao,
     estacaoLigada: estacaoLigada(estacao),
+    carrossel: { banco: !carrosseis.error, batida: batidaCarrossel, ligada: estacaoCarrosselLigada(batidaCarrossel) },
     automacoes: auto.count ?? 0,
     automacoesAtivas: autoAtivas.count ?? 0,
     ofertas: Array.isArray(cfg.ofertas) ? cfg.ofertas.length : 0,
     referencias: refs.count ?? 0,
     edicoes: eds.count ?? 0,
     alertasAbertos: alertas.count ?? 0,
+    migracoesFaltando: await migracoesFaltando(),
   };
+}
+
+// ── Atualizações do banco ──────────────────────────────────────────
+// Quem instalou antes de uma versão nova precisa rodar o SQL novo uma vez. Cada migration depois
+// da 001 entra aqui com uma tabela que ela cria: sem a tabela, o SQL ainda não rodou.
+
+export type Migracao = { arquivo: string; tabela: string; pra_que: string };
+export const MIGRACOES: Migracao[] = [
+  { arquivo: "002_roteiros.sql", tabela: "roteiro", pra_que: "os roteiros pra teleprompter" },
+  { arquivo: "003_postagem_materiais.sql", tabela: "entrega", pra_que: "postar com 1 clique e os Materiais" },
+  { arquivo: "004_carrossel.sql", tabela: "carrossel_trabalho", pra_que: "a cópia de carrossel pela estação" },
+];
+
+const naoExiste = (e: { code?: string; message?: string } | null) =>
+  Boolean(e && (e.code === "42P01" || e.code === "PGRST205" || /does not exist|Could not find the table/i.test(e.message ?? "")));
+
+/** As migrations que ainda não rodaram neste banco. */
+export async function migracoesFaltando(): Promise<Migracao[]> {
+  const db = createAdminClient();
+  const testes = await Promise.all(MIGRACOES.map((m) => db.from(m.tabela).select("id", { count: "exact", head: true })));
+  return MIGRACOES.filter((_, i) => naoExiste(testes[i].error));
+}
+
+/** O SQL de uma migration, pra copiar e colar no SQL Editor. */
+export function sqlDaMigracao(arquivo: string): string {
+  if (!/^\d{3}_[a-z0-9_]+\.sql$/.test(arquivo)) return "";
+  try {
+    return readFileSync(path.join(process.cwd(), "supabase", "migrations", arquivo), "utf8");
+  } catch {
+    return "";
+  }
 }
 
 export type ProblemaBanco = { tipo: "variaveis" | "sql" | "outro"; mensagem: string };

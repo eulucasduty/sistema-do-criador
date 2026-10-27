@@ -507,18 +507,36 @@ export default async function PaginaReferencia({ params, searchParams }: PagePro
                         nome: `carrossel-${String(i + 1).padStart(2, "0")}.png`,
                       }))}
                     />
-                    <Copiar texto={copia.legenda} rotulo="Copiar legenda" className="btn btn-sm btn-2" />
-                  </div>
-                  <div className="rounded-lg bg-superficie-2 p-3 text-sm">
-                    <p className="text-xs font-bold text-apagado">LEGENDA</p>
-                    <p className="mt-1 whitespace-pre-wrap">{copia.legenda}</p>
-                  </div>
-                  <p className="text-xs text-apagado">
-                    Da referência: {copia.de_onde_veio}
-                    {copia.pedido ? ` · direção: ${copia.pedido}` : ""} · {copia.modelo.split("/").pop()} · US$ {copia.custo_usd}
-                  </p>
-                </div>
-              ) : null}
+                  </label>
+                  <label className="block text-xs font-bold">
+                    Headline da capa (opcional)
+                    <textarea
+                      name="headline"
+                      rows={2}
+                      maxLength={500}
+                      defaultValue={trabalho?.headline ?? ""}
+                      placeholder="Vazio: traduz a headline original."
+                      className="campo mt-1"
+                    />
+                  </label>
+                  <label className="block text-xs font-bold">
+                    Do segundo slide em diante
+                    <select name="modo_texto" defaultValue={trabalho?.modo_texto ?? "traduzir"} className="campo mt-1">
+                      <option value="traduzir">Traduzir fiel pro português</option>
+                      <option value="reformular">Reescrever em português, mesma mensagem</option>
+                    </select>
+                  </label>
+                  <textarea name="pedido" rows={2} placeholder="ajustes (opcional): ex. marca no canto de cima · mantém o laranja da referência" className="campo" />
+                  <BotaoGerar
+                    rotulo={produzindo ? "Já está na fila / sendo feito" : copia ? "Fazer outra cópia" : "Copiar carrossel"}
+                    gerando="Mandando pra estação…"
+                    className="btn"
+                    disabled={produzindo || slidesRef.length < 2}
+                  />
+                  {slidesRef.length < 2 && <p className="text-xs text-morno">Suba os outros slides pra copiar o carrossel inteiro.</p>}
+                </form>
+              )}
+              <CopiaCarrossel id={r.id} trabalho={trabalho} resultado={copia} ligada={ligada} />
             </section>
           ) : null}
         </div>

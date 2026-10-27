@@ -12,7 +12,7 @@ export function BotaoGerar({ rotulo, gerando = "Gerando… (uns 30 s)", classNam
   );
 }
 
-/** Baixa todos os PNGs do carrossel, um atrás do outro. */
+/** Baixa todos os slides do carrossel (PNG e MP4), um atrás do outro. */
 export function BaixarTodos({ arquivos }: { arquivos: Array<{ url: string; nome: string }> }) {
   return (
     <button

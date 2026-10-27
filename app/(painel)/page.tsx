@@ -2,6 +2,7 @@ import Link from "next/link";
 import { lerSituacao } from "@/lib/passos";
 import { haQuanto } from "@/lib/formato";
 import { Copiar } from "./copiar";
+import { AtualizarBanco } from "./atualizar-banco";
 import { PassoEstacao } from "./editor/passo-estacao";
 import { conectarInstagram, ligarRelogio, salvarChaveIA, salvarSegredoDoApp, testarIA } from "./conexoes/acoes";
 
@@ -127,10 +128,15 @@ export default async function Inicio({ searchParams }: PageProps<"/">) {
           id="hospedagem"
           n={1}
           titulo="Banco e hospedagem"
-          estado="ok"
-          aberto={false}
-          resumo={`Se você está vendo esta tela, o Supabase e a hospedagem estão funcionando. Endereço do sistema: ${s.url}`}
+          estado={s.migracoesFaltando.length ? "atencao" : "ok"}
+          aberto={s.migracoesFaltando.length > 0}
+          resumo={
+            s.migracoesFaltando.length
+              ? `Versão nova: falta rodar o SQL de atualização no Supabase (${s.migracoesFaltando.map((m) => m.pra_que).join(", ")}).`
+              : `Se você está vendo esta tela, o Supabase e a hospedagem estão funcionando. Endereço do sistema: ${s.url}`
+          }
         >
+          <AtualizarBanco faltando={s.migracoesFaltando} />
           <p>
             Já feito na instalação: o projeto no Supabase com o SQL rodado e o sistema publicado na Vercel com as 3 chaves do Supabase. Daqui pra
             frente, tudo é colado aqui mesmo no painel.
@@ -237,6 +243,11 @@ export default async function Inicio({ searchParams }: PageProps<"/">) {
               {s.env.appSecret && <span className="mt-1 block text-ok">✓ chave secreta salva</span>}
             </li>
             <li>
+              Em <T>Casos de uso → Instagram → Personalizar → Permissões e recursos</T>, confira se <T>instagram_business_content_publish</T> está adicionada (se não estiver, clique em{" "}
+              <T>Adicionar</T>). É ela que deixa o sistema postar os seus Reels com 1 clique. Conectou antes de ligar essa permissão? Gere o token de novo
+              (passo abaixo) e troque.
+            </li>
+            <li>
               Em <T>Gerar tokens de acesso</T>: <T>Adicionar conta</T> → entre com o seu Instagram → aceite as permissões → <T>Gerar token</T>. Copie
               o token (começa com IGAA) e cole aqui:
               <form action={conectarInstagram} className="mt-2 flex gap-2">
@@ -309,10 +320,20 @@ export default async function Inicio({ searchParams }: PageProps<"/">) {
               ? `Ligada em ${s.estacao.maquina ?? "seu PC"}${s.estacao.ocupada ? " · editando agora" : " · esperando pedidos"}`
               : s.estacao.visto_em
                 ? `Desligada (vista ${haQuanto(s.estacao.visto_em)}). Ligue quando for editar.`
-                : "O editor de vídeo roda no seu computador, com a IA que você já assina (Claude ou ChatGPT) ou pela OpenRouter. Instala com um comando."
+                : "O editor de vídeo (e quem escreve os seus roteiros) roda no seu computador, com a IA que você já assina (Claude ou ChatGPT) ou pela OpenRouter. Instala com um comando."
           }
         >
           <PassoEstacao batida={s.estacao} endereco={s.url} />
+          <p className="text-xs">
+            A mesma estação faz as <T>cópias de carrossel</T> da Esteira, com a mesma IA, em paralelo com os vídeos.
+            {s.carrossel.ligada ? <span className="text-ok"> Ligada{s.carrossel.batida.ocupada ? ": copiando um carrossel agora" : ""}.</span> : null}
+          </p>
+          {!s.carrossel.banco && (
+            <Aviso tipo="erro">
+              Falta atualizar o banco pra copiar carrosséis: abra o SQL Editor do Supabase, cole o arquivo supabase/migrations/004_carrossel.sql (do seu
+              GitHub) e clique em Run.
+            </Aviso>
+          )}
         </Passo>
 
         <Passo

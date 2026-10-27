@@ -119,6 +119,8 @@ npm run carrossel:verificar
 
 Os testes de render precisam de Chromium do Playwright e FFmpeg no PATH. Não usam contas reais nem publicam no Instagram.
 
+Se a versão nova trouxer tabela nova no banco (um arquivo novo em `supabase/migrations`, como `004_carrossel.sql`), o **Início** avisa e mostra o SQL pra copiar: cole no **SQL Editor** do Supabase e clique em **Run** (1 minuto; pode rodar de novo sem medo, não estraga nada). Quem roda o sistema pelo terminal pode usar `npm run migrar`.
+
 ## Problemas comuns
 
 | Problema | Confira |

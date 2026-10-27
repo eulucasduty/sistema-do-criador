@@ -17,10 +17,22 @@ const ICONES: Record<string, React.ReactNode> = {
       <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5" />
     </>
   ),
+  roteiros: (
+    <>
+      <path d="M15 12h-5M15 8h-5M19 17V5a2 2 0 0 0-2-2H4" />
+      <path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3" />
+    </>
+  ),
   editor: (
     <>
       <path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z" />
       <path d="m6.2 5.3 3.1 3.9M12.4 3.4l3.1 4M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" />
+    </>
+  ),
+  materiais: (
+    <>
+      <path d="M21 8v13H3V8" />
+      <path d="M1 3h22v5H1zM10 12h4" />
     </>
   ),
   automacoes: (
@@ -56,8 +68,10 @@ const ICONES: Record<string, React.ReactNode> = {
 const ITENS = [
   { href: "/", rotulo: "Início", icone: "inicio" },
   { href: "/esteira", rotulo: "Esteira", icone: "esteira" },
+  { href: "/roteiros", rotulo: "Roteiros", icone: "roteiros" },
   { href: "/editor", rotulo: "Editor de vídeo", icone: "editor" },
   { href: "/instagram", rotulo: "Automações", icone: "automacoes" },
+  { href: "/materiais", rotulo: "Materiais", icone: "materiais" },
   { href: "/contatos", rotulo: "Leads", icone: "leads", contador: true },
   { href: "/roteiros", rotulo: "Roteiros", icone: "editor" },
   { href: "/roteiros/criadores", rotulo: "Criadores", icone: "perfil" },

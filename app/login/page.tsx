@@ -21,6 +21,7 @@ async function situacao(): Promise<{ dono: boolean; problema: ProblemaBanco | nu
   return { dono: (count ?? 0) > 0, problema: null };
 }
 
+/** Todas as migrations em ordem, num texto só: cada uma pode rodar de novo sem estragar nada. */
 function sqlDaInstalacao(): string {
   try {
     const pasta = path.join(process.cwd(), "supabase", "migrations");
@@ -46,8 +47,8 @@ function PassoDoBanco() {
               <Copiar texto={sql} rotulo="Copiar o SQL" className="btn btn-sm" />
             </span>
           ) : (
-            <a href={`${REPO_URL}/blob/main/supabase/migrations/001_sistema.sql`} target="_blank" rel="noreferrer" className="text-marca underline">
-              abrir o arquivo do SQL
+            <a href={`${REPO_URL}/tree/main/supabase/migrations`} target="_blank" rel="noreferrer" className="text-marca underline">
+              abrir os arquivos do SQL (rode na ordem: 001, 002…)
             </a>
           )}
         </li>

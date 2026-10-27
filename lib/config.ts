@@ -24,7 +24,10 @@ type Chave =
   | "followup_agente"
   | "lembrete_comentario"
   | "estacao_edicao"
-  | "relogio";
+  | "estacao_roteiros"
+  | "padrao_viral"
+  | "relogio"
+  | "entregas";
 
 /** Quem é o criador: vai pro editor (CTA, legenda), pro roteirista e pro agente. */
 export type ConfigEntregas = { convite_texto: string; convite_botao: string; convite_link: string };
@@ -38,7 +41,7 @@ export type Perfil = {
   tom: string | null; // como você fala (gírias, bordões, jeito)
   regras: string | null; // o que nunca pode aparecer nos vídeos (o editor segue)
   foto_url: string | null; // foto de perfil (vem do Instagram)
-  cor: "natural" | "quente" | "contraste"; // look do vídeo no editor
+  cor: "original" | "natural" | "quente" | "contraste"; // look do vídeo no editor (original = sem filtro)
   estilo: string | null; // estilo de edição padrão (editor/kit/estilos/<id>); vazio = o padrão do kit
   legenda: string; // tipo de legenda padrão (vale quando o estilo escolhido tem esse tipo)
   cores: { fundo: string; texto: string; destaque: string }; // sua marca (carrossel no visual "minha marca")
@@ -76,6 +79,13 @@ export type Oferta = { nome: string; link: string; para_quem: string };
 export type FollowupAgente = { horas: number; antes_da_oferta: string; depois_da_oferta: string };
 /** Quem não respondeu a 1ª DM: resposta pública de novo no comentário ({arroba} = @ da pessoa). */
 export type LembreteComentario = { ativo: boolean; horas: number; por_minuto: number; textos: string[] };
+
+/**
+ * Materiais (/m/<endereço>): a mensagem da DM que leva o link do material e o convite que vai
+ * depois dela e no fim da página (grupo, lista, produto). Convite sem texto ou sem link não vai.
+ */
+export type ConfigEntregas = { dm_texto: string; dm_botao: string; convite_texto: string; convite_botao: string; convite_link: string };
+export const ENTREGAS_PADRAO: ConfigEntregas = { dm_texto: "tá aqui o material 👇", dm_botao: "abrir o material", convite_texto: "", convite_botao: "quero entrar", convite_link: "" };
 
 // Chaves e tokens ficam na tabela "segredo" (só o dono lê); o resto em "configuracao"
 const SEGREDOS: ReadonlySet<Chave> = new Set<Chave>(["ia", "meta_app", "instagram", "facebook"]);

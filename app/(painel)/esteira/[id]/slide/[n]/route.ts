@@ -4,12 +4,16 @@ import type { CopiaCarrossel } from "@/lib/esteira/criacao";
 import { renderizarSlide } from "@/lib/esteira/slide";
 import { ehVideo, type ResultadoCarrossel } from "@/lib/carrossel/comum";
 
-// PNG de um slide da cópia de carrossel (1080x1350). /esteira/<id>/slide/<n>?v=<gerado_em>
-// Só quem está logado (o proxy barra o resto; a RLS também).
+// Um slide da cópia de carrossel feita pela estação: /esteira/<id>/slide/<n>?v=<gerado_em>
+// PNG 1080x1350; slide em vídeo redireciona pro MP4 (link assinado curto) e ?capa=1 dá o PNG dele.
+// Só quem está logado (o proxy barra o resto): a leitura da referência passa pela RLS e só então
+// o servidor baixa do bucket privado um caminho da versão que essa pessoa conseguiu ler.
 export const runtime = "nodejs";
 
 export async function GET(req: Request, ctx: { params: Promise<{ id: string; n: string }> }) {
   const { id, n } = await ctx.params;
+  const indice = Number(n) - 1;
+  if (!Number.isInteger(indice) || indice < 0) return new Response("slide inválido", { status: 404 });
   const supabase = await createClient();
   const { data } = await supabase.from("referencia").select("copia, copia_cli").eq("id", id).maybeSingle();
   const indice = Number(n) - 1;

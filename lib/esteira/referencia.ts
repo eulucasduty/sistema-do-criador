@@ -4,6 +4,7 @@ import { createAdminClient, type Db } from "@/lib/supabase/admin";
 import { lerPerfil, type Perfil } from "@/lib/config";
 import { analisarMidiaJSON } from "@/lib/ia/openrouter";
 import { acharPostPublico } from "@/lib/instagram/descoberta";
+import { MAX_SLIDES_CARROSSEL, ehVideo as ehVideoSlide, referenciasDoCarrossel, tipoDoArquivo } from "./carrossel";
 
 // A Esteira: referências (reels e carrosséis de outros perfis que performaram).
 //
@@ -18,8 +19,9 @@ import { acharPostPublico } from "@/lib/instagram/descoberta";
 // Análise, toda no Gemini (ele vê E ouve o vídeo, sem ffmpeg):
 //   · reel: 1ª passada ASSISTE (fala palavra por palavra com tempo + cenas + texto na tela);
 //     2ª passada DESMONTA (gancho, estrutura, por que engajou) em cima da transcrição.
-//   · carrossel: lê todos os slides, a estrutura e o estilo visual (pra copiar).
-// Roteiro e cópia de carrossel ficam em lib/esteira/criacao.ts (botões no painel).
+//   · carrossel: lê todos os slides (os de vídeo também), a estrutura e o estilo visual.
+// Roteiro fica em lib/esteira/criacao.ts; a cópia de carrossel é feita pela estação no PC
+// (lib/esteira/carrossel.ts e editor/estacao/carrosseis.mjs).
 
 export const BUCKET = "esteira";
 export const MAX_BYTES = 45 * 1024 * 1024; // o storage grátis aceita até 50 MB por arquivo
@@ -87,9 +89,11 @@ async function buscarNoPublico(db: Db, url: string): Promise<Buscado> {
   };
   try {
     if (post.tipo === "CAROUSEL_ALBUM") {
-      // As imagens na ordem; vídeo dentro do carrossel entra pela capa dele
-      const urls = (post.filhos.length ? post.filhos.map((f) => (f.tipo === "IMAGE" ? f.media_url : null)) : [post.media_url]).filter((u): u is string => Boolean(u));
-      if (!urls.length) return { ...base, motivo: "a Meta não liberou as imagens desse carrossel: suba os prints" };
+      // Os slides na ordem, fotos e vídeos (slide em vídeo vem em MP4: a cópia monta a parte
+      // estática + o motion)
+      const urls = (post.filhos.length ? post.filhos.map((f) => f.media_url) : [post.media_url]).filter((u): u is string => Boolean(u));
+      if (!urls.length) return { ...base, motivo: "a Meta não liberou os slides desse carrossel: suba as fotos e os vídeos" };
+      if (post.filhos.length && urls.length < post.filhos.length) return { ...base, motivo: "a Meta não liberou todos os slides desse carrossel: suba as fotos e os vídeos" };
       const guardados: Array<{ arquivo: string; arquivoTipo: string | null }> = [];
       for (const u of urls.slice(0, MAX_SLIDES)) guardados.push(await baixarEGuardar(db, u));
       return {
@@ -97,7 +101,7 @@ async function buscarNoPublico(db: Db, url: string): Promise<Buscado> {
         arquivo: guardados[0].arquivo,
         arquivoTipo: guardados[0].arquivoTipo,
         slides: guardados.slice(1).map((g) => g.arquivo),
-        motivo: post.filhos.length ? null : "a Meta mandou só a capa: suba os prints dos outros slides",
+        motivo: post.filhos.length ? null : "a Meta mandou só a capa: suba os outros slides",
       };
     }
     if (!post.media_url) return { ...base, motivo };
@@ -344,7 +348,8 @@ export async function analisarReferencia(id: string): Promise<void> {
   const { data: ref } = await db.from("referencia").select("id, tipo, arquivo, arquivo_tipo, legenda, notas, etapa, slides").eq("id", id).single();
   if (!ref?.arquivo) throw new Error("referência sem arquivo");
   const perfil = await lerPerfil();
-  const video = ref.arquivo_tipo?.includes("video") || ref.arquivo.endsWith(".mp4");
+  // Carrossel pode ter slide em vídeo (até na capa): só é reel o que não é carrossel
+  const video = ref.tipo !== "carrossel" && Boolean(ref.arquivo_tipo?.includes("video") || ref.arquivo.endsWith(".mp4"));
   const contexto = [ref.legenda ? `Legenda que veio junto: ${ref.legenda}` : null, ref.notas ? `Nota do criador: ${ref.notas}` : null].filter(Boolean).join("\n");
   const agora = new Date().toISOString();
   const etapa = ref.etapa === "nova" ? "analisada" : ref.etapa;
@@ -368,20 +373,28 @@ export async function analisarReferencia(id: string): Promise<void> {
     return;
   }
 
-  // Carrossel / post: a capa + os prints dos slides, na ordem
-  const caminhos = [ref.arquivo, ...(ref.slides ?? [])].slice(0, MAX_SLIDES);
-  const imagens = await Promise.all(
+  // Carrossel / post: a capa + os outros slides, na ordem (os de vídeo vão como vídeo)
+  const caminhos = referenciasDoCarrossel(ref);
+  if (caminhos.length > MAX_SLIDES) throw new Error(`carrossel com mais de ${MAX_SLIDES} slides: confira a ordem no painel`);
+  const midias = await Promise.all(
     caminhos.map(async (c) => ({
-      tipo: "imagem" as const,
-      url: `data:${c.endsWith(".png") ? "image/png" : c.endsWith(".webp") ? "image/webp" : "image/jpeg"};base64,${(await baixarDoBucket(db, c)).toString("base64")}`,
+      tipo: ehVideoSlide(c) ? ("video" as const) : ("imagem" as const),
+      url: `data:${tipoDoArquivo(c)};base64,${(await baixarDoBucket(db, c)).toString("base64")}`,
     })),
   );
+  const emVideo = caminhos.flatMap((c, i) => (ehVideoSlide(c) ? [i + 1] : []));
   const { dados } = await analisarMidiaJSON<Analise>({
     sistema: desmontarCarrossel(perfil),
-    instrucao: `Desmonte este carrossel (${imagens.length === 1 ? "só veio a capa" : `${imagens.length} imagens, na ordem`}).${contexto ? `\n${contexto}` : ""}`,
-    midias: imagens,
+    instrucao:
+      `Desmonte este carrossel (${midias.length === 1 ? "só veio a capa" : `${midias.length} slides, na ordem`}).` +
+      (emVideo.length ? ` Os slides ${emVideo.join(", ")} são VÍDEO: no "visual" diga o que fica parado e o que se mexe.` : "") +
+      (contexto ? `\n${contexto}` : ""),
+    midias,
+    maxTokens: Math.max(8000, midias.length * 1200),
   });
   if (!dados) throw new Error("a IA não devolveu uma análise válida");
+  if (midias.length > 1 && (dados.slides_ref?.length !== midias.length || dados.slides_ref.some((s, i) => Number(s.n) !== i + 1)))
+    throw new Error(`a IA não leu os ${midias.length} slides em ordem: mande analisar de novo (a cópia não depende disso, ela usa os arquivos)`);
   await db
     .from("referencia")
     .update({ tipo: ref.tipo === "reel" ? "carrossel" : ref.tipo, analise: { ...dados, duracao_seg: null, transcricao: null }, analisado_em: agora, erro: null, etapa })

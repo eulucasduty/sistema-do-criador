@@ -5,6 +5,7 @@ import { passoDosCarrosseis } from "@/lib/postagem/carrossel";
 import { rodarRotinas } from "@/lib/rotinas";
 import { passoDaEsteira } from "@/lib/esteira/referencia";
 import { passoDoFollowup } from "@/lib/instagram/followup";
+import { passoDasPostagens } from "@/lib/postagem/publicar";
 import { salvarConfig } from "@/lib/config";
 import { pegarTrava, soltarTrava } from "@/lib/trava";
 export type BatidaRelogio = { visto_em?: string; modo?: "cron" | "servidor" };

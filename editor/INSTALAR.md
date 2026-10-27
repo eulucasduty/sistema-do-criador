@@ -2,8 +2,10 @@
 
 A **estação** é o programa que edita os vídeos que você manda pelo painel. Ela roda no seu
 computador (Windows ou Mac): trata a cor e o som, transcreve a fala, chama a IA pra montar a
-edição e renderiza o vídeo final. Enquanto ela estiver aberta, o painel mostra "estação ligada"
-e os pedidos saem sozinhos. Fechou a janela ou desligou o computador, os pedidos esperam na fila.
+edição e renderiza o vídeo final. Ela também escreve os **roteiros pra teleprompter** que você
+pede em **Roteiros** (com a mesma IA, sem esperar a edição de vídeo terminar). Enquanto ela
+estiver aberta, o painel mostra "estação ligada" e os pedidos saem sozinhos. Fechou a janela ou
+desligou o computador, os pedidos esperam na fila.
 
 ## Quem edita: escolha uma das três
 
@@ -11,7 +13,7 @@ e os pedidos saem sozinhos. Fechou a janela ou desligou o computador, os pedidos
 |---|---|---|
 | **Claude** | você assina o **Claude Pro ou Max** | nada a mais: usa o seu plano |
 | **ChatGPT** | você assina o **ChatGPT Plus ou Pro** | nada a mais: usa o seu plano (pelo Codex, da OpenAI) |
-| **OpenRouter** | não tem nenhum dos dois | paga por vídeo, **uns R$ 10** (de R$ 5 a R$ 15, conforme o tamanho) |
+| **OpenRouter** | não tem nenhum dos dois | paga por vídeo, **uns R$ 10** (de R$ 5 a R$ 15, conforme o tamanho); roteiro, centavos |
 
 O instalador pergunta qual você quer. Depois dá pra trocar quando quiser no painel:
 **Editor de vídeo → Quem edita os seus vídeos** (a estação pega a troca sozinha, sem reiniciar).
@@ -96,6 +98,21 @@ as edições saiam.
 
 Cada vídeo pronto sobe pro painel e fica também numa cópia no seu PC (`Vídeos/Creator System`).
 
+### Cópia de carrossel
+
+A mesma estação faz as cópias de carrossel da Esteira (**Copiar carrossel** na página do
+carrossel), com a mesma IA que edita os vídeos, em paralelo com as edições. Não precisa instalar
+nada a mais: ela usa o **Google Chrome** do computador (ou o Edge; sem nenhum dos dois, o Chrome
+que o kit de edição baixa) e o ffmpeg que o instalador já pôs.
+
+- Precisa do banco atualizado: rode `supabase/migrations/004_carrossel.sql` no SQL Editor do
+  Supabase uma vez (o Início avisa quando falta).
+- A estação entra com o mesmo login e só mexe nos slides da Esteira (lê os originais e sobe a cópia
+  em `esteira/carrosseis/`).
+- Os arquivos de cada cópia (originais, HTML, slides) ficam em `carrosseis/oficina/` na pasta do
+  sistema. Pode apagar quando quiser: a cópia já está no painel.
+- Pra desligar só essa parte: `ESTACAO_CARROSSEIS=0` no `.env.local`.
+
 ---
 
 ## Problemas comuns
@@ -110,12 +127,22 @@ Cada vídeo pronto sobe pro painel e fica também numa cópia no seu PC (`Vídeo
     coloque crédito na OpenRouter.
 
   Os vídeos esperam na fila até resolver; não precisa mandar de novo.
-- **Bateu no limite do plano** (Claude ou ChatGPT): o pedido vai pra "Erro" com o horário em que o
-  limite volta. Espere e clique em **Tentar de novo**, ou troque quem edita no painel.
+- **Bateu no limite do plano** (Claude ou ChatGPT): o pedido volta pra fila sozinho e a estação
+  tenta de novo a cada 20 minutos, até o limite voltar (o painel mostra o horário da próxima
+  tentativa). Não precisa fazer nada; se tiver pressa, troque quem edita no painel. O vídeo já
+  tratado e transcrito fica guardado: a nova tentativa não refaz essa parte. Com roteiro é igual: volta pra fila e a estação tenta de novo sozinha.
+- **Os roteiros ficam "esperando a estação" com ela ligada**: a estação é de uma versão antiga.
+  Rode o comando da instalação de novo (ele atualiza) e abra o atalho de novo.
 - **O painel mostra a estação desligada**: a janela foi fechada, o computador dormiu ou caiu a
   internet. Abra o atalho de novo; o pedido que estava no meio volta pra fila sozinho.
 - **Demora**: é normal levar vários minutos por vídeo; o render é a parte mais pesada. Deixe o
-  computador na tomada e configurado pra não dormir enquanto edita.
+  computador na tomada e configurado pra não dormir enquanto edita. A estação usa só metade do
+  processador (e em prioridade baixa), pra você seguir usando o computador; se for deixar ele só
+  editando, `EDITOR_CPU=100` no `.env.local` faz ela usar tudo (veja os opcionais abaixo).
+- **Atualizei o sistema e quero um vídeo antigo com as correções novas**: na página da edição,
+  clique em **Montar de novo com o kit atualizado**. A estação refaz o vídeo com o mesmo plano, sem
+  a IA (não gasta nada). Só funciona no PC onde a edição foi feita (a pasta dela fica em
+  `editor/oficina`); se não achar, a edição continua como estava.
 - **A foto do perfil não aparece no fim do vídeo**: o link da foto do Instagram vence de tempos em
   tempos. Atualize o perfil no painel. Sem foto, o vídeo sai com a inicial do seu nome.
 
@@ -160,11 +187,13 @@ seu banco: não mande pra ninguém.
 |---|---|---|
 | `EDITOR_SAIDA` | pasta onde a cópia do vídeo pronto fica no seu PC | `Vídeos/Creator System` |
 | `EDITOR_ESFORCO` | quanto a IA pensa (`low`, `medium`, `high`) | `high` (OpenRouter: `medium`) |
+| `EDITOR_CPU` | quanto do processador a edição usa, em % (de 10 a 100) | `50` |
 | `OPENROUTER_API_KEY` | chave da OpenRouter só neste PC (vale por cima da do painel) | a do painel |
 | `FFMPEG_BIN` | caminho do ffmpeg (o ffprobe tem que estar na mesma pasta) | procura sozinha |
 | `WHISPER_BIN` / `WHISPER_MODEL` | caminho do `whisper-cli` e do modelo | procura sozinha |
 | `CLAUDE_BIN` / `CODEX_BIN` | caminho do Claude Code / do Codex | procura sozinha |
 | `CHROME_BIN` | caminho do Chrome (ou Edge/Chromium) | procura sozinha |
+| `ESTACAO_CARROSSEIS` | `0` desliga a cópia de carrossel nesta estação | ligada |
 
 O modelo de cada IA se escolhe no painel (Quem edita → Avançado). O padrão: Opus no Claude, o da
 sua conta no ChatGPT e `anthropic/claude-sonnet-5.5` na OpenRouter.
@@ -182,6 +211,19 @@ mostra a lista com as legendas de cada um). Sem ele, vale o estilo padrão.
 
 (`--motor codex` ou `--motor openrouter` também valem; na OpenRouter, com `OPENROUTER_API_KEY` no
 `.env.local`.) O resultado fica em `editor/oficina/teste-<data>/renders/final.mp4`.
+
+`--cor` é o look: `original` (sem filtro nenhum), `natural`, `quente` ou `contraste`. Pra montar de
+novo uma edição que já está pronta (o mesmo plano, com o kit de agora, sem a IA):
+`npm run editor:testar -- --remontar editor/oficina/<pasta da edição>`.
+
+Carrossel: ponha os slides numa pasta (01.png, 02.jpg, 03.mp4…) e rode
+
+```
+npm run carrossel:testar -- "caminho/da/pasta" --motor claude --usuario @seuperfil --headline "Headline nova da capa"
+```
+
+Os slides saem em `carrosseis/oficina/teste-<data>/saida/`. `npm run carrossel:verificar` testa só
+o kit (Chrome, ffmpeg e a conferência dos slides), sem IA.
 
 ### Segurança
 

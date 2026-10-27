@@ -1,9 +1,10 @@
 // Preparação da oficina de uma edição, no PC do criador (a estação).
-// Vídeo bruto → look de cor + SDR + 30 fps + voz nivelada, emendas das tomadas,
+// Vídeo bruto → look de cor (ou nenhum) + SDR + 30 fps + voz nivelada, emendas das tomadas,
 // transcrição palavra a palavra, folhas de quadros pra IA "ver" o vídeo, materiais, perfil e o
 // kit do estilo de edição escolhido.
 
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -14,7 +15,33 @@ export { FERRAMENTAS };
 const AQUI = path.dirname(fileURLToPath(import.meta.url));
 export const KIT = path.join(AQUI, "..", "kit");
 
+// Quanto do processador a edição pode usar (EDITOR_CPU, em %; padrão 50). O resto fica livre pra
+// você seguir usando o PC enquanto a estação edita (o estúdio de motion lê a mesma variável).
+const TOTAL_NUCLEOS = os.cpus().length;
+export const NUCLEOS = Math.max(1, Math.min(TOTAL_NUCLEOS, Math.round((TOTAL_NUCLEOS * Math.min(100, Math.max(10, Number(process.env.EDITOR_CPU) || 50))) / 100)));
+
+/**
+ * Deixa o PC respirar: este processo e tudo que ele abrir (ffmpeg, whisper, o Chrome do render, a
+ * IA) ficam em prioridade abaixo do normal e, no Windows, presos nos últimos NUCLEOS núcleos. No
+ * Mac vale só a prioridade (lá não dá pra prender em núcleos).
+ */
+export function pouparMaquina() {
+  let prioridade = false;
+  try {
+    os.setPriority(os.constants.priority.PRIORITY_BELOW_NORMAL);
+    prioridade = true;
+  } catch {}
+  let presa = false;
+  if (process.platform === "win32" && NUCLEOS < TOTAL_NUCLEOS) {
+    const mascara = ((1n << BigInt(TOTAL_NUCLEOS)) - 1n) ^ ((1n << BigInt(TOTAL_NUCLEOS - NUCLEOS)) - 1n);
+    presa = spawnSync("powershell", ["-NoProfile", "-NonInteractive", "-Command", `(Get-Process -Id ${process.pid}).ProcessorAffinity = ${mascara}`], { windowsHide: true, timeout: 30_000 }).status === 0;
+  }
+  return { nucleos: NUCLEOS, total: TOTAL_NUCLEOS, presa, prioridade };
+}
+
 // Looks de cor (perfil.cor no painel ou opcoes.cor no pedido). Entram depois do HDR → SDR.
+//  - original: nenhum filtro nem ajuste (nem nitidez). Pra quem acerta a cor antes de subir: só
+//    fica a conversão do HDR do iPhone, que é técnica (sem ela o vídeo sai lavado)
 //  - natural: só a conversão do HDR do iPhone e uma nitidez leve (fica como a câmera gravou)
 //  - quente: contraste suave (curva em S leve) e meios-tons um tico mais quentes, com a
 //    luminosidade preservada. Sutil de propósito: a pele não pode puxar pro laranja (medido
@@ -31,6 +58,7 @@ const CURVAS_QUENTE =
   "curves=master='0/0 0.06/0.05 0.25/0.24 0.5/0.5 0.75/0.76 0.94/0.945 1/1'," +
   "colorbalance=rm=0.014:bm=-0.016:rh=0.006:bh=-0.01:pl=1";
 export const LOOKS = {
+  original: "",
   natural: "unsharp=5:5:0.5:5:5:0",
   quente: `${CURVAS_QUENTE},unsharp=5:5:0.6:5:5:0`,
   contraste: `${CURVAS_CONTRASTE},unsharp=5:5:0.8:5:5:0`,
@@ -41,12 +69,13 @@ const atual = (n) => {
   const s = String(n ?? "").trim().toLowerCase();
   return ANTIGOS[s] ?? s;
 };
-/** Filtro de cor do look (natural, quente, contraste). Nome desconhecido ou vazio → natural. */
+const ehLook = (n) => Object.hasOwn(LOOKS, n);
+/** Filtro de cor do look (original, natural, quente, contraste). Nome desconhecido ou vazio → natural. */
 export function corDoLook(nome) {
-  return LOOKS[atual(nome)] ?? LOOKS.natural;
+  return ehLook(atual(nome)) ? LOOKS[atual(nome)] : LOOKS.natural;
 }
 /** O primeiro nome de look válido da lista (o do pedido, depois o do perfil); senão natural. */
-export const lookValido = (...nomes) => nomes.map(atual).find((n) => LOOKS[n]) ?? "natural";
+export const lookValido = (...nomes) => nomes.map(atual).find(ehLook) ?? "natural";
 /**
  * O primeiro tipo de legenda pedido (o do pedido, depois o do perfil) com nome válido; senão null
  * (vale a legenda padrão do estilo de edição). Se o estilo não tiver esse tipo, o montador também
@@ -111,7 +140,7 @@ export async function tratarVideo(entrada, saida, { cor = LOOKS.natural } = {}) 
   if (!info.largura) throw new Error("o arquivo do vídeo principal não tem imagem");
   const hdr = ["arib-std-b67", "smpte2084"].includes(info.transfer);
   const vf = ["fps=30", hdr ? TOM_HDR : null, "scale=1080:1920:force_original_aspect_ratio=increase:flags=lanczos", "crop=1080:1920", cor || null, "format=yuv420p"].filter(Boolean).join(",");
-  const args = ["-y", "-v", "error", "-i", entrada, "-map", "0:v:0", "-vf", vf, "-c:v", "libx264", "-preset", "medium", "-crf", "17", "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709", "-movflags", "+faststart"];
+  const args = ["-y", "-v", "error", "-filter_threads", String(NUCLEOS), "-i", entrada, "-map", "0:v:0", "-vf", vf, "-c:v", "libx264", "-preset", "medium", "-crf", "17", "-threads", String(NUCLEOS), "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709", "-movflags", "+faststart"];
   if (info.temAudio) args.push("-map", "0:a:0", "-af", "highpass=f=70,loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000", "-c:a", "aac", "-b:a", "192k");
   else args.push("-an");
   args.push(saida);
@@ -198,7 +227,7 @@ export async function transcrever(video, pasta) {
   const modelo = FERRAMENTAS.modelos.find((m) => fs.existsSync(m));
   if (!modelo) throw new Error("modelo do whisper não encontrado (baixe o ggml-large-v3-turbo-q5_0.bin ou aponte WHISPER_MODEL no .env.local)");
   const base = path.join(pasta, "whisper");
-  const threads = String(Math.max(4, Math.min(12, os.cpus().length - 2)));
+  const threads = String(NUCLEOS);
   await rodar(FERRAMENTAS.whisper, ["-m", modelo, "-f", wav, "-l", "pt", "-ml", "1", "-sow", "-oj", "-of", base, "-t", threads, "-np"], { timeoutMs: 30 * 60_000 });
   const j = JSON.parse(fs.readFileSync(`${base}.json`, "utf8"));
   const palavras = [];
@@ -280,7 +309,7 @@ export async function prepararMaterial({ id, entrada, tipo, descricao }, pasta) 
   const hdr = ["arib-std-b67", "smpte2084"].includes(info.transfer);
   const escala = info.largura >= info.altura ? "scale='min(iw,1920)':-2" : "scale=-2:'min(ih,1920)'";
   const vf = ["fps=30", hdr ? TOM_HDR : null, escala, "format=yuv420p"].filter(Boolean).join(",");
-  await rodar(FERRAMENTAS.ffmpeg, ["-y", "-v", "error", "-i", entrada, "-map", "0:v:0", "-vf", vf, "-an", "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-movflags", "+faststart", path.join(pasta, arquivo)], { timeoutMs: 40 * 60_000 });
+  await rodar(FERRAMENTAS.ffmpeg, ["-y", "-v", "error", "-i", entrada, "-map", "0:v:0", "-vf", vf, "-an", "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-threads", String(NUCLEOS), "-movflags", "+faststart", path.join(pasta, arquivo)], { timeoutMs: 40 * 60_000 });
   const v = await sondar(path.join(pasta, arquivo));
   const folha = `dados/folha-${id}.jpg`;
   await folhaDeQuadros(path.join(pasta, arquivo), path.join(pasta, folha), v.duracao, { colunas: 6, maximo: 18, largura: v.largura >= v.altura ? 320 : 180 });
@@ -412,6 +441,99 @@ export async function gravarPerfil(pasta, perfil, { aviso = () => {} } = {}) {
   return { ...p, foto: dados.foto };
 }
 
+// O preparo do vídeo fica guardado por arquivo bruto e look (editor/oficina/_preparo/<chave>): o
+// mesmo bruto editado de novo (outro estilo, pedido que voltou pra fila, "Tentar de novo") não é
+// tratado nem transcrito outra vez.
+const PREPARO = "p1"; // troque quando o tratamento do vídeo mudar: invalida o que está guardado
+const GUARDADOS = 3; // quantos vídeos preparados ficam guardados (os usados por último)
+
+/** A identidade do bruto: tamanho, começo e fim do arquivo, e o filtro de cor do look. */
+function chaveDoBruto(arquivo, cor) {
+  const { size } = fs.statSync(arquivo);
+  const n = Math.min(size, 1 << 20);
+  const b = Buffer.alloc(n * 2);
+  const fd = fs.openSync(arquivo, "r");
+  try {
+    fs.readSync(fd, b, 0, n, 0);
+    fs.readSync(fd, b, n, n, Math.max(0, size - n));
+  } finally {
+    fs.closeSync(fd);
+  }
+  return crypto.createHash("sha1").update(`${PREPARO}|${cor}|${size}|`).update(b).digest("hex").slice(0, 16);
+}
+
+/** O que só depende do vídeo e do look: tratado, miniaturas, emendas, transcrição e folhas de quadros. */
+async function prepararVideo(bruto, pasta, { look, aviso }) {
+  const cor = corDoLook(look);
+  const raiz = path.join(path.dirname(pasta), "_preparo");
+  const guarda = path.join(raiz, chaveDoBruto(bruto, cor));
+  const g = (...f) => path.join(guarda, ...f);
+  const marca = g("pronto.json");
+  const tratado = g("assets", "video.mp4");
+  if (!fs.existsSync(marca)) {
+    fs.rmSync(guarda, { recursive: true, force: true });
+    for (const p of ["assets", "dados"]) fs.mkdirSync(g(p), { recursive: true });
+
+    aviso(look === "original" ? "tratando o vídeo (HDR → SDR, 30 fps, volume da voz; a cor fica como veio)" : `tratando o vídeo (look ${look}, HDR → SDR, 30 fps, volume da voz)`);
+    const video = await tratarVideo(bruto, tratado, { cor });
+    fs.writeFileSync(g("dados", "video.json"), JSON.stringify({ duracao: video.duracao, largura: video.largura, altura: video.altura, temAudio: video.temAudio, hdr: video.hdr }, null, 2));
+    await miniaturas(tratado, guarda, video.duracao);
+
+    aviso("achando as emendas das tomadas");
+    const candidatas = await detectarCortes(tratado);
+    const cortes = candidatas.map((c) => c.t);
+    fs.writeFileSync(g("dados", "cortes.json"), JSON.stringify(cortes));
+    fs.writeFileSync(g("dados", "emendas.json"), JSON.stringify(candidatas));
+    await folhaDeEmendas(tratado, g("dados"), candidatas);
+    aviso(`${candidatas.length} emendas candidatas (${candidatas.filter((c) => c.forca === "forte").length} certas)`);
+
+    let palavras = [];
+    if (video.temAudio) {
+      aviso("transcrevendo (whisper local)");
+      const t = await transcrever(tratado, g("dados"));
+      palavras = t.palavras;
+      aviso(`transcrição: ${palavras.length} palavras (${t.modelo})`);
+    }
+    fs.writeFileSync(g("dados", "palavras.json"), JSON.stringify(palavras, null, 1));
+    fs.writeFileSync(g("dados", "transcricao.txt"), transcricaoTexto(palavras, cortes));
+
+    aviso("tirando as folhas de quadros");
+    await folhaDeQuadros(tratado, g("dados", "folha.jpg"), video.duracao);
+    const tomadas = await folhaDeTomadas(tratado, g("dados", "tomadas.jpg"), video.duracao, cortes);
+    fs.writeFileSync(g("dados", "tomadas.json"), JSON.stringify(tomadas));
+    fs.writeFileSync(marca, JSON.stringify({ feito_em: new Date().toISOString(), look, video }, null, 2));
+  } else aviso("este vídeo já foi preparado antes: reaproveitando o tratamento e a transcrição");
+
+  // usado agora; dos guardados, só os mais recentes ficam
+  const agora = new Date();
+  fs.utimesSync(marca, agora, agora);
+  const idade = (d) => {
+    try {
+      return fs.statSync(path.join(raiz, d, "pronto.json")).mtimeMs;
+    } catch {
+      return 0;
+    }
+  };
+  const velhos = fs
+    .readdirSync(raiz)
+    .sort((a, b) => idade(b) - idade(a))
+    .slice(GUARDADOS);
+  for (const d of velhos) fs.rmSync(path.join(raiz, d), { recursive: true, force: true });
+
+  // pra oficina: o vídeo entra como o mesmo arquivo no disco (link, não ocupa espaço de novo)
+  fs.cpSync(g("dados"), path.join(pasta, "dados"), { recursive: true });
+  fs.cpSync(g("assets", "miniaturas"), path.join(pasta, "assets", "miniaturas"), { recursive: true });
+  const destino = path.join(pasta, "assets", "video.mp4");
+  fs.rmSync(destino, { force: true });
+  try {
+    fs.linkSync(tratado, destino);
+  } catch {
+    fs.copyFileSync(tratado, destino);
+  }
+  const ler = (f) => lerJson(g("dados", f), []);
+  return { video: lerJson(marca, {}).video, cortes: ler("cortes.json"), palavras: ler("palavras.json"), tomadas: ler("tomadas.json") };
+}
+
 /**
  * Oficina completa a partir do bruto e dos materiais.
  * materiais: [{ id, tipo: "imagem"|"video"|"link", entrada (arquivo local), url, descricao }]
@@ -422,33 +544,7 @@ export async function prepararOficina({ pasta, bruto, materiais = [], pedido, av
   const dados = (f) => path.join(pasta, "dados", f);
 
   const look = lookValido(pedido?.opcoes?.cor);
-  aviso(`tratando o vídeo (look ${look}, HDR → SDR, 30 fps, volume da voz)`);
-  const video = await tratarVideo(bruto, path.join(pasta, "assets", "video.mp4"), { cor: corDoLook(look) });
-  fs.writeFileSync(dados("video.json"), JSON.stringify({ duracao: video.duracao, largura: video.largura, altura: video.altura, temAudio: video.temAudio, hdr: video.hdr }, null, 2));
-  await miniaturas(path.join(pasta, "assets", "video.mp4"), pasta, video.duracao);
-
-  aviso("achando as emendas das tomadas");
-  const candidatas = await detectarCortes(path.join(pasta, "assets", "video.mp4"));
-  const cortes = candidatas.map((c) => c.t);
-  fs.writeFileSync(dados("cortes.json"), JSON.stringify(cortes));
-  fs.writeFileSync(dados("emendas.json"), JSON.stringify(candidatas));
-  await folhaDeEmendas(path.join(pasta, "assets", "video.mp4"), path.join(pasta, "dados"), candidatas);
-  aviso(`${candidatas.length} emendas candidatas (${candidatas.filter((c) => c.forca === "forte").length} certas)`);
-
-  let palavras = [];
-  if (video.temAudio) {
-    aviso("transcrevendo (whisper local)");
-    const t = await transcrever(path.join(pasta, "assets", "video.mp4"), path.join(pasta, "dados"));
-    palavras = t.palavras;
-    aviso(`transcrição: ${palavras.length} palavras (${t.modelo})`);
-  }
-  fs.writeFileSync(dados("palavras.json"), JSON.stringify(palavras, null, 1));
-  fs.writeFileSync(dados("transcricao.txt"), transcricaoTexto(palavras, cortes));
-
-  aviso("tirando as folhas de quadros");
-  await folhaDeQuadros(path.join(pasta, "assets", "video.mp4"), dados("folha.jpg"), video.duracao);
-  const tomadas = await folhaDeTomadas(path.join(pasta, "assets", "video.mp4"), dados("tomadas.jpg"), video.duracao, cortes);
-  fs.writeFileSync(dados("tomadas.json"), JSON.stringify(tomadas));
+  const { video, cortes, palavras, tomadas } = await prepararVideo(bruto, pasta, { look, aviso });
 
   // O print.mjs só abre os links do pedido: o pedido vai pra oficina antes (e de novo no fim, completo)
   fs.writeFileSync(dados("pedido.json"), JSON.stringify({ ...pedido, materiais: materiais.map((m) => ({ id: m.id, tipo: m.tipo, descricao: m.descricao, url: m.url })) }, null, 2));

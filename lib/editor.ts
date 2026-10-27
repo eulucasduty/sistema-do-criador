@@ -59,7 +59,7 @@ export type PedidoEdicao = {
   roteiro?: string;
   estilo: string; // o estilo de edição (editor/kit/estilos/<id>)
   legenda: string; // um dos tipos de legenda do estilo
-  cor?: "natural" | "quente" | "contraste"; // o look do vídeo (vazio = o do perfil)
+  cor?: "original" | "natural" | "quente" | "contraste"; // o look do vídeo (vazio = o do perfil)
   video: ArquivoPedido;
   materiais: Array<{ tipo: "imagem" | "video" | "link"; descricao: string; url?: string; arquivo?: ArquivoPedido }>;
 };

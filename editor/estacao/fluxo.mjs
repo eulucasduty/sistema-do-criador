@@ -8,7 +8,7 @@ import path from "node:path";
 import { ambienteDaIA } from "./ambiente.mjs";
 import { comandoHyperframes, garantirFerramentas } from "./ferramentas.mjs";
 import { prepararMotor } from "./motor.mjs";
-import { FERRAMENTAS, estiloValido, gravarPerfil, kitAntigo, legendaValida, lookValido, perfilLimpo, prepararOficina, prepararPasta, rodar, sondar } from "./preparar.mjs";
+import { FERRAMENTAS, NUCLEOS, estiloValido, gravarPerfil, kitAntigo, legendaValida, lookValido, perfilLimpo, prepararOficina, prepararPasta, rodar, sondar } from "./preparar.mjs";
 import { gerarRecortes } from "./recortes.mjs";
 
 /** "Você é o editor de vídeo do criador @ana." + nicho, público e tom, quando o perfil tem. */
@@ -87,7 +87,7 @@ export async function rodadaDasLogos(pasta, motor, cerebro, { aviso, aoPasso }) 
   try {
     segunda = await motor.rodar(pasta, continuar, { aoPasso, retomar: cerebro.sessao });
   } catch (e) {
-    if (!cerebro.sessao || /limite|logado/.test(e.message)) throw e;
+    if (!cerebro.sessao || e.limite || /limite|logado/.test(e.message)) throw e;
     // A conversa não deu pra retomar: começa outra, com o mesmo pedido e as logos prontas
     segunda = await motor.rodar(pasta, `${continuar}\n\n(Se ainda não existir plano.json, comece pelo fluxo de trabalho do manual.)`, { aoPasso });
   }
@@ -123,7 +123,8 @@ function renderizarBruto(pasta, { aviso = () => {}, qualidade = "standard", minu
   fs.mkdirSync(path.dirname(saida), { recursive: true });
   fs.rmSync(saida, { force: true });
   return new Promise((resolve, reject) => {
-    const p = spawn(`${comandoHyperframes()} render --quality ${qualidade} --output renders/final-bruto.mp4`, { cwd: pasta, shell: true, windowsHide: true });
+    // cada "worker" do render é um Chrome: metade dos núcleos liberados pra edição
+    const p = spawn(`${comandoHyperframes()} render --quality ${qualidade} --workers ${Math.max(1, Math.floor(NUCLEOS / 2))} --output renders/final-bruto.mp4`, { cwd: pasta, shell: true, windowsHide: true });
     let log = "";
     let ultimo = -10;
     const ler = (d) => {
@@ -157,13 +158,17 @@ function renderizarBruto(pasta, { aviso = () => {}, qualidade = "standard", minu
   });
 }
 
-/** Cópia que cabe no limite do storage (50 MB por arquivo) pra ver e baixar pelo painel. */
+/**
+ * Cópia que cabe no limite do storage (50 MB por arquivo) pra ver e baixar pelo painel. Vídeo longo
+ * (pouca taxa por segundo) sai em 720p, pra imagem não empastelar. O arquivo cheio fica no PC.
+ */
 export async function versaoWeb(arquivo, limiteMB = 48) {
   if (fs.statSync(arquivo).size <= limiteMB * 1024 * 1024) return arquivo;
   const info = await sondar(arquivo);
-  const kbps = Math.max(1200, Math.floor(((limiteMB - 2) * 8192) / Math.max(1, info.duracao)) - 160);
+  const kbps = Math.max(700, Math.floor(((limiteMB - 2) * 8192) / Math.max(1, info.duracao)) - 160);
   const saida = arquivo.replace(/\.mp4$/i, "-web.mp4");
-  await rodar(FERRAMENTAS.ffmpeg, ["-y", "-v", "error", "-i", arquivo, "-c:v", "libx264", "-preset", "medium", "-b:v", `${kbps}k`, "-maxrate", `${Math.round(kbps * 1.4)}k`, "-bufsize", `${kbps * 2}k`, "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart", saida], { timeoutMs: 40 * 60_000 });
+  const menor = kbps < 3000 ? ["-vf", "scale=720:-2:flags=lanczos"] : [];
+  await rodar(FERRAMENTAS.ffmpeg, ["-y", "-v", "error", "-i", arquivo, ...menor, "-c:v", "libx264", "-preset", "medium", "-threads", String(NUCLEOS), "-b:v", `${kbps}k`, "-maxrate", `${Math.round(kbps * 1.4)}k`, "-bufsize", `${kbps * 2}k`, "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart", saida], { timeoutMs: 40 * 60_000 });
   return saida;
 }
 
@@ -178,15 +183,47 @@ function tempoDoEstilo(pasta) {
   }
 }
 
+/** A oficina tem uma edição pronta do kit atual, que dá pra montar de novo sem a IA. */
+export const podeRemontar = (pasta) => fs.existsSync(path.join(pasta, "plano.json")) && fs.existsSync(path.join(pasta, "dados", "pedido.json")) && !kitAntigo(pasta);
+
+/**
+ * Monta e renderiza de novo uma edição pronta, com o kit de agora e o mesmo plano (sem a IA, sem
+ * gastar nada). Serve quando o kit foi corrigido depois da edição: você atualizou o sistema e
+ * pediu "montar de novo" no painel (`opcoes.remontar` no pedido).
+ */
+async function remontar(pasta, { perfil, aviso, aoPreparar }) {
+  const anterior = JSON.parse(fs.readFileSync(path.join(pasta, "dados", "pedido.json"), "utf8"));
+  aviso("montando de novo com o kit atualizado (o plano é o mesmo, sem a IA)");
+  await garantirFerramentas({ aviso });
+  prepararPasta(pasta, anterior.opcoes?.estilo);
+  if (perfil) await gravarPerfil(pasta, perfil, { aviso }); // o @ e a foto de agora (sem perfil: os da edição)
+  await aoPreparar(pasta);
+  const montar = () => {
+    const m = spawnSync(process.execPath, ["kit/montar.mjs"], { cwd: pasta, encoding: "utf8", windowsHide: true, timeout: 120_000, env: ambienteDaIA() });
+    if (m.status !== 0 && m.status !== 2) throw new Error(`o montador falhou ao montar de novo: ${`${m.stdout ?? ""}${m.stderr ?? ""}`.slice(-600)}`);
+  };
+  montar();
+  // o kit novo pode pedir um recorte que a edição não tinha: faz só esses e monta com eles no lugar
+  if (await gerarRecortes(pasta, { aviso })) montar();
+  const lint = conferir(pasta);
+  if (lint.erros > 0) throw new Error(`o vídeo ficou com ${lint.erros} erro(s) no lint ao montar de novo: ${lint.saida.slice(-600)}`);
+  aviso("renderizando");
+  const t0 = Date.now();
+  const final = await renderizar(pasta, { aviso });
+  return { final, info: await sondar(final), resumo: "", uso: { render_s: Math.round((Date.now() - t0) / 1000) }, passos: [], remontado: true };
+}
+
 /**
  * Edição completa numa pasta local.
  *  - versão 1: bruto + materiais → oficina nova
  *  - ajuste: copia a oficina da versão anterior (base) e a IA muda só o pedido
+ *  - `pedido.opcoes.remontar` com a edição já pronta na pasta: só monta e renderiza de novo
  * perfil: o perfil do criador (configuracao "perfil"): @, foto, nicho, público, tom e os
  * padrões de look (cor) e de legenda, que valem quando o pedido não diz.
  * motor: quem edita, já conferido (motor.mjs → prepararMotor). Sem ele: o Claude no plano.
  */
 export async function editar({ pasta, base, bruto, materiais, pedido, perfil, versao = 1, ajuste, motor = null, aviso = () => {}, aoPasso = () => {}, aoPreparar = async () => {} }) {
+  if (pedido?.opcoes?.remontar && podeRemontar(pasta)) return remontar(pasta, { perfil, aviso, aoPreparar });
   const ia = motor ?? (await prepararMotor({ motor: "claude" }));
   await garantirFerramentas({ aviso }); // HyperFrames e GSAP locais (só baixa na primeira vez)
   const p = perfilLimpo(perfil);

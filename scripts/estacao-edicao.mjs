@@ -12,6 +12,10 @@
 // e "editor", a cada pedido), baixa o vídeo e os materiais do storage (em partes), faz a edição
 // (editor/estacao/fluxo.mjs: oficina → IA → render) e sobe o vídeo pronto pro painel.
 // O vídeo final também fica no PC (EDITOR_SAIDA; padrão: Vídeos/Creator System).
+// Edita um pedido por vez, em prioridade baixa e só numa parte do processador (EDITOR_CPU, em %;
+// padrão 50), pro PC continuar usável enquanto ela trabalha.
+// A cópia de carrossel da Esteira roda junto, em paralelo (editor/estacao/carrosseis.mjs;
+// ESTACAO_CARROSSEIS=0 desliga).
 // Pra parar: Ctrl+C.
 
 import { juntarTakes, misturarMusica } from "../editor/estacao/takes.mjs";
@@ -19,11 +23,15 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { editar, versaoWeb } from "../editor/estacao/fluxo.mjs";
+import { editar, podeRemontar, versaoWeb } from "../editor/estacao/fluxo.mjs";
 import { acharPrograma, COMO_INSTALAR, FERRAMENTAS, faltaNoFfmpeg, garantirFerramentas } from "../editor/estacao/ferramentas.mjs";
 import { configMotor, conferirMotor, lerChaveOpenRouter, lerConfigMotor, MOTORES, prepararMotor } from "../editor/estacao/motor.mjs";
+import { pouparMaquina } from "../editor/estacao/preparar.mjs";
+import { ligarRoteiros } from "../editor/estacao/roteiros.mjs";
 import { conectar, esquecerSessao, ARQUIVO_SESSAO } from "../editor/estacao/sessao.mjs";
+import { iniciarCarrosseis } from "../editor/estacao/carrosseis.mjs";
 import { sincronizarSons } from "../editor/estacao/sons.mjs";
+import { falaECta, iniciarEscrita } from "../editor/estacao/escrita.mjs";
 
 const AJUDA = `Estação de edição do Creator System
 
@@ -34,6 +42,7 @@ const AJUDA = `Estação de edição do Creator System
   npm run estacao -- --motor codex    (1ª vez) já salva quem edita: claude, codex ou openrouter
 
 Quem edita: você escolhe no painel (Editor de vídeo → "Quem edita os seus vídeos").
+A mesma IA faz as cópias de carrossel da Esteira (ESTACAO_CARROSSEIS=0 no .env.local desliga).
 Guia: editor/INSTALAR.md`;
 
 const argv = process.argv.slice(2);
@@ -45,12 +54,15 @@ const RAIZ = path.resolve("editor", "oficina");
 const SAIDA = process.env.EDITOR_SAIDA || path.join(os.homedir(), "Videos", "Creator System");
 const MAQUINA = os.hostname();
 const ESPERA_MS = 8000;
+const PAUSA_LIMITE_MS = 20 * 60_000; // o plano da IA bateu no limite de uso: espera e tenta de novo
 const EM_ANDAMENTO = ["preparando", "editando", "renderizando", "enviando"];
 
 const hora = () => new Date().toLocaleTimeString("pt-BR");
 const agora = () => new Date().toISOString();
 let db = null;
 let atual = null;
+let roteiros = null;
+let carrosseis = null;
 
 // ── o que a estação precisa no PC (o motor de IA é conferido à parte) ──
 function conferirFerramentas() {
@@ -235,14 +247,21 @@ async function processar(ed, ia) {
   await registrar(ed, "subindo o vídeo pronto pro painel", { status: "enviando" });
   const web = await versaoWeb(r.final);
   const caminho = `${ed.id}/final-v${ed.versao}.mp4`;
-  const up = await db.storage.from(BUCKET).upload(caminho, fs.readFileSync(web), { contentType: "video/mp4", upsert: true });
-  if (up.error) throw new Error(`não consegui subir o vídeo: ${up.error.message}`);
+  let up = null;
+  for (let tentativa = 1; tentativa <= 3; tentativa++) {
+    up = await db.storage.from(BUCKET).upload(caminho, fs.readFileSync(web), { contentType: "video/mp4", upsert: true });
+    if (!up.error) break;
+    if (tentativa < 3) await new Promise((ok) => setTimeout(ok, 5000 * tentativa));
+  }
+  if (up.error) throw new Error(`o vídeo ficou pronto em ${local}, mas não consegui subir pro painel: ${up.error.message}`);
 
   await registrar(ed, "pronto", {
     status: "pronto",
     resultado: { caminho, tamanho: fs.statSync(web).size, duracao: Math.round(r.info.duracao * 10) / 10, local },
-    resumo: r.resumo || null,
-    uso: r.uso,
+    // montado de novo: o resumo e o uso da IA são os da edição; o pedido de montar de novo sai
+    resumo: r.remontado ? (ed.resumo ?? null) : r.resumo || null,
+    uso: r.remontado ? { ...(ed.uso ?? {}), remontado_em: agora(), render_s: r.uso.render_s } : r.uso,
+    ...(r.remontado ? { opcoes: semRemontar() } : {}),
     erro: null,
     concluido_em: agora(),
     transcricao: (() => { try { const palavras = JSON.parse(fs.readFileSync(path.join(pasta, "dados", "palavras.json"), "utf8")); return palavras.map(w=>w.text || w.texto || "").join(" "); } catch { return null; } })(),
@@ -345,6 +364,8 @@ async function principal() {
   console.log(`Programas: ffmpeg ${FERRAMENTAS.ffmpeg} · whisper ${FERRAMENTAS.whisper} · HyperFrames ${kit.hyperframes ? "instalado" : "pelo npx"}`);
   if (!FERRAMENTAS.chrome) console.log("Sem Google Chrome no PC: os prints de página usam o Chrome do HyperFrames.");
   fs.mkdirSync(RAIZ, { recursive: true });
+  const cpu = pouparMaquina();
+  console.log(`Processador: a edição usa ${cpu.nucleos} de ${cpu.total} núcleos${cpu.presa || cpu.nucleos === cpu.total ? "" : " (sem trava de núcleos)"}${cpu.prioridade ? ", em prioridade baixa" : ""}. Um vídeo por vez (EDITOR_CPU muda a fatia).`);
 
   // Pedido que ficou pela metade (a estação caiu no meio): volta pra fila
   const { data: presos } = await db.from("edicao").select("id").in("status", EM_ANDAMENTO).eq("estacao", MAQUINA);
@@ -354,7 +375,13 @@ async function principal() {
   console.log("Esperando pedidos do painel. Deixe esta janela aberta (Ctrl+C pra parar).");
   await batida();
   setInterval(() => batida().catch((e) => console.error(`[${hora()}] batida falhou: ${e.message}`)), 30_000);
+  // Os roteiros pra teleprompter: um laço à parte, com a mesma IA (editor/estacao/roteiros.mjs)
+  roteiros = ligarRoteiros({ db, maquina: MAQUINA, pronto: () => motor.ok === true, log: (m) => console.log(`[${hora()}] ${m}`) });
+  // A escrita (legenda do post e rascunho dos materiais) roda junto, num laço à parte
+  if (process.env.ESTACAO_ESCRITA !== "0") iniciarEscrita({ db, maquina: MAQUINA, raiz: RAIZ, pastaDe, pronto: () => motor.ok === true }).catch((e) => console.error(`[${hora()}] a escrita parou: ${e.message}`));
+  if (process.env.ESTACAO_CARROSSEIS !== "0") carrosseis = iniciarCarrosseis({ db, maquina: MAQUINA, motorPronto: async () => (await conferirMotorAgora()).ok });
 
+  let pausaAte = 0;
   for (;;) {
     // Quem edita não está pronto: não pega pedido (eles esperam na fila) até resolver
     if (!(await conferirMotorAgora()).ok) {
@@ -363,7 +390,7 @@ async function principal() {
     }
     let ed = null;
     try {
-      ed = await pegarProximo();
+      if (Date.now() >= pausaAte) ed = await pegarProximo();
     } catch (e) {
       console.error(`[${hora()}] erro lendo a fila: ${e.message}`);
     }
@@ -388,7 +415,14 @@ async function principal() {
       console.log(`[${hora()}] ✓ pronto em ${Math.round((Date.now() - t0) / 60_000)} min`);
     } catch (e) {
       console.error(`[${hora()}] ✗ ${e.message}`);
-      if (!e.cancelada)
+      if (e.limite) {
+        // o plano da IA bateu no limite de uso: o pedido volta pra fila e a estação espera
+        pausaAte = Date.now() + PAUSA_LIMITE_MS;
+        const volta = new Date(pausaAte).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+        const quem = MOTORES[motor.config?.motor]?.nome ?? "a IA";
+        console.error(`[${hora()}] ${quem} bateu no limite de uso: a estação tenta de novo às ${volta}`);
+        await db.from("edicao").update({ status: "na_fila", etapa: `${quem} bateu no limite de uso: a estação tenta de novo às ${volta}` }).eq("id", ed.id).neq("status", "cancelada");
+      } else if (!e.cancelada)
         await db
           .from("edicao")
           .update({ status: "erro", erro: String(e.message).slice(0, 1500), etapa: "deu erro", concluido_em: agora() })
@@ -402,6 +436,8 @@ async function principal() {
 process.on("SIGINT", async () => {
   console.log("\nParando a estação…");
   if (db) await db.from("configuracao").upsert({ chave: "estacao_edicao", valor: valorDaBatida(false) }, { onConflict: "chave" });
+  await roteiros?.parar();
+  await carrosseis?.parar().catch(() => {});
   setTimeout(() => process.exit(0), 300); // um respiro pra conexão fechar (no Windows, sair na hora quebra o node)
 });
 

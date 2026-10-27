@@ -90,10 +90,13 @@ function descrever(item) {
   return null;
 }
 
+/** O plano do ChatGPT bateu no limite de uso do Codex (volta sozinho depois de um tempo). */
+const LIMITE = /usage limit|rate limit|hit your/i;
+
 /** Erro do Codex em português simples (o original vai junto). */
 function explicar(msg) {
   const m = String(msg ?? "").trim();
-  if (/usage limit|rate limit|hit your/i.test(m)) return `o seu plano do ChatGPT bateu no limite de uso do Codex (espere o horário que ele diz ou troque quem edita no painel): ${m.slice(0, 300)}`;
+  if (LIMITE.test(m)) return `o seu plano do ChatGPT bateu no limite de uso do Codex (espere o horário que ele diz ou troque quem edita no painel): ${m.slice(0, 300)}`;
   if (/log ?in|auth|unauthori[sz]ed|401|token/i.test(m)) return `o Codex não está logado no ChatGPT (no terminal: codex login): ${m.slice(0, 300)}`;
   return m.slice(0, 600);
 }
@@ -102,9 +105,12 @@ function explicar(msg) {
  * Roda o Codex na oficina. Mesmo contrato do rodarClaude: resolve com { resumo, passos, uso, sessao }.
  * `retomar`: id da sessão pra continuar a conversa (a segunda rodada, depois das logos).
  */
-export function rodarCodex(pasta, prompt, { modelo = null, esforco = process.env.EDITOR_ESFORCO || "high", minutos = 50, aoPasso = () => {}, retomar = null } = {}) {
+export function rodarCodex(pasta, prompt, { modelo = null, esforco = process.env.EDITOR_ESFORCO || "high", minutos = 50, aoPasso = () => {}, retomar = null, agentsMd = null } = {}) {
   if (!FERRAMENTAS.codex) return Promise.reject(new Error("o Codex não está instalado neste PC (npm install -g @openai/codex)"));
-  if (!retomar) escreverAgentsMd(pasta);
+  // `agentsMd`: outro kit (ex.: o de carrossel) manda as instruções dele no lugar das do editor.
+  // Sem o kit na pasta (a escrita de legenda e material): só o pedido, sem o manual da edição.
+  if (agentsMd) fs.writeFileSync(path.join(pasta, "AGENTS.md"), agentsMd);
+  else if (!retomar && fs.existsSync(path.join(pasta, "kit", "EDITOR.md"))) escreverAgentsMd(pasta);
   const config = [
     'web_search="disabled"',
     `model_reasoning_effort="${esforco}"`,
@@ -176,7 +182,10 @@ export function rodarCodex(pasta, prompt, { modelo = null, esforco = process.env
     });
     p.on("close", (codigo) => {
       clearTimeout(relogio);
-      if (codigo !== 0 || falha || !resumo) return reject(new Error(`o ChatGPT não terminou (código ${codigo}): ${explicar(falha ?? erro.slice(-800))}`));
+      if (codigo !== 0 || falha || !resumo) {
+        const motivo = falha ?? erro.slice(-800);
+        return reject(Object.assign(new Error(`o ChatGPT não terminou (código ${codigo}): ${explicar(motivo)}`), { limite: LIMITE.test(String(motivo ?? "")) }));
+      }
       resolve({
         resumo,
         passos,
