@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BarraEnvio, mb, subirArquivo, type Andamento } from "../editor/envio";
-import { completarReferencia, linksDeEnvio, novaReferenciaPorArquivo } from "./acoes";
+import { completarReferencia, linksDeEnvio, novaReferenciaPorArquivo } from "../referencias/acoes";
 import { MAX_MB, MAX_PRINTS, TIPOS_PRINT } from "./regras";
 
 // Envio de arquivo da Esteira: vídeo do reel (1) ou prints do carrossel (até 12, na ordem).

@@ -1,3 +1,6 @@
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 // Motores "claude" e "openrouter": Claude Code sem janela (modo -p) na oficina.
 //   claude      no plano Claude do criador (Pro ou Max): sem chave de API no ambiente, a CLI usa a
 //               assinatura logada no PC e não gasta API paga
@@ -158,6 +161,48 @@ export function rodarClaude(pasta, prompt, { modelo = process.env.EDITOR_MODELO 
           // mede o gasto de verdade é a estação (saldo da chave antes e depois)
           ...(openrouter ? {} : { equivalente_api_usd: typeof final.total_cost_usd === "number" ? final.total_cost_usd : null }),
         },
+      });
+    });
+  });
+}
+
+const falha = (mensagem) => Object.assign(new Error(mensagem), { limite: /usage limit|rate.?limit|limit reached/i.test(mensagem) });
+
+export function rodarClaudeTexto({ sistema, prompt, modelo = "opus", esforco = "medium", minutos = 10 }) {
+  if (process.env.EDITOR_AGENTE === "codex") return rodarCodexTexto({ sistema, prompt, esforco, minutos });
+  return new Promise((resolve, reject) => {
+    const pasta = fs.mkdtempSync(path.join(os.tmpdir(), "roteiro-"));
+    const arquivo = path.join(pasta, "sistema.md");
+    fs.writeFileSync(arquivo, sistema);
+    const limpar = () => fs.rmSync(pasta, { recursive: true, force: true });
+    const args = ["-p", "--output-format", "json", "--model", modelo, "--effort", esforco, "--tools", "", "--system-prompt-file", arquivo, "--setting-sources", "project,local", "--strict-mcp-config", "--no-session-persistence"];
+    const p = spawn(CLAUDE, args, { cwd: pasta, env: ambienteClaude(), windowsHide: true });
+    let saida = "";
+    let erro = "";
+    p.stdout.on("data", (d) => (saida += d));
+    p.stderr.on("data", (d) => (erro = (erro + d).slice(-20_000)));
+    p.stdin.end(prompt);
+    const relogio = setTimeout(() => p.kill(), minutos * 60_000);
+    p.on("error", (e) => {
+      clearTimeout(relogio);
+      limpar();
+      reject(e);
+    });
+    p.on("close", (codigo) => {
+      clearTimeout(relogio);
+      limpar();
+      let final = null;
+      for (const tentativa of [saida.trim(), saida.trim().split("\n").pop() ?? ""]) {
+        try {
+          final = JSON.parse(tentativa);
+          break;
+        } catch {}
+      }
+      if (!final) return reject(falha(`o Claude saiu sem resultado (código ${codigo}): ${(erro || saida).slice(-600)}`));
+      if (final.is_error || final.subtype !== "success") return reject(falha(`o Claude não terminou (${final.subtype}): ${String(final.result ?? erro).slice(0, 600)}`));
+      resolve({
+        texto: String(final.result ?? "").trim(),
+        uso: { modelo, turnos: final.num_turns, duracao_s: Math.round((final.duration_ms ?? 0) / 1000), equivalente_api_usd: final.total_cost_usd ?? null },
       });
     });
   });

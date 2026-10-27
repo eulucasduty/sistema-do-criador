@@ -138,7 +138,7 @@ export default async function PaginaConexoes({ searchParams }: PageProps<"/conex
       {/* ── Relógio ── */}
       <section id="relogio" className="card scroll-mt-6 p-4">
         <h2 className="font-display text-lg uppercase tracking-wide">Relógio</h2>
-        <p className="mt-1 text-sm text-suave">O que roda sozinho: respostas do agente, lembretes das automações, renovação do token, análise pendente.</p>
+        <p className="mt-1 text-sm text-suave">O que roda sozinho: publicações, lembretes das automações, renovação do token, análise pendente.</p>
         {q.relogio === "ok" && <Aviso tipo="ok">Relógio ligado.</Aviso>}
         {q.relogio === "desligado" && <Aviso tipo="ok">Relógio desligado.</Aviso>}
         {q.relogio === "erro" && <Aviso tipo="erro">{String(q.msg ?? "")}</Aviso>}
@@ -177,7 +177,7 @@ export default async function PaginaConexoes({ searchParams }: PageProps<"/conex
           </form>
           <p className="pl-4 text-suave">
             Ver e ouvir vídeo: <span className="font-mono">{process.env.AI_MODEL || "google/gemini-3.8-flash"}</span> · Escrever na sua voz:{" "}
-            <span className="font-mono">{process.env.MODELO_CRIACAO || "anthropic/claude-sonnet-5"}</span> · o agente usa o modelo escolhido na tela dele.
+            <span className="font-mono">{process.env.MODELO_CRIACAO || "anthropic/claude-sonnet-5"}</span> · personalize as regras em Roteiros.
           </p>
           {s.env.openrouter && (
             <form action={testarIA} className="pl-4">

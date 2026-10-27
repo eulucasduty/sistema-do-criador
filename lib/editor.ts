@@ -66,6 +66,7 @@ export type PedidoEdicao = {
 export type EnvioParte = { caminho: string; url: string };
 
 export const STATUS_EDICAO: Record<string, { nome: string; cor: string }> = {
+  gravado: { nome: "Gravado: escolha a edição", cor: "text-morno" },
   subindo: { nome: "Subindo arquivos", cor: "text-suave" },
   na_fila: { nome: "Na fila", cor: "text-frio" },
   preparando: { nome: "Preparando", cor: "text-frio" },

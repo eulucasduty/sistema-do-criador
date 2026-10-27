@@ -1,3 +1,4 @@
+import { CartaoPostagem } from "../postagem";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -121,6 +122,7 @@ export default async function PaginaEdicao({ params, searchParams }: PageProps<"
         </form>
       )}
 
+      {e.status === "pronto" && <CartaoPostagem edicaoId={e.id} />}
       {e.status === "pronto" && (
         <section className="grid gap-5 md:grid-cols-[minmax(0,320px)_1fr]">
           <div className="space-y-2">

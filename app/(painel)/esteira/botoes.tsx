@@ -3,10 +3,10 @@
 import { useFormStatus } from "react-dom";
 
 /** Botão de enviar que avisa enquanto a IA trabalha (roteiro e carrossel levam uns 30 s). */
-export function BotaoGerar({ rotulo, gerando = "Gerando… (uns 30 s)", className = "btn" }: { rotulo: string; gerando?: string; className?: string }) {
+export function BotaoGerar({ rotulo, gerando = "Gerando… (uns 30 s)", className = "btn", disabled = false }: { rotulo: string; gerando?: string; className?: string; disabled?: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <button className={className} disabled={pending}>
+    <button className={className} disabled={pending || disabled}>
       {pending ? gerando : rotulo}
     </button>
   );

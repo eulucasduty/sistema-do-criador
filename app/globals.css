@@ -10,9 +10,9 @@
    mesma tinta preta nas bordas e sombras).
    ═══════════════════════════════════════════════════════════════════════════ */
 @theme {
-  --color-fundo: #050505; /* void */
-  --color-superficie: #121212; /* slab */
-  --color-superficie-2: #1e1e1e; /* slab-hi */
+  --color-fundo: #08090d; /* void */
+  --color-superficie: #13151d; /* slab */
+  --color-superficie-2: #1d2130; /* slab-hi */
   --color-borda: #262626;
   --color-linha: #1f1f1f; /* contorno de card e bloco */
   --color-linha-forte: #232323; /* contorno de campo */
@@ -76,7 +76,7 @@ html:not([data-tema="claro"]) .so-claro {
 }
 
 body {
-  background: var(--color-fundo);
+  background: radial-gradient(ellipse at 95% 0%, #a855f70c, transparent 45%), var(--color-fundo);
   color: var(--color-texto);
   font-family: var(--font-sans), system-ui, sans-serif;
   font-weight: 500;
@@ -272,3 +272,7 @@ body {
     pointer-events: none;
   }
 }
+
+:focus-visible { outline: 3px solid var(--color-frio); outline-offset: 4px; }
+.studio-hero { background: radial-gradient(ellipse at 100% 0%, #a855f72b, transparent 55%), radial-gradient(ellipse at 0% 100%, #3ec9ff12, transparent 60%), var(--color-superficie); border-top: 3px solid var(--color-marca); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }

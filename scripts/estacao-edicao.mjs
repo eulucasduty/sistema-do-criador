@@ -14,6 +14,7 @@
 // O vídeo final também fica no PC (EDITOR_SAIDA; padrão: Vídeos/Creator System).
 // Pra parar: Ctrl+C.
 
+import { juntarTakes, misturarMusica } from "../editor/estacao/takes.mjs";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
@@ -169,10 +170,23 @@ async function processar(ed, ia) {
     if (anterior) base = pastaDe(anterior);
   }
   if (!base) {
-    if (!ed.video?.partes?.length) throw new Error("o pedido não tem vídeo");
-    await registrar(ed, "baixando o vídeo", { status: "preparando" });
-    bruto = path.join(pasta, "_entrada", `video${extensao(ed.video.nome, ed.video.tipo)}`);
-    await baixar(ed.video.partes, bruto);
+    const takes = ed.video?.takes ?? [];
+    if (takes.length) {
+      await registrar(ed, "baixando os takes", { status: "preparando" });
+      const locais = [];
+      for (const [k,t] of takes.entries()) {
+        const arquivo = path.join(pasta, "_entrada", `take-${k}${extensao(t.nome,t.tipo)}`);
+        await baixar(t.partes, arquivo);
+        locais.push({arquivo, inicio:t.inicio, fim:t.fim, velocidade:t.velocidade});
+      }
+      bruto = path.join(pasta, "_entrada", "video.mp4");
+      await juntarTakes(locais, bruto, {ajustes:ed.opcoes?.ajustes});
+    } else {
+      if (!ed.video?.partes?.length) throw new Error("o pedido não tem vídeo");
+      await registrar(ed, "baixando o vídeo", { status: "preparando" });
+      bruto = path.join(pasta, "_entrada", `video${extensao(ed.video.nome, ed.video.tipo)}`);
+      await baixar(ed.video.partes, bruto);
+    }
     const { data: mats } = await db.from("edicao_material").select("*").eq("edicao_id", ed.id).order("ordem");
     for (const [k, m] of (mats ?? []).entries()) {
       const id = `m${k + 1}`;
@@ -201,6 +215,17 @@ async function processar(ed, ia) {
     aoPreparar: (p) => sincronizarSons(db, p, { cache: path.join(RAIZ, "_sons"), aviso: (m) => registrar(ed, m) }),
   });
 
+  const musica = ed.opcoes?.musica;
+  if (musica?.id) {
+    const {data:m} = await db.from("musica").select("arquivo").eq("id",musica.id).maybeSingle();
+    if (m) {
+      const arquivo = path.join(pasta, "_entrada", "musica");
+      await baixar([m.arquivo], arquivo);
+      const saida = path.join(pasta, "final-com-musica.mp4");
+      await misturarMusica(r.final, arquivo, musica.volume, saida);
+      r.final = saida;
+    }
+  }
   // Cópia no PC (é daqui que o criador posta)
   fs.mkdirSync(SAIDA, { recursive: true });
   const dia = new Date().toLocaleDateString("sv-SE");
@@ -220,10 +245,12 @@ async function processar(ed, ia) {
     uso: r.uso,
     erro: null,
     concluido_em: agora(),
+    transcricao: (() => { try { const palavras = JSON.parse(fs.readFileSync(path.join(pasta, "dados", "palavras.json"), "utf8")); return palavras.map(w=>w.text || w.texto || "").join(" "); } catch { return null; } })(),
   });
 
+  await db.from("postagem").upsert({ edicao_id: ed.id, status: "aguardando_estacao", palavra: ed.cta_palavra || null }, { onConflict: "edicao_id", ignoreDuplicates: true });
   // O bruto e os materiais já estão tratados na oficina: libera o storage e o disco
-  const partes = [...(ed.video?.partes ?? [])];
+  const partes = [...(ed.video?.partes ?? []), ...(ed.video?.takes ?? []).flatMap(t=>t.partes ?? [])];
   const { data: mats } = await db.from("edicao_material").select("arquivo").eq("edicao_id", ed.id);
   for (const m of mats ?? []) partes.push(...(m.arquivo?.partes ?? []));
   if (partes.length) await db.storage.from(BUCKET).remove(partes);

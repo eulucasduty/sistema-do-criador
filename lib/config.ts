@@ -5,6 +5,12 @@ import { createAdminClient } from "@/lib/supabase/admin";
 // servidor. Cache curto: o relógio lê toda volta e você muda pelo painel.
 
 type Chave =
+  | "padrao_viral"
+  | "estacao_roteiros"
+  | "estacao_carrosseis"
+  | "entregas"
+  | "monitor"
+  | "agenda_reels"
   | "ia"
   | "editor"
   | "perfil"
@@ -21,6 +27,9 @@ type Chave =
   | "relogio";
 
 /** Quem é o criador: vai pro editor (CTA, legenda), pro roteirista e pro agente. */
+export type ConfigEntregas = { convite_texto: string; convite_botao: string; convite_link: string };
+export const ENTREGAS_PADRAO: ConfigEntregas = { convite_texto: "", convite_botao: "entrar na comunidade", convite_link: "" };
+
 export type Perfil = {
   nome: string | null; // como você assina ("Ana")
   usuario: string | null; // @ do Instagram (vem da conexão; dá pra trocar)

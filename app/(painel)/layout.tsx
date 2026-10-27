@@ -35,7 +35,7 @@ export default async function LayoutPainel({ children }: LayoutProps<"/">) {
 
   return (
     <div className="md:flex">
-      <aside className="border-b-2 border-tinta bg-superficie p-3 md:sticky md:top-0 md:flex md:h-screen md:w-64 md:shrink-0 md:flex-col md:border-b-0 md:border-r-2 md:p-4">
+      <aside className="border-b-2 border-tinta bg-superficie p-3 md:sticky md:top-0 md:flex md:h-screen md:w-64 md:shrink-0 md:flex-col md:overflow-y-auto md:border-b-0 md:border-r-2 md:p-4">
         <div className="mb-3 flex items-start justify-between gap-3 md:mb-6 md:block">
           <Link href="/" className="block">
             <Marca />
@@ -46,7 +46,9 @@ export default async function LayoutPainel({ children }: LayoutProps<"/">) {
           </div>
         </div>
 
+        <p className="rotulo mb-3 hidden text-apagado md:block">Seu estúdio de conteúdo</p>
         <Menu alertas={alertas ?? 0} />
+        <Link href="/guia" className="my-4 rounded-xl border border-frio/30 bg-frio/5 p-3 text-xs text-frio">Guia de instalação e primeiros passos ↗</Link>
 
         <div className="mt-auto hidden border-t-2 border-tinta pt-4 md:block">
           <p className="truncate text-xs text-suave">{String(claims.email ?? membro.nome)}</p>

@@ -272,3 +272,63 @@ export async function digitandoIG(igsid: string): Promise<void> {
     await chamar("POST", "/me/messages", { recipient: { id: igsid }, sender_action: "typing_on" });
   } catch {}
 }
+
+export async function criarContainerReel(p: { videoUrl: string; legenda: string; feed: boolean; capaMs?: number | null }): Promise<string> {
+  const conta = await contaInstagram();
+  const quem = conta.ig_user_id || "me";
+  const r = await chamar<{ id: string }>("POST", `/${quem}/media`, {
+    media_type: "REELS",
+    video_url: p.videoUrl,
+    caption: p.legenda,
+    share_to_feed: p.feed,
+    ...(p.capaMs != null && p.capaMs >= 0 ? { thumb_offset: Math.round(p.capaMs) } : {}),
+  });
+  if (!r?.id) throw new ErroInstagram(0, null, "a Meta não devolveu o container");
+  return r.id;
+}
+
+// ── publicar carrossel (agenda dos carrosséis, desde 18/10) ─────────
+// Um container por slide (is_carousel_item, imagem em JPG por link público), depois o container
+// CAROUSEL com os filhos na ordem e a legenda. Publica igual ao Reel.
+
+/** Cria o container de um slide do carrossel (imagem JPG ou vídeo MP4). Devolve o id. */
+export async function criarItemCarrossel(url: string, video = false): Promise<string> {
+  const conta = await contaInstagram();
+  const quem = conta.ig_user_id || "me";
+  const r = await chamar<{ id: string }>("POST", `/${quem}/media`, video ? { media_type: "VIDEO", video_url: url, is_carousel_item: true } : { image_url: url, is_carousel_item: true });
+  if (!r?.id) throw new ErroInstagram(0, null, "a Meta não devolveu o container do slide");
+  return r.id;
+}
+
+/** Cria o container do carrossel com os slides (ids, na ordem) e a legenda. Devolve o id. */
+export async function criarContainerCarrossel(filhos: string[], legenda: string): Promise<string> {
+  const conta = await contaInstagram();
+  const quem = conta.ig_user_id || "me";
+  const r = await chamar<{ id: string }>("POST", `/${quem}/media`, { media_type: "CAROUSEL", children: filhos.join(","), caption: legenda });
+  if (!r?.id) throw new ErroInstagram(0, null, "a Meta não devolveu o container do carrossel");
+  return r.id;
+}
+
+/** IN_PROGRESS | FINISHED | ERROR | EXPIRED | PUBLISHED (status traz o motivo do erro). */
+export async function statusDoContainer(id: string): Promise<{ status_code?: string; status?: string }> {
+  if (SIMULADO) return { status_code: "FINISHED" };
+  return chamar("GET", `/${encodeURIComponent(id)}?fields=status_code,status`);
+}
+
+/** Publica o container pronto. Devolve o id da mídia publicada. */
+export async function publicarContainer(id: string): Promise<string> {
+  const conta = await contaInstagram();
+  const quem = conta.ig_user_id || "me";
+  const r = await chamar<{ id: string }>("POST", `/${quem}/media_publish`, { creation_id: id });
+  if (!r?.id) throw new ErroInstagram(0, null, "a Meta não devolveu a mídia publicada");
+  return r.id;
+}
+
+/** O link público do post. */
+export async function linkDaMidia(id: string): Promise<string | null> {
+  try {
+    return (await chamar<{ permalink?: string }>("GET", `/${encodeURIComponent(id)}?fields=permalink`)).permalink ?? null;
+  } catch {
+    return null;
+  }
+}

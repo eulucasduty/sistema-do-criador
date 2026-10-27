@@ -4,7 +4,6 @@ import { createAdminClient, type Db } from "@/lib/supabase/admin";
 import { lerConfig } from "@/lib/config";
 import { criarAlerta } from "@/lib/alertas";
 import { urlDoApp } from "@/lib/app";
-import { ehDeTeste } from "@/lib/agente/turno";
 import { contaInstagram, digitandoIG, ErroInstagram, perfilDe, responderComentario } from "./api";
 import { enviarRegistrado } from "./enviar";
 
@@ -181,6 +180,7 @@ async function processarComentario(db: Db, v: Json, contaId: string) {
   if (!igsid || igsid === contaId || igsid === conta.ig_user_id || (usuario && usuario === conta.username)) return;
 
   const contato = await contatoDoInstagram(db, igsid, usuario);
+  if (contato.nao_contatar) return;
   const midiaId = String(v.media?.id ?? "");
   const texto = String(v.text ?? "");
   const { data: comentario } = await db
@@ -326,6 +326,13 @@ async function processarMensagem(db: Db, m: Json, contaId: string) {
   await db.from("conversa").update({ janela_ate: new Date(Date.parse(quando) + 24 * 3600e3).toISOString(), ultima_mensagem_em: agora }).eq("id", conversaId);
   await db.from("contato").update({ ultima_mensagem_em: agora }).eq("id", contato.id);
 
+  // Opt-out determinístico: não depende de agente ou de chamada de IA.
+  if (/^(sair|parar|cancelar|stop|n[aã]o quero (mais )?receber)[.!\s]*$/i.test(texto?.trim() ?? "")) {
+    await db.from("contato").update({ nao_contatar: true, nao_contatar_em: agora }).eq("id", contato.id);
+    return;
+  }
+  if (contato.nao_contatar) return;
+
   // De qual automação ela veio: o botão diz (AUTO:<id>); senão, o fluxo mais recente dela
   const doBotao = payload?.startsWith("AUTO:") ? payload.slice(5) : null;
   let consulta = db.from("ig_fluxo").select("id, etapa, atualizado_em, automacao:automacao_id (*)").eq("contato_id", contato.id);
@@ -341,28 +348,6 @@ async function processarMensagem(db: Db, m: Json, contaId: string) {
     return;
   }
 
-  // Material entregue: no modo agente (e com o agente ligado), daqui pra frente quem conversa é ele
-  if (a.modo === "agente") {
-    await agendarAgente(db, conversaId, agora, contato);
-    if (fluxo.etapa === "entregue") await db.from("ig_fluxo").update({ etapa: "com_agente" }).eq("id", fluxo.id);
-  }
-}
-
-/** Agenda o turno do agente (debounce: cada mensagem nova empurra a espera). Desligado = só os perfis de teste. */
-async function agendarAgente(db: Db, conversaId: string, agora: string, contato: Json) {
-  const { data: agente } = await db.from("agente").select("ativo, espera_segundos").order("criado_em").limit(1).maybeSingle();
-  if (!agente) return;
-  if (!agente.ativo && !(await ehDeTeste(contato))) return;
-  const espera = (agente.espera_segundos ?? 40) + Math.round(Math.random() * 15);
-  const { data: conv } = await db.from("conversa").select("status, aguardando_desde").eq("id", conversaId).single();
-  await db
-    .from("conversa")
-    .update({
-      responder_apos: new Date(Date.now() + espera * 1000).toISOString(),
-      aguardando_desde: conv?.aguardando_desde ?? agora,
-      ...(conv?.status === "encerrada" ? { status: "aberta", status_motivo: null, status_em: agora } : {}),
-    })
-    .eq("id", conversaId);
 }
 
 const PORTAO_PADRAO = "Pra te enviar o material preciso que você esteja me seguindo! Me segue e toca no botão aqui embaixo 👇";

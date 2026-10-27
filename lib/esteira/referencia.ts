@@ -23,7 +23,7 @@ import { acharPostPublico } from "@/lib/instagram/descoberta";
 
 export const BUCKET = "esteira";
 export const MAX_BYTES = 45 * 1024 * 1024; // o storage grátis aceita até 50 MB por arquivo
-export const MAX_SLIDES = 12;
+export const MAX_SLIDES = 20;
 
 const dormir = (ms: number) => new Promise((r) => setTimeout(r, ms));
 

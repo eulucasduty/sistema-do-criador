@@ -38,8 +38,7 @@ export default async function Privacidade() {
 
       <h2 className="mt-6 font-medium text-texto">Com quem compartilhamos</h2>
       <p className="mt-2">
-        Com ninguém, a não ser os serviços que fazem o sistema funcionar (hospedagem, banco de dados e o provedor de IA que ajuda a entender e
-        responder as mensagens), sempre só pra essa finalidade.
+        Com ninguém, a não ser os serviços que fazem as automações funcionar (hospedagem, banco de dados e Instagram), sempre só pra essa finalidade.
       </p>
 
       <h2 className="mt-6 font-medium text-texto">Como pedir pra apagar seus dados</h2>

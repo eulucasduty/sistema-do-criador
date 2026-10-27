@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { conferirBanco, linkDoSqlEditor, type ProblemaBanco } from "@/lib/passos";
@@ -23,7 +23,8 @@ async function situacao(): Promise<{ dono: boolean; problema: ProblemaBanco | nu
 
 function sqlDaInstalacao(): string {
   try {
-    return readFileSync(path.join(process.cwd(), "supabase", "migrations", "001_sistema.sql"), "utf8");
+    const pasta = path.join(process.cwd(), "supabase", "migrations");
+    return readdirSync(pasta).filter(f=>f.endsWith(".sql")).sort().map(f=>readFileSync(path.join(pasta,f),"utf8")).join("\n");
   } catch {
     return "";
   }

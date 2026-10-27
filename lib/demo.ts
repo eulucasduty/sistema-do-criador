@@ -353,6 +353,24 @@ const TABELAS: Record<string, any[]> = {
   ],
 };
 
+// Exemplos da produção: conteúdo fictício, sem conta externa ou dados da operação.
+const ROTEIRO_DEMO = "d1000000-0000-4000-8000-000000000001";
+TABELAS.roteiro = [{
+  id: ROTEIRO_DEMO, titulo: "Uma reserva de emergência sem complicação", origem: "tema", tema: "Primeiros passos para montar uma reserva", direcao: null,
+  palavra_cta: "PLANILHA", duracao_alvo: 45, status: "pronto", via: "estacao", automatico: false, etapa: null, erro: null,
+  criado_em: ha(90), atualizado_em: ha(40), arquivado_em: null, custo_usd: 0, criador: null,
+  versoes: [{ titulo: "Uma reserva de emergência sem complicação", palavra_cta: "PLANILHA", gancho: ["Seu primeiro passo não precisa ser um investimento."],
+    corpo: ["Antes, olha quanto você precisa por mês.", "Começa separando um valor que cabe no seu orçamento.", "Anota cada depósito e acompanha o que já juntou."],
+    cta: ["Comenta PLANILHA que eu te mando o modelo."], dicas: ["Mostre a planilha enquanto explica."], legenda: "Comece pelo que cabe no seu orçamento. Comenta PLANILHA para receber o modelo.",
+    de_onde_veio: "Exemplo fictício de demonstração", checagem: { aprovado: true, graves: [], leves: [], preencher: [], palavras: 57, segundos: 24 }, leitor: [], reescritas: [], duracao_alvo: 45,
+    direcao: null, gerado_em: ha(40), modelo: "demonstração", custo_usd: 0 }],
+}];
+TABELAS.entrega = [{ id: "f1000000-0000-4000-8000-000000000001", slug: "checklist", palavra: "PLANILHA", titulo: "Seu primeiro orçamento", subtitulo: "Um exemplo de material do Creaty", publicada: true, na_dm: true, status: "pronta", visitas: 24, criado_em: ha(90),
+  blocos: [{ tipo: "texto", texto: "Comece registrando o que entra e o que sai. Este é um material fictício para conhecer o sistema." }, { tipo: "passos", titulo: "Para começar", itens: [{ titulo: "Anote suas entradas", texto: "Use os valores do seu mês." }, { titulo: "Liste as despesas", texto: "Separe os gastos recorrentes dos ocasionais." }] }, { tipo: "template", titulo: "Modelo para copiar", texto: "Entradas do mês:\nDespesas recorrentes:\nOutras despesas:\nValor reservado:" }],
+}];
+TABELAS.postagem = [];
+TABELAS.criador = [];
+
 type Resultado = { data: any; error: null; count: number | null };
 
 class Consulta implements PromiseLike<Resultado> {

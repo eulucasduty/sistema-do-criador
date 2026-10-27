@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState, useTransition } from "react";
 import type { Midia } from "@/lib/instagram/api";
 import { salvarAutomacao } from "./acoes";
@@ -63,12 +62,12 @@ export function FormularioAutomacao({
   a: salva,
   midias,
   erroMidias,
-  agenteLigado,
+
 }: {
   a?: AutomacaoForm;
   midias: Midia[];
   erroMidias: string | null;
-  agenteLigado: boolean;
+
 }) {
   const nova = !salva?.id;
   const a: AutomacaoForm = nova ? { ...PADRAO, ...(salva ?? {}) } : (salva ?? {});
@@ -78,7 +77,6 @@ export function FormularioAutomacao({
   // Automação antiga (mensagem de entrega única) aparece como 1ª mensagem da sequência
   const entrega: MensagemEntrega[] = a.entrega_mensagens?.length ? a.entrega_mensagens : a.dm_entrega ? [{ texto: a.dm_entrega }] : [];
 
-  const [modo, setModo] = useState(a.modo === "agente" ? "agente" : "botao");
   const [qtdEntrega, setQtdEntrega] = useState(Math.max(1, entrega.length));
   const [erro, setErro] = useState<string | null>(null);
   const [salvando, iniciar] = useTransition();
@@ -151,7 +149,7 @@ export function FormularioAutomacao({
         <textarea name="dm_abertura" rows={2} required maxLength={1000} defaultValue={a.dm_abertura ?? ""} className="campo" />
         <label className="mt-2 block">
           <span className="text-xs text-apagado">
-            Botão da 1ª DM (até 20 letras){modo === "agente" ? ": no modo agente vai sem botão e a pessoa responde escrevendo" : ""}
+            Botão da 1ª DM (até 20 letras)
           </span>
           <input name="botao_abertura" maxLength={20} defaultValue={a.botao_abertura ?? "quero"} className="campo mt-1 max-w-xs" />
         </label>
@@ -206,30 +204,10 @@ export function FormularioAutomacao({
       </Passo>
 
       <Passo n={6} titulo="Depois da entrega">
-        <div className="grid gap-2 sm:grid-cols-2">
-          <label className="flex cursor-pointer gap-2 rounded-xl border-2 border-linha p-3 has-[:checked]:border-marca">
-            <input type="radio" name="modo" value="botao" checked={modo === "botao"} onChange={() => setModo("botao")} className="mt-1" />
-            <span>
-              <b>Termina na entrega</b> <span className="text-xs text-apagado">(padrão)</span>
-              <span className="block text-xs text-suave">A 1ª DM vai com o botão e a automação acaba no material. Se a pessoa responder, é com você.</span>
-            </span>
-          </label>
-          <label className="flex cursor-pointer gap-2 rounded-xl border-2 border-linha p-3 has-[:checked]:border-marca">
-            <input type="radio" name="modo" value="agente" checked={modo === "agente"} onChange={() => setModo("agente")} className="mt-1" />
-            <span>
-              <b>O agente de IA continua</b>
-              <span className="block text-xs text-suave">A 1ª DM vai sem botão. Depois da entrega, quando a pessoa responder, o agente conversa com ela.</span>
-            </span>
-          </label>
-        </div>
-        {modo === "agente" && !agenteLigado && (
-          <p className="mt-2 text-xs text-morno">
-            O agente está desligado: a conversa para na entrega até você ligar em <Link href="/agente" className="underline">Agente</Link>.
-          </p>
-        )}
+        <input type="hidden" name="modo" value="botao" /><p className="text-sm text-suave">A automação entrega o material. Você continua a conversa pelo Instagram.</p>
         <div className="mt-3 grid gap-3 sm:grid-cols-3">
           <label className="block sm:col-span-2">
-            <span className="text-xs text-apagado">O que tem no material (o agente usa pra conversar)</span>
+            <span className="text-xs text-apagado">O que tem no material</span>
             <textarea
               name="contexto"
               rows={2}

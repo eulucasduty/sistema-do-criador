@@ -1,26 +1,27 @@
 @AGENTS.md
 
-# Creator System
+# Creaty
 
-Sistema de produção de conteúdo de UM criador do Instagram: Esteira de referências (análise, roteiro na voz dele, cópia de carrossel), editor de vídeo com IA (roda no PC dele com o Claude Code), automações do Instagram (comentário → DM) e um agente de IA opcional no direct.
+Sistema instalável de criação de conteúdo para um criador. Sem WhatsApp, disparos ou agentes de atendimento.
 
-## Estrutura
+- `app/(painel)/page.tsx`: início com estado da instalação; `/guia` contém o guia.
+- `app/(painel)/referencias`: análise, persona e criação na identidade do perfil.
+- `app/(painel)/esteira`: produção de reels e carrosséis.
+- `lib/roteiro`, `lib/monitor`, `lib/carrossel`, `lib/postagem`, `lib/entregas`: conteúdo e publicação.
+- `app/teleprompter`, `app/gravar`: ensaio e gravação.
+- `app/m/[slug]`: material público somente quando pronto e publicado.
+- `lib/instagram`: API e automações determinísticas; não chamar IA para atender leads.
+- `lib/relogio.ts`: cron da hospedagem ou laço numa VPS.
+- `scripts/estacao-edicao.mjs`, `scripts/estacao-roteiros.ts`, `scripts/estacao-carrosseis.ts`: processos locais independentes, autenticados pela sessão do dono e RLS.
+- `editor/` e `carrosseis/kit`: produção; resultados e caches fora do Git.
+- `supabase/migrations`: banco no schema `public`, autorização em `criador_privado`.
 
-- `app/(painel)/` — o painel (logado). `page.tsx` é o Início com o passo a passo de instalação (status ao vivo via `lib/passos.ts`).
-- `app/api/webhooks/instagram` — webhook da Meta (comentários, DMs, botões). `app/api/relogio` — a batida do relógio (o Supabase chama a cada minuto via pg_cron). `app/r/[codigo]` — link rastreado das DMs.
-- `lib/instagram/` — cliente da API (`api.ts`), o motor das automações (`receber.ts`), envio registrado (`enviar.ts`), follow-ups (`followup.ts`), Business Discovery pra post de outra conta (`descoberta.ts`).
-- `lib/agente/` — o agente do direct: turno (`turno.ts`), contexto, ferramentas, auditor determinístico, prompt padrão, grafo LangGraph.
-- `lib/esteira/` — referências e análise (Gemini vê e ouve o vídeo), persona tirada dos reels do criador, roteiro e carrossel (Claude via OpenRouter), render dos slides em PNG.
-- `lib/relogio.ts` + `lib/rotinas.ts` + `lib/trava.ts` — o que roda sozinho (modo cron na Vercel, modo servidor com `RELOGIO=ligado`).
-- `editor/` — o editor de vídeo: `kit/` (a oficina HyperFrames e o manual `EDITOR.md` que o Claude lê) e `estacao/` (o que roda no PC). `scripts/estacao-edicao.mjs` liga a estação.
-- `supabase/migrations/` — o banco inteiro. Tudo no schema `criador`, RLS em todas as tabelas com `criador_privado.eh_da_equipe()`.
+Regras:
 
-## Regras
-
-- Configurações do criador ficam na tabela `configuracao` (`lib/config.ts`): perfil, persona, ofertas, instagram, facebook… Nunca hardcode nome, @ ou link.
-- Segredos só em variável de ambiente (`.env.local` no PC, Environment Variables na Vercel). Nunca no código nem no git.
-- Arquivo grande vai do navegador direto pro Storage com link assinado (a Vercel recusa corpo acima de ~4,5 MB).
-- Server Action que usa a chave secreta ou gasta IA chama `exigirEquipe()` antes de tudo.
-- Texto de interface em português do Brasil, curto e informal, falando com o criador ("você").
-- Mudou o banco? Crie `supabase/migrations/002_….sql` (nunca edite a 001 depois de publicada) e rode com `npm run migrar` ou no SQL Editor.
-- Antes de dar por pronto: `npx tsc --noEmit`, `npm run lint` e `npm run build`.
+- Identidade vem de `lib/config.ts`: nunca fixar @, nicho, foto, oferta ou link da operação.
+- Chaves no ambiente ou na tabela de segredos; nunca no código ou nos prompts.
+- Ações com cliente secreto ou gasto de IA chamam `exigirEquipe()`.
+- Arquivos grandes vão do navegador direto ao Storage por URL assinada.
+- Preserve o estilo Arena: escuro/claro, amarelo, tipografia, bordas e sombras marcadas.
+- Não altere a migração 001 publicada. Crie migrações novas.
+- Valide com typecheck, lint, build e testes apropriados. Publicar em conta real exige as conexões da instalação.

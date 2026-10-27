@@ -74,19 +74,19 @@ export default async function Inicio({ searchParams }: PageProps<"/">) {
     automacao: s.automacoesAtivas > 0 ? "ok" : "falta",
     facebook: s.facebook.page_token && !s.facebook.erro ? "ok" : s.facebook.erro ? "atencao" : "opcional",
     persona: s.persona.guia ? "ok" : "opcional",
-    agente: s.agenteAtivo ? "ok" : "opcional",
   };
   const obrigatorios = ["ia", "perfil", "instagram", "relogio", "estacao", "automacao"];
   const prontos = obrigatorios.filter((k) => estados[k] === "ok").length;
   const tudoPronto = prontos === obrigatorios.length;
 
   return (
-    <div className="max-w-3xl space-y-6">
-      <div>
+    <div className="max-w-4xl space-y-6">
+      <div className="card studio-hero p-6 sm:p-8">
+        <p className="kicker mb-3">Da ideia ao próximo post</p>
         <h1 className="titulo">{s.perfil.nome ? `E aí, ${s.perfil.nome}` : "Bem-vindo"}</h1>
         <p className="mt-1 text-sm text-suave">
           {tudoPronto
-            ? "Tudo ligado. Os passos ficam aqui embaixo pra consulta."
+            ? "Seu estúdio está pronto. Escolha uma ideia e coloque seu próximo conteúdo em produção."
             : `Passo a passo pra deixar o sistema rodando: ${prontos} de ${obrigatorios.length} prontos. Cada passo mostra o status ao vivo.`}
         </p>
         <div className="xpbar mt-3 max-w-sm">
@@ -98,7 +98,7 @@ export default async function Inicio({ searchParams }: PageProps<"/">) {
         <Link href="/contatos?alertas=1" className="card flex items-center justify-between gap-3 border-quente p-4">
           <span>
             <span className="font-bold text-quente">{s.alertasAbertos} {s.alertasAbertos === 1 ? "lead precisa" : "leads precisam"} de você</span>
-            <span className="block text-sm text-suave">O agente passou a conversa pra você, alguém quer comprar ou perguntou se é IA.</span>
+            <span className="block text-sm text-suave">Confira as mensagens e os contatos das suas automações.</span>
           </span>
           <span className="btn btn-sm shrink-0">Ver</span>
         </Link>
@@ -119,6 +119,7 @@ export default async function Inicio({ searchParams }: PageProps<"/">) {
         </Link>
       </div>
 
+      <div className="grid gap-3 sm:grid-cols-3">{[{href:"/roteiros", titulo:"Roteiros", texto:"Crie, revise e grave com o teleprompter."},{href:"/agenda", titulo:"Agenda", texto:"Acompanhe os reels e carrosséis programados."},{href:"/materiais", titulo:"Materiais", texto:"Monte as entregas dos seus CTAs."}].map(item=><Link key={item.href} href={item.href} className="card p-4 hover:border-frio"><span className="rotulo text-frio">{item.titulo}</span><p className="mt-2 text-sm text-suave">{item.texto}</p></Link>)}</div>
       <section className="space-y-3">
         <h2 className="font-display text-lg uppercase tracking-wide">Passo a passo</h2>
 
@@ -147,7 +148,7 @@ export default async function Inicio({ searchParams }: PageProps<"/">) {
           n={2}
           titulo="Chave da IA (OpenRouter)"
           estado={estados.ia}
-          resumo={s.env.openrouter ? "Configurada. A IA analisa referências, escreve roteiros e conversa no direct." : "Falta a chave: sem ela a Esteira e o agente não funcionam."}
+          resumo={s.env.openrouter ? "Configurada. A IA analisa referências, escreve roteiros." : "Falta a chave: sem ela a Esteira não funcionam."}
         >
           {q.ia === "ok" && <Aviso tipo="ok">Chave ok: {String(q.msg ?? "")}.</Aviso>}
           {q.ia === "erro" && <Aviso tipo="erro">{String(q.msg ?? "")}</Aviso>}
@@ -204,7 +205,7 @@ export default async function Inicio({ searchParams }: PageProps<"/">) {
               ? `@${s.instagram.username} conectado · último evento ${haQuanto(s.ultimoEventoIg?.recebido_em)}`
               : s.instagram.erro
                 ? `Atenção: ${s.instagram.erro}`
-                : "O passo mais longo (uns 20 min, uma vez só). É o que liga as automações, o agente e a sua persona."
+                : "O passo mais longo (uns 20 min, uma vez só). É o que liga as automações, a publicação e a sua persona."
           }
         >
           {q.ig === "ok" && <Aviso tipo="ok">Instagram conectado e inscrito nos webhooks.</Aviso>}
@@ -280,7 +281,7 @@ export default async function Inicio({ searchParams }: PageProps<"/">) {
           resumo={
             s.relogioBatendo
               ? `Batendo (${s.relogio.modo === "servidor" ? "no servidor" : "pelo Supabase"}, último ${haQuanto(s.relogio.visto_em)})`
-              : "Liga as respostas do agente, os lembretes das automações e as rotinas. É um clique."
+              : "Liga as publicações, os lembretes das automações e as rotinas. É um clique."
           }
         >
           {q.relogio === "ok" && <Aviso tipo="ok">Relógio ligado: o Supabase chama o sistema a cada minuto.</Aviso>}
@@ -370,22 +371,7 @@ export default async function Inicio({ searchParams }: PageProps<"/">) {
           </p>
         </Passo>
 
-        <Passo
-          id="agente"
-          n={10}
-          titulo="Agente de IA no direct"
-          estado={estados.agente}
-          resumo={
-            s.agenteAtivo
-              ? `Ligado · ${s.ofertas} ${s.ofertas === 1 ? "oferta" : "ofertas"} cadastradas`
-              : "Conversa com quem respondeu a automação, tira dúvida e oferece o seu link. Só se você quiser."
-          }
-        >
-          <p>
-            Em <Link href="/agente" className="text-marca underline">Agente de IA</Link>: cadastre as ofertas (produto, grupo, mentoria), a base de
-            conhecimento e teste no simulador antes de ligar. Nas automações, o modo “agente” passa a conversa pra ele depois da entrega.
-          </p>
-        </Passo>
+
       </section>
     </div>
   );

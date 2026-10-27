@@ -5,26 +5,31 @@
   "scripts": {
     "dev": "next dev",
     "demo": "next dev --port 3100",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "migrar": "node --env-file=.env.local scripts/migrar.mjs",
     "estacao": "node --env-file-if-exists=.env.local scripts/estacao-edicao.mjs",
     "editor:testar": "node --env-file-if-exists=.env.local scripts/testar-editor.mjs",
     "editor:catalogo": "node scripts/catalogo-estilos.mjs",
-    "sons:gerar": "node --env-file-if-exists=.env.local scripts/gerar-sons.mjs"
+    "sons:gerar": "node --env-file-if-exists=.env.local scripts/gerar-sons.mjs",
+    "roteiro:estacao": "tsx --env-file-if-exists=.env.local --conditions=react-server --tsconfig tsconfig.json scripts/estacao-roteiros.ts",
+    "carrossel:estacao": "tsx --env-file-if-exists=.env.local --conditions=react-server --tsconfig tsconfig.json scripts/estacao-carrosseis.ts",
+    "reels:testar": "tsx --conditions=react-server --tsconfig tsconfig.json scripts/testar-reels.ts",
+    "automacoes:testar": "tsx --conditions=react-server --tsconfig tsconfig.json scripts/testar-automacoes.ts",
+    "carrossel:verificar": "node --import tsx --test scripts/testar-carrossel-contrato.mjs",
+    "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
-    "@langchain/core": "1.2.12",
-    "@langchain/langgraph": "1.4.17",
-    "@langchain/openai": "1.5.13",
     "@supabase/ssr": "0.12.7",
     "@supabase/supabase-js": "2.117.1",
     "next": "16.3.6",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "server-only": "0.0.1",
-    "zod": "4.6.5"
+    "zod": "4.6.5",
+    "sharp": "^0.35.5",
+    "playwright": "^1.64.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -37,5 +42,8 @@
     "tailwindcss": "^4",
     "tsx": "4.23.15",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=22.18.0"
   }
 }

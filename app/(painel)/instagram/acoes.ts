@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { esquecerConfig, type LembreteComentario } from "@/lib/config";
-import type { Estado } from "../agente/form-acao";
+import type { Estado } from "../form-acao";
 
 // Ações das Automações (o ManyChat grátis). Tudo pelo cliente da sessão: a RLS vale.
 
@@ -51,7 +51,7 @@ export async function salvarAutomacao(formData: FormData): Promise<{ erro: strin
   if (entrega.erro) return { erro: entrega.erro };
   const dados = {
     nome: String(formData.get("nome") ?? "").trim().slice(0, 80) || "Automação",
-    modo: formData.get("modo") === "agente" ? "agente" : "botao",
+    modo: "botao",
     contexto: String(formData.get("contexto") ?? "").trim().slice(0, 2000) || null,
     todas_as_midias: formData.get("todas_as_midias") === "on",
     midias: [...new Set(formData.getAll("midias").map(String).filter(Boolean))],
