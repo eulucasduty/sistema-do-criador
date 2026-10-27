@@ -1,8 +1,8 @@
 import Link from "next/link";
+import { urlDoApp } from "@/lib/app";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { estacaoLigada, type BatidaEstacao } from "@/lib/editor";
-import { urlDoApp } from "@/lib/app";
 import { normalizarBlocos, pendencias } from "@/lib/entregas/blocos";
 import { BotaoGerar } from "../../esteira/botoes";
 import { Copiar } from "../../copiar";
@@ -12,6 +12,8 @@ import { ajustarEntrega, apagarEntrega, salvarEntrega } from "../acoes";
 
 export const dynamic = "force-dynamic";
 
+const APP_URL = urlDoApp();
+
 export default async function PaginaMaterial({ params, searchParams }: PageProps<"/materiais/[id]">) {
   const { id } = await params;
   const q = await searchParams;
@@ -19,14 +21,14 @@ export default async function PaginaMaterial({ params, searchParams }: PageProps
   const { data: e } = await supabase.from("entrega").select("*").eq("id", id).maybeSingle();
   if (!e) notFound();
   const [{ data: cfg }, { data: ed }] = await Promise.all([
-    supabase.from("configuracao").select("valor").eq("chave", "estacao_edicao").maybeSingle(),
+    supabase.from("configuracao").select("valor").eq("chave", "estacao_roteiros").maybeSingle(),
     e.edicao_id ? supabase.from("edicao").select("id, titulo, versao").eq("id", e.edicao_id).maybeSingle() : Promise.resolve({ data: null }),
   ]);
   const ligada = estacaoLigada(cfg?.valor as BatidaEstacao | null);
   const andando = e.status === "aguardando_estacao" || e.status === "escrevendo";
   const blocos = normalizarBlocos(e.blocos);
   const faltas = pendencias(blocos);
-  const url = `${urlDoApp()}/m/${e.slug}`;
+  const url = `${APP_URL}/m/${e.slug}`;
 
   return (
     <div className="max-w-3xl space-y-5">
@@ -56,7 +58,7 @@ export default async function PaginaMaterial({ params, searchParams }: PageProps
       {andando && (
         <section className="card space-y-1 p-4 text-sm">
           <p>{e.etapa ?? "a estação está montando o material"}…</p>
-          {!ligada && <p className="text-quente">A estação está desligada: abra o atalho Estação de edição no seu PC que ela monta.</p>}
+          {!ligada && <p className="text-quente">A estação está desligada: abre o atalho da estação de edição no teu PC que ela monta.</p>}
           <p className="text-xs text-apagado">Leva uns 2 a 4 minutos. Pode sair da página.</p>
         </section>
       )}
@@ -116,8 +118,7 @@ export default async function PaginaMaterial({ params, searchParams }: PageProps
             <label className="flex items-start gap-2 text-sm">
               <input type="checkbox" name="na_dm" defaultChecked={e.na_dm} className="mt-1" />
               <span>
-                Mandar na DM de quem comentar <b>{e.palavra ?? "a palavra"}</b>: o link deste material (e o convite, se você configurou em Materiais) no
-                lugar das mensagens de entrega da automação. Só vale com o material no ar.
+                Mandar na DM de quem comentar <b>{e.palavra ?? "a palavra"}</b> (o link do material e, depois, o convite da comunidade, no lugar da mensagem “o material tá na comunidade”). Só vale com o material no ar.
               </span>
             </label>
             <EditorBlocos inicial={blocos} />
@@ -138,7 +139,7 @@ export default async function PaginaMaterial({ params, searchParams }: PageProps
           <form action={ajustarEntrega} className="card space-y-2 p-4">
             <input type="hidden" name="id" value={e.id} />
             <h2 className="rotulo">Pedir ajuste pra IA</h2>
-            <textarea name="ajuste" rows={3} className="campo" placeholder="ex.: troca o passo 2; põe o prompt inteiro; deixa mais curto" required />
+            <textarea name="ajuste" rows={3} className="campo" placeholder="ex.: troca o passo 2 pelo jeito com a BM nova; põe o prompt do agente inteiro; deixa mais curto" required />
             <BotaoGerar rotulo="Mandar o ajuste" gerando="Mandando pra estação…" className="btn btn-sm" />
             <p className="text-xs text-apagado">A estação muda só o que você pediu (o que você editou à mão vai junto: salve antes).</p>
           </form>

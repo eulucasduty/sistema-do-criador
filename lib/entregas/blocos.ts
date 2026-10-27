@@ -5,7 +5,7 @@
 //   texto     um parágrafo (aceita **negrito**)
 //   passos    passo a passo numerado; cada passo pode ter um prompt pra copiar e um link
 //   prompt    um prompt pronto, com botão de copiar
-//   link      um botão pra um site (só https; link vazio = ainda falta você pôr, não aparece)
+//   link      um botão pra um site (só https; link vazio = ainda falta o criador pôr, não aparece)
 //   template  um texto pra copiar e adaptar (mensagem, roteiro, estrutura) ou um link
 //   aviso     uma caixa de destaque (atenção, dica)
 
@@ -100,7 +100,7 @@ export function normalizarBlocos(entrada: unknown): Bloco[] {
   return blocos;
 }
 
-/** O que ainda falta você completar (links vazios), pra avisar no painel antes de publicar. */
+/** O que ainda falta o criador completar (links vazios), pra avisar no painel antes de publicar. */
 export function pendencias(blocos: Bloco[]): string[] {
   const faltas: string[] = [];
   blocos.forEach((b, i) => {
@@ -110,7 +110,7 @@ export function pendencias(blocos: Bloco[]): string[] {
   return faltas;
 }
 
-/** "Planilha Grátis!" → "planilha-gratis" (o endereço /m/<slug>). */
+/** "ManyChat Grátis!" → "manychat-gratis" (o endereço /m/<slug>). */
 export function slugDe(texto: string): string {
   return String(texto ?? "")
     .normalize("NFD")
@@ -118,8 +118,7 @@ export function slugDe(texto: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
-    .slice(0, 40)
-    .replace(/-+$/, "");
+    .slice(0, 40);
 }
 
 /** A palavra do comentário como o sistema compara (sem acento, minúscula, só letras e números). */
@@ -129,6 +128,3 @@ export const palavraNormal = (p: string | null | undefined): string =>
     .replace(/\p{M}/gu, "")
     .toLowerCase()
     .replace(/[^a-z0-9]/g, "");
-
-/** O endereço de um material: /m/<slug> (letras minúsculas, números e hífen, 2 a 40). */
-export const SLUG_VALIDO = /^[a-z0-9][a-z0-9-]{1,39}$/;

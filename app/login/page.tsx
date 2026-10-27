@@ -25,11 +25,7 @@ async function situacao(): Promise<{ dono: boolean; problema: ProblemaBanco | nu
 function sqlDaInstalacao(): string {
   try {
     const pasta = path.join(process.cwd(), "supabase", "migrations");
-    return readdirSync(pasta)
-      .filter((f) => /^\d{3}_[a-z0-9_]+\.sql$/.test(f))
-      .sort()
-      .map((f) => readFileSync(path.join(pasta, f), "utf8"))
-      .join("\n\n");
+    return readdirSync(pasta).filter(f=>f.endsWith(".sql")).sort().map(f=>readFileSync(path.join(pasta,f),"utf8")).join("\n");
   } catch {
     return "";
   }

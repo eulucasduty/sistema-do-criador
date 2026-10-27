@@ -17,13 +17,16 @@ type Envio = {
 } & ({ igsid: string } | { comentarioId: string });
 
 export async function enviarRegistrado(db: Db, e: Envio): Promise<string | null> {
+  const { data: contato, error } = await db.from("contato").select("nao_contatar").eq("id", e.contatoId).maybeSingle();
+  if (error) throw new Error("Não consegui conferir a preferência de contato.");
+  if (!contato || contato.nao_contatar) return null;
   const { data: linha } = await db
     .from("mensagem")
     .insert({
       conversa_id: e.conversaId,
       contato_id: e.contatoId,
       direcao: "saida",
-      autor: "agente",
+      autor: "sistema",
       tipo: "texto",
       conteudo: e.texto,
       status: "enviada",

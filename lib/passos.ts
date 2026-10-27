@@ -33,7 +33,6 @@ export type Situacao = {
   carrossel: { banco: boolean; batida: BatidaCarrossel; ligada: boolean };
   automacoes: number;
   automacoesAtivas: number;
-  agenteAtivo: boolean;
   ofertas: number;
   referencias: number;
   edicoes: number;
@@ -44,12 +43,11 @@ export type Situacao = {
 
 export async function lerSituacao(): Promise<Situacao> {
   const db = createAdminClient();
-  const [{ data: configs }, { data: ultimo }, auto, autoAtivas, { data: agente }, refs, eds, alertas, agendado, carrosseis] = await Promise.all([
+  const [{ data: configs }, { data: ultimo }, auto, autoAtivas, refs, eds, alertas, agendado] = await Promise.all([
     db.from("configuracao").select("chave, valor"),
     db.from("evento_recebido").select("recebido_em, tipo").order("recebido_em", { ascending: false }).limit(1).maybeSingle(),
     db.from("ig_automacao").select("id", { count: "exact", head: true }),
     db.from("ig_automacao").select("id", { count: "exact", head: true }).eq("ativa", true),
-    db.from("agente").select("ativo").order("criado_em").limit(1).maybeSingle(),
     db.from("referencia").select("id", { count: "exact", head: true }),
     db.from("edicao").select("id", { count: "exact", head: true }),
     db.from("alerta").select("id", { count: "exact", head: true }).eq("resolvido", false),
@@ -85,7 +83,6 @@ export async function lerSituacao(): Promise<Situacao> {
     carrossel: { banco: !carrosseis.error, batida: batidaCarrossel, ligada: estacaoCarrosselLigada(batidaCarrossel) },
     automacoes: auto.count ?? 0,
     automacoesAtivas: autoAtivas.count ?? 0,
-    agenteAtivo: Boolean(agente?.ativo),
     ofertas: Array.isArray(cfg.ofertas) ? cfg.ofertas.length : 0,
     referencias: refs.count ?? 0,
     edicoes: eds.count ?? 0,
@@ -133,7 +130,11 @@ export async function conferirBanco(): Promise<ProblemaBanco | null> {
   if (faltam.length) return { tipo: "variaveis", mensagem: `faltam as variáveis ${faltam.join(", ")} na hospedagem` };
   try {
     const { error } = await createAdminClient().from("configuracao").select("chave").limit(1);
-    if (!error) return null;
+    if (!error) {
+      const producao = await createAdminClient().from("roteiro").select("id").limit(1);
+      if (producao.error) return {tipo:"sql", mensagem:"falta aplicar a atualização 002_producao.sql"};
+      return null;
+    }
     if (error.code === "PGRST106" || /schema must be one of|Invalid schema/i.test(error.message)) {
       return { tipo: "outro", mensagem: "o Supabase não está expondo as tabelas: em Project Settings → Data API, deixe o schema public nos Exposed schemas" };
     }

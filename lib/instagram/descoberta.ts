@@ -195,3 +195,170 @@ export async function acharPostPublico(url: string): Promise<{ post: PostPublico
     return { post: null, motivo: `a Meta não respondeu: ${msg.slice(0, 120)}` };
   }
 }
+
+export type ReelPublico = {
+  id: string;
+  autor: string;
+  media_url: string | null;
+  thumbnail_url: string | null;
+  permalink: string | null;
+  legenda: string | null;
+  curtidas: number | null;
+  comentarios: number | null;
+  publicado_em: string | null;
+};
+
+type MidiaDiscovery = {
+  id: string;
+  media_type?: string;
+  media_url?: string;
+  thumbnail_url?: string;
+  permalink?: string;
+  caption?: string;
+  like_count?: number;
+  comments_count?: number;
+  timestamp?: string;
+  children?: { data?: Array<{ media_type?: string; media_url?: string }> };
+};
+
+/** Carrossel de um criador monitorado: os slides vêm prontos pra baixar (vídeo = MP4). */
+export type CarrosselPublico = {
+  id: string;
+  autor: string;
+  permalink: string | null;
+  legenda: string | null;
+  curtidas: number | null;
+  comentarios: number | null;
+  publicado_em: string | null;
+  slides: Array<{ url: string; video: boolean }>;
+};
+
+export type PerfilPublico = {
+  usuario: string;
+  nome: string | null;
+  foto: string | null;
+  seguidores: number | null;
+  posts: ReelPublico[];
+  /** os carrosséis do mesmo lote (desde 19/10 o monitor também traz carrossel) */
+  carrosseis: CarrosselPublico[];
+};
+
+/**
+ * O perfil público, os últimos posts em VÍDEO e os carrosséis de uma conta de criador ou empresa (monitor de
+ * criadores, desde 18/10). Uma consulta só: conta no limite de chamadas da Meta (200 por hora).
+ * Erro em português, com o motivo (conta pessoal, token vencido, Facebook desligado).
+ */
+export async function perfilPublico(usuario: string, limite = 25): Promise<PerfilPublico> {
+  const conta = await lerFacebook();
+  if (!conta.page_token || !conta.ig_business_id) throw new Error("o Facebook não está conectado (Conexões → Facebook)");
+  const u = usuario.replace(/^@/, "").trim().toLowerCase();
+  if (!/^[a-z0-9._]{1,30}$/.test(u)) throw new Error(`@${u} não é um usuário do Instagram`);
+  const campos = "id,media_type,media_url,thumbnail_url,permalink,caption,like_count,comments_count,timestamp,children{media_type,media_url}";
+  try {
+    const r = await fb<{
+      business_discovery?: { username?: string; name?: string; profile_picture_url?: string; followers_count?: number; media?: { data?: MidiaDiscovery[] } };
+    }>(
+      `/${conta.ig_business_id}?fields=${encodeURIComponent(`business_discovery.username(${u}){username,name,profile_picture_url,followers_count,media.limit(${limite}){${campos}}}`)}`,
+      conta.page_token,
+    );
+    const bd = r.business_discovery;
+    if (!bd) throw new Error(`a Meta não devolveu o perfil de @${u}`);
+    const autor = bd.username ?? u;
+    return {
+      usuario: autor,
+      nome: bd.name ?? null,
+      foto: bd.profile_picture_url ?? null,
+      seguidores: bd.followers_count ?? null,
+      posts: (bd.media?.data ?? [])
+        .filter((m) => m.media_type === "VIDEO")
+        .map((m) => ({
+          id: m.id,
+          autor,
+          media_url: m.media_url ?? null,
+          thumbnail_url: m.thumbnail_url ?? null,
+          permalink: m.permalink ?? null,
+          legenda: m.caption ?? null,
+          curtidas: m.like_count ?? null,
+          comentarios: m.comments_count ?? null,
+          publicado_em: m.timestamp ?? null,
+        })),
+      carrosseis: (bd.media?.data ?? [])
+        .filter((m) => m.media_type === "CAROUSEL_ALBUM")
+        .map((m) => ({
+          id: m.id,
+          autor,
+          permalink: m.permalink ?? null,
+          legenda: m.caption ?? null,
+          curtidas: m.like_count ?? null,
+          comentarios: m.comments_count ?? null,
+          publicado_em: m.timestamp ?? null,
+          slides: (m.children?.data ?? []).filter((c) => c.media_url).map((c) => ({ url: c.media_url!, video: c.media_type === "VIDEO" })),
+        })),
+    };
+  } catch (e) {
+    const msg = (e as Error).message;
+    if (e instanceof ErroFacebook && e.codigo === 190) {
+      await salvarConfig("facebook", { ...conta, erro: `token do Facebook parou de valer: ${msg.slice(0, 120)}` });
+      throw new Error("o token do Facebook parou de valer (Conexões → Facebook)");
+    }
+    if ((e instanceof ErroFacebook && e.codigo === 110) || /business discovery|cannot be found|\(#110\)/i.test(msg)) {
+      throw new Error(`@${u} não aparece: não existe ou é conta pessoal (a Meta só abre conta de criador ou empresa)`);
+    }
+    throw e instanceof ErroFacebook ? new Error(`a Meta não respondeu: ${msg.slice(0, 160)}`) : e;
+  }
+}
+
+/**
+ * Acha o reel público pelo link: descobre o autor e procura o post nos últimos ~200 dele
+ * (pelo id que a DM traz ou pelo código do link). `motivo` explica quando não deu.
+ */
+export async function acharReelPublico(opcoes: { url: string; reelVideoId?: string | null }): Promise<{ reel: ReelPublico | null; motivo: string | null }> {
+  const conta = await lerFacebook();
+  if (!conta.page_token || !conta.ig_business_id) return { reel: null, motivo: "o Facebook não está conectado (Conexões → Facebook)" };
+  const autor = await autorDoLink(opcoes.url).catch(() => null);
+  if (!autor) return { reel: null, motivo: "não consegui ver de quem é o reel pelo link" };
+  const codigo = opcoes.url.match(/\/(?:reel|reels|p)\/([^/?#]+)/)?.[1] ?? null;
+  const campos = "id,media_type,media_url,thumbnail_url,permalink,caption,like_count,comments_count,timestamp";
+  let depois: string | null = null;
+  try {
+    for (let pagina = 0; pagina < 4; pagina++) {
+      const edge: string = depois ? `media.after(${depois}).limit(50)` : "media.limit(50)";
+      const r = await fb<{ business_discovery?: { media?: { data?: MidiaDiscovery[]; paging?: { cursors?: { after?: string } } } } }>(
+        `/${conta.ig_business_id}?fields=${encodeURIComponent(`business_discovery.username(${autor}){${edge}{${campos}}}`)}`,
+        conta.page_token,
+      );
+      const lista = r.business_discovery?.media?.data ?? [];
+      const achado = lista.find((m) => (opcoes.reelVideoId && m.id === opcoes.reelVideoId) || (codigo && m.permalink?.includes(`/${codigo}`)));
+      if (achado) {
+        const reel: ReelPublico = {
+          id: achado.id,
+          autor,
+          media_url: achado.media_url ?? null,
+          thumbnail_url: achado.thumbnail_url ?? null,
+          permalink: achado.permalink ?? null,
+          legenda: achado.caption ?? null,
+          curtidas: achado.like_count ?? null,
+          comentarios: achado.comments_count ?? null,
+          publicado_em: achado.timestamp ?? null,
+        };
+        return {
+          reel,
+          motivo: reel.media_url ? null : "o reel usa música licenciada: a Meta não libera o vídeo — manda o arquivo",
+        };
+      }
+      depois = r.business_discovery?.media?.paging?.cursors?.after ?? null;
+      if (!depois || lista.length === 0) break;
+    }
+    return { reel: null, motivo: `não achei esse reel nos posts recentes de @${autor}` };
+  } catch (e) {
+    const msg = (e as Error).message;
+    if (e instanceof ErroFacebook && e.codigo === 190) {
+      await salvarConfig("facebook", { ...conta, erro: `token do Facebook parou de valer: ${msg.slice(0, 120)}` });
+      return { reel: null, motivo: "o token do Facebook parou de valer (Conexões → Facebook)" };
+    }
+    if (/business discovery|110/i.test(msg) || (e instanceof ErroFacebook && e.codigo === 110)) {
+      return { reel: null, motivo: `@${autor} é conta pessoal: a Meta só abre conta de criador ou empresa — manda o arquivo` };
+    }
+    return { reel: null, motivo: `a Meta não respondeu: ${msg.slice(0, 120)}` };
+  }
+}

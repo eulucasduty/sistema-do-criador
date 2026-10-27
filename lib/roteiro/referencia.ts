@@ -1,18 +1,31 @@
 import "server-only";
 import { completar, completarJSON, extrairJSON, MODELO_PADRAO } from "@/lib/ia/openrouter";
 import { assistirVideo, falaCorrida, type Assistido } from "@/lib/esteira/referencia";
-import type { AnaliseReferencia } from "./escritor.mjs";
 
-// O vídeo de referência de um roteiro: a fala (transcrição) e a análise em ABSTRATO. Roda no
-// servidor, com a chave da OpenRouter (Gemini, centavos), igual à Esteira:
-//   · vídeo até 45 MB: o mesmo "assistir" da Esteira (o Gemini vê e ouve, fala palavra por palavra
+// O vídeo de referência de um roteiro: a fala (transcrição) e a análise em ABSTRATO.
+//   · vídeo até 45 MB: o mesmo "assistir" da esteira (Gemini vê e ouve, fala palavra por palavra
 //     com tempo + cenas), sem ffmpeg;
-//   · vídeo maior: o navegador tira só o áudio (WAV 16 kHz mono) e o Gemini ouve.
+//   · vídeo maior: o navegador do criador tira só o áudio (WAV 16 kHz mono) e o Gemini ouve.
 // A análise tira assunto, ângulo, estrutura e os fatos do assunto, com palavras próprias: é só
-// isso que chega no escritor (lib/roteiro/escritor.mjs). As falas do outro criador ficam aqui.
+// isso que chega no escritor (lib/roteiro/escrever.ts). As falas do outro criador ficam aqui.
 
-export type { AnaliseReferencia };
 export type Transcricao = Assistido & { fonte: string };
+
+export type AnaliseReferencia = {
+  assunto: string;
+  angulo: string;
+  publico?: string | null;
+  gancho?: { tipo: string; mecanismo: string } | null;
+  estrutura: Array<{ parte: string; funcao: string }>;
+  pontos: string[];
+  /** a prova pessoal do outro criador (o tipo, sem número): no roteiro do criador vira [colchete] */
+  prova_do_criador?: string | null;
+  ritmo?: string | null;
+  cta?: string | null;
+  por_que_funcionou?: string[];
+  duracao_seg: number | null;
+  palavras_por_segundo: number | null;
+};
 
 const OUVIR = `Você ouve o áudio de um vídeo curto do começo ao fim e transcreve com precisão, em português do Brasil.
 
@@ -21,7 +34,7 @@ Responda APENAS um JSON:
 
 Regras:
 - Transcreva TODA a fala, sem resumir e sem pular nada. Um trecho por frase.
-- Nome de marca, produto ou ferramenta como é.
+- Nome de ferramenta como é (Claude, ChatGPT, Cursor, GSAP, n8n…).
 - Sem fala: "fala": [].`;
 
 const FORMATO_AUDIO: Record<string, string> = { "audio/wav": "wav", "audio/x-wav": "wav", "audio/wave": "wav", "audio/mpeg": "mp3", "audio/mp3": "mp3", "audio/ogg": "ogg", "audio/mp4": "m4a", "audio/aac": "aac" };
@@ -42,7 +55,7 @@ export async function transcreverArquivo(buf: Buffer, mime: string, fonte: strin
       ],
       maxTokens: 12000,
       json: true,
-      timeoutMs: 240_000,
+      timeoutMs: 300_000,
     });
     const j = extrairJSON<{ duracao_seg?: number; fala?: Array<{ t: string; texto: string }>; audio?: string }>(texto);
     if (!j || !Array.isArray(j.fala)) throw new Error("a IA não devolveu a transcrição do áudio");
@@ -58,7 +71,7 @@ export async function transcreverArquivo(buf: Buffer, mime: string, fonte: strin
 const ANALISAR = `Você analisa um vídeo de referência que performou bem (transcrição com tempos e cenas abaixo) pra um OUTRO criador escrever um roteiro NOVO sobre o mesmo assunto.
 
 Tire o assunto, o ângulo e a estrutura em ABSTRATO. Regra de ouro: não copie frase do vídeo. Escreva tudo com as suas palavras, nada entre aspas, nenhum bordão ou expressão característica do criador.
-Os fatos do assunto entram, com frase sua: nome de marca, app, ferramenta, site e plataforma fica EXATO como é, passos concretos, números públicos (preço de um produto, dado de pesquisa). Escreva simples e direto, sem adjetivo ("expressivamente", "contundente").
+Os fatos do assunto entram, com frase sua: nome de ferramenta, site, plataforma e repositório fica EXATO como é (Airbnb, Google Flow, Claude Code, GitHub), passos concretos, números públicos (estrelas de um repositório, preço de uma ferramenta). Escreva simples e direto, sem adjetivo ("expressivamente", "contundente").
 Resultado PESSOAL do criador (seguidores que ganhou, quanto faturou, os clientes dele, o tempo que levou) é dele, não do assunto: fica fora de "pontos" e vai em "prova_do_criador", só o tipo de prova, sem o número.
 
 Responda APENAS um JSON:
@@ -76,10 +89,7 @@ Responda APENAS um JSON:
 }`;
 
 /** Assunto, ângulo e estrutura da referência, sem as falas. */
-export async function analisarReferencia(
-  t: Transcricao,
-  extra: { legenda?: string | null; notas?: string | null } = {},
-): Promise<{ analise: AnaliseReferencia; custoUsd: number }> {
+export async function analisarReferencia(t: Transcricao, extra: { legenda?: string | null; notas?: string | null } = {}): Promise<{ analise: AnaliseReferencia; custoUsd: number }> {
   const fala = t.fala.map((f) => `[${f.t}] ${f.texto}`).join("\n");
   const cenas = (t.cenas ?? []).map((c) => `[${c.t}] ${c.o_que_aparece}${c.texto_na_tela ? ` | na tela: ${c.texto_na_tela}` : ""}`).join("\n");
   const { dados, uso } = await completarJSON<Omit<AnaliseReferencia, "duracao_seg" | "palavras_por_segundo">>({

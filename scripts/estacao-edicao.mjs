@@ -18,6 +18,7 @@
 // ESTACAO_CARROSSEIS=0 desliga).
 // Pra parar: Ctrl+C.
 
+import { juntarTakes, misturarMusica } from "../editor/estacao/takes.mjs";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
@@ -180,20 +181,24 @@ async function processar(ed, ia) {
     const { data: anterior } = await db.from("edicao").select("id, versao, criado_em").eq("id", ed.origem_id).maybeSingle();
     if (anterior) base = pastaDe(anterior);
   }
-  // "Montar de novo" (painel): a edição pronta só é montada de novo com o kit atual, sem a IA. Precisa
-  // da oficina dela neste PC; sem ela, a edição volta a ficar pronta como estava.
-  const remontar = Boolean(ed.opcoes?.remontar);
-  const semRemontar = () => Object.fromEntries(Object.entries(ed.opcoes ?? {}).filter(([k]) => k !== "remontar"));
-  if (remontar && !podeRemontar(pasta)) {
-    await registrar(ed, "não deu pra montar de novo: a oficina desta edição não está neste PC (ou é de um kit antigo). Peça um ajuste.", { status: "pronto", opcoes: semRemontar(), concluido_em: agora() });
-    return;
-  }
-  if (!base && !remontar) {
-    if (!ed.video?.partes?.length) throw new Error("o pedido não tem vídeo");
-    fs.rmSync(pasta, { recursive: true, force: true }); // pedido recomeçado: a oficina nasce limpa
-    await registrar(ed, "baixando o vídeo", { status: "preparando" });
-    bruto = path.join(pasta, "_entrada", `video${extensao(ed.video.nome, ed.video.tipo)}`);
-    await baixar(ed.video.partes, bruto);
+  if (!base) {
+    const takes = ed.video?.takes ?? [];
+    if (takes.length) {
+      await registrar(ed, "baixando os takes", { status: "preparando" });
+      const locais = [];
+      for (const [k,t] of takes.entries()) {
+        const arquivo = path.join(pasta, "_entrada", `take-${k}${extensao(t.nome,t.tipo)}`);
+        await baixar(t.partes, arquivo);
+        locais.push({arquivo, inicio:t.inicio, fim:t.fim, velocidade:t.velocidade});
+      }
+      bruto = path.join(pasta, "_entrada", "video.mp4");
+      await juntarTakes(locais, bruto, {ajustes:ed.opcoes?.ajustes});
+    } else {
+      if (!ed.video?.partes?.length) throw new Error("o pedido não tem vídeo");
+      await registrar(ed, "baixando o vídeo", { status: "preparando" });
+      bruto = path.join(pasta, "_entrada", `video${extensao(ed.video.nome, ed.video.tipo)}`);
+      await baixar(ed.video.partes, bruto);
+    }
     const { data: mats } = await db.from("edicao_material").select("*").eq("edicao_id", ed.id).order("ordem");
     for (const [k, m] of (mats ?? []).entries()) {
       const id = `m${k + 1}`;
@@ -222,6 +227,17 @@ async function processar(ed, ia) {
     aoPreparar: (p) => sincronizarSons(db, p, { cache: path.join(RAIZ, "_sons"), aviso: (m) => registrar(ed, m) }),
   });
 
+  const musica = ed.opcoes?.musica;
+  if (musica?.id) {
+    const {data:m} = await db.from("musica").select("arquivo").eq("id",musica.id).maybeSingle();
+    if (m) {
+      const arquivo = path.join(pasta, "_entrada", "musica");
+      await baixar([m.arquivo], arquivo);
+      const saida = path.join(pasta, "final-com-musica.mp4");
+      await misturarMusica(r.final, arquivo, musica.volume, saida);
+      r.final = saida;
+    }
+  }
   // Cópia no PC (é daqui que o criador posta)
   fs.mkdirSync(SAIDA, { recursive: true });
   const dia = new Date().toLocaleDateString("sv-SE");
@@ -248,19 +264,12 @@ async function processar(ed, ia) {
     ...(r.remontado ? { opcoes: semRemontar() } : {}),
     erro: null,
     concluido_em: agora(),
+    transcricao: (() => { try { const palavras = JSON.parse(fs.readFileSync(path.join(pasta, "dados", "palavras.json"), "utf8")); return palavras.map(w=>w.text || w.texto || "").join(" "); } catch { return null; } })(),
   });
 
-  // Postar no Instagram: a fala e a palavra do CTA vão pra edição e a legenda entra na fila da
-  // escrita (editor/estacao/escrita.mjs). À parte: sem a migration 003, a edição segue normal.
-  const { fala, cta } = falaECta(pasta);
-  const { error: eFala } = await db.from("edicao").update({ transcricao: fala || null, cta_palavra: cta }).eq("id", ed.id);
-  const { error: ePost } = eFala
-    ? { error: eFala }
-    : await db.from("postagem").upsert({ edicao_id: ed.id, status: "aguardando_estacao", palavra: cta, etapa: "na fila da estação: a IA escreve a legenda" }, { onConflict: "edicao_id", ignoreDuplicates: true });
-  if (ePost) console.error(`[${hora()}] a legenda do post não entrou na fila: ${ePost.message}`);
-
+  await db.from("postagem").upsert({ edicao_id: ed.id, status: "aguardando_estacao", palavra: ed.cta_palavra || null }, { onConflict: "edicao_id", ignoreDuplicates: true });
   // O bruto e os materiais já estão tratados na oficina: libera o storage e o disco
-  const partes = [...(ed.video?.partes ?? [])];
+  const partes = [...(ed.video?.partes ?? []), ...(ed.video?.takes ?? []).flatMap(t=>t.partes ?? [])];
   const { data: mats } = await db.from("edicao_material").select("arquivo").eq("edicao_id", ed.id);
   for (const m of mats ?? []) partes.push(...(m.arquivo?.partes ?? []));
   if (partes.length) await db.storage.from(BUCKET).remove(partes);

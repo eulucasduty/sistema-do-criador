@@ -1,14 +1,15 @@
 "use server";
 
+import { after } from "next/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { exigirEquipe } from "@/lib/supabase/server";
-import { enviarPostagem, passoDaPostagem } from "@/lib/postagem/publicar";
+import { avancarPostagem, enviarPostagem } from "@/lib/postagem/publicar";
 import { palavraNormal, slugDe } from "@/lib/entregas/blocos";
 
-// O post do vídeo editado (cartão "Postar no Instagram" da página da edição). A legenda é escrita
-// pela estação no seu PC (editor/estacao/escrita.mjs); o envio e a publicação, pelo servidor.
+// O post do vídeo editado (botão "Postar no Instagram" da página da edição). A legenda é escrita
+// pela estação (fila em scripts/estacao-roteiros.ts); o envio e a publicação, pelo servidor.
 
 const limpo = (s: unknown, max: number) => String(s ?? "").replace(/\r\n/g, "\n").trim().slice(0, max);
 const voltar = (edicaoId: string, erro?: string): never => {
@@ -25,56 +26,59 @@ export async function pedirLegenda(form: FormData) {
   if (!ed || ed.status !== "pronto") voltar(edicaoId, "o vídeo ainda não está pronto");
   const { data: p } = await db.from("postagem").select("id, status").eq("edicao_id", edicaoId).maybeSingle();
   if (p && ["enviando", "processando", "publicando", "publicada"].includes(p.status)) voltar(edicaoId, "esse vídeo já foi pro Instagram");
-  const fila = { status: "aguardando_estacao", etapa: "na fila da estação: a IA escreve a legenda", erro: null };
-  const { error } = p ? await db.from("postagem").update(fila).eq("id", p.id) : await db.from("postagem").insert({ edicao_id: edicaoId, palavra: ed?.cta_palavra ?? null, ...fila });
-  voltar(edicaoId, error ? `não deu pra pedir a legenda: ${error.message}` : undefined);
+  const fila = { status: "aguardando_estacao", etapa: "na fila da estação: o Claude escreve a legenda", erro: null };
+  if (p) await db.from("postagem").update(fila).eq("id", p.id);
+  else await db.from("postagem").insert({ edicao_id: edicaoId, palavra: ed?.cta_palavra ?? null, ...fila });
+  voltar(edicaoId);
 }
 
 function camposDoForm(form: FormData) {
-  const bruto = String(form.get("capa_s") ?? "").trim().replace(",", ".");
-  const capa = Number(bruto);
+  const capa = Number(String(form.get("capa_s") ?? "").replace(",", "."));
   return {
     legenda: limpo(form.get("legenda"), 2200),
     palavra: limpo(form.get("palavra"), 40) || null,
     compartilhar_feed: form.get("feed") === "on",
-    capa_s: bruto && Number.isFinite(capa) && capa >= 0 ? Math.round(capa * 10) / 10 : null,
+    capa_s: String(form.get("capa_s") ?? "").trim() && Number.isFinite(capa) && capa >= 0 ? Math.round(capa * 10) / 10 : null,
   };
 }
 
-/** Guarda a legenda que você mexeu (sem postar). */
+/** Guarda a legenda que ele mexeu (sem postar). */
 export async function salvarPostagem(form: FormData) {
   await exigirEquipe();
   const id = limpo(form.get("id"), 60);
   const edicaoId = limpo(form.get("edicao_id"), 60);
-  const { error } = await createAdminClient().from("postagem").update(camposDoForm(form)).eq("id", id).in("status", ["pronta", "erro"]);
+  const db = createAdminClient();
+  const { error } = await db.from("postagem").update(camposDoForm(form)).eq("id", id).in("status", ["pronta", "erro"]);
   voltar(edicaoId, error ? `não salvou: ${error.message}` : undefined);
 }
 
-/** O botão: salva o que está na tela e cria o post no Instagram. O resto a página e o relógio acompanham. */
+/** O botão: salva o que está na tela e manda pro Instagram. O resto o servidor acompanha. */
 export async function postarAgora(form: FormData) {
   await exigirEquipe();
   const id = limpo(form.get("id"), 60);
   const edicaoId = limpo(form.get("edicao_id"), 60);
   const campos = camposDoForm(form);
   if (!campos.legenda) voltar(edicaoId, "a legenda está vazia");
-  await createAdminClient().from("postagem").update(campos).eq("id", id).in("status", ["pronta", "erro"]);
-  let erro: string | undefined;
+  const db = createAdminClient();
+  await db.from("postagem").update(campos).eq("id", id).in("status", ["pronta", "erro"]);
   try {
     await enviarPostagem(id);
   } catch (e) {
-    erro = (e as Error).message;
+    voltar(edicaoId, (e as Error).message);
   }
-  voltar(edicaoId, erro);
+  // Acompanha de perto nos primeiros minutos (o relógio do servidor também confere a cada 15 s)
+  after(async () => {
+    for (let k = 0; k < 60; k++) {
+      await new Promise((ok) => setTimeout(ok, 5000));
+      const { data: p } = await createAdminClient().from("postagem").select("id, status, container_id, enviado_em").eq("id", id).maybeSingle();
+      if (!p || p.status !== "processando") return;
+      if ((await avancarPostagem(p)) !== "esperando") return;
+    }
+  });
+  voltar(edicaoId);
 }
 
-/** Um passo do processamento (a página chama enquanto o Instagram processa o vídeo). */
-export async function conferirPostagem(id: string): Promise<string | null> {
-  await exigirEquipe();
-  if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
-  return passoDaPostagem(id);
-}
-
-/** Põe a palavra do CTA numa automação (quem comentar recebe a DM). */
+/** Põe a palavra do CTA na automação de comentários (quem comentar recebe a DM). */
 export async function palavraNaAutomacao(form: FormData) {
   await exigirEquipe();
   const edicaoId = limpo(form.get("edicao_id"), 60);
@@ -93,27 +97,8 @@ export async function palavraNaAutomacao(form: FormData) {
   voltar(edicaoId);
 }
 
-/** Põe o post publicado numa automação que vale só pra posts escolhidos. */
-export async function postNaAutomacao(form: FormData) {
-  await exigirEquipe();
-  const edicaoId = limpo(form.get("edicao_id"), 60);
-  const automacaoId = limpo(form.get("automacao_id"), 60);
-  const midia = limpo(form.get("midia_id"), 60);
-  if (!midia) voltar(edicaoId, "o post ainda não tem id");
-  const db = createAdminClient();
-  const { data: a } = await db.from("ig_automacao").select("id, midias").eq("id", automacaoId).maybeSingle();
-  if (!a) voltar(edicaoId, "automação não encontrada");
-  const midias: string[] = a?.midias ?? [];
-  if (!midias.includes(midia)) {
-    const { error } = await db.from("ig_automacao").update({ midias: [...midias, midia] }).eq("id", automacaoId);
-    if (error) voltar(edicaoId, `não deu pra pôr o post: ${error.message}`);
-  }
-  revalidatePath("/instagram");
-  voltar(edicaoId);
-}
-
-/** Cria o material deste vídeo (a estação escreve o rascunho) e abre ele. */
-export async function materialDoVideo(form: FormData) {
+/** Cria a entrega do material deste vídeo (a estação escreve o rascunho) e abre ela. */
+export async function entregaDoVideo(form: FormData) {
   await exigirEquipe();
   const edicaoId = limpo(form.get("edicao_id"), 60);
   const palavra = limpo(form.get("palavra"), 40);
@@ -122,18 +107,18 @@ export async function materialDoVideo(form: FormData) {
   const { data: ed } = await db.from("edicao").select("id, titulo").eq("id", edicaoId).maybeSingle();
   if (!ed) voltar(edicaoId, "edição não encontrada");
   const base = slugDe(palavra || ed!.titulo) || "material";
-  let slug = base.length >= 2 ? base : `${base}-material`;
+  let slug = base;
   for (let k = 2; k < 50; k++) {
     const { data: tem } = await db.from("entrega").select("id").eq("slug", slug).maybeSingle();
     if (!tem) break;
-    slug = `${base.slice(0, 36)}-${k}`;
+    slug = `${base}-${k}`.slice(0, 40);
   }
   const { data: nova, error } = await db
     .from("entrega")
-    .insert({ slug, palavra: palavra || null, titulo: "", pedido: pedido || null, edicao_id: edicaoId, status: "aguardando_estacao", etapa: "na fila da estação: a IA monta o material" })
+    .insert({ slug, palavra: palavra || null, titulo: "", pedido: pedido || null, edicao_id: edicaoId, status: "aguardando_estacao", etapa: "na fila da estação: o Claude monta o material" })
     .select("id")
     .single();
-  if (error || !nova) voltar(edicaoId, `não criou o material: ${error?.message}`);
+  if (error || !nova) voltar(edicaoId, `não criou a entrega: ${error?.message}`);
   revalidatePath("/materiais");
   redirect(`/materiais/${nova!.id}`);
 }

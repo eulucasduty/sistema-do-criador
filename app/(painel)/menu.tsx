@@ -73,7 +73,11 @@ const ITENS = [
   { href: "/instagram", rotulo: "Automações", icone: "automacoes" },
   { href: "/materiais", rotulo: "Materiais", icone: "materiais" },
   { href: "/contatos", rotulo: "Leads", icone: "leads", contador: true },
-  { href: "/agente", rotulo: "Agente de IA", icone: "agente" },
+  { href: "/roteiros", rotulo: "Roteiros", icone: "editor" },
+  { href: "/roteiros/criadores", rotulo: "Criadores", icone: "perfil" },
+  { href: "/agenda", rotulo: "Agenda", icone: "inicio" },
+  { href: "/materiais", rotulo: "Materiais", icone: "esteira" },
+  { href: "/referencias", rotulo: "Referências", icone: "esteira" },
   { href: "/perfil", rotulo: "Meu perfil", icone: "perfil" },
   { href: "/conexoes", rotulo: "Conexões", icone: "conexoes" },
 ];
@@ -83,11 +87,12 @@ export function Menu({ alertas }: { alertas: number }) {
   return (
     <nav className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-2 md:mx-0 md:flex-col md:overflow-visible md:px-0 md:pb-0">
       {ITENS.map((item) => {
-        const ativo = item.href === "/" ? caminho === "/" : caminho.startsWith(item.href);
+        const ativo = item.href === "/" ? caminho === "/" : (caminho === item.href || caminho.startsWith(`${item.href}/`)) && !ITENS.some(outro => outro.href !== item.href && outro.href.startsWith(`${item.href}/`) && (caminho === outro.href || caminho.startsWith(`${outro.href}/`)));
         return (
           <Link
             key={item.href}
             href={item.href}
+            aria-current={ativo ? "page" : undefined}
             className={`flex shrink-0 items-center justify-between gap-3 rounded-xl border-2 px-3 py-2 text-sm font-bold transition ${
               ativo ? "border-tinta bg-marca text-[#05070e] shadow-[0_3px_0_#000]" : "border-transparent text-suave hover:bg-superficie-2 hover:text-texto"
             }`}

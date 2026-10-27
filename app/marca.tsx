@@ -13,9 +13,9 @@ export function Marca({ tamanho = "md" }: { tamanho?: "md" | "lg" }) {
           <path d="M3.5 3.2l.6 1.6 1.6.6-1.6.6-.6 1.6-.6-1.6-1.6-.6 1.6-.6zM4 15.5l.45 1.2 1.2.45-1.2.45L4 18.8l-.45-1.2-1.2-.45 1.2-.45z" />
         </svg>
       </span>
-      <span className={`logo ${grande ? "text-[38px]" : "text-[19px]"}`} aria-label="Creator System">
-        <span style={{ color: "var(--color-texto)" }}>CREATOR</span>
-        <span className="logo-prefixo" style={{ color: "var(--color-marca)", marginLeft: "0.22em" }}>SYSTEM</span>
+      <span className={`logo ${grande ? "text-[42px]" : "text-[27px]"}`} aria-label="Creaty">
+        <span style={{ color: "var(--color-texto)" }}>crea</span>
+        <span className="logo-prefixo" style={{ color: "var(--color-marca)" }}>ty</span>
       </span>
     </span>
   );

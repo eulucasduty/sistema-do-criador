@@ -5,7 +5,11 @@ import { clienteDemo, DEMO } from "@/lib/demo";
 // Cliente com a chave SECRETA: passa por cima da RLS. Só pra processos do servidor
 // que não têm usuário logado (webhooks, agente, disparo, rotinas). Nunca importar
 // em Client Component — a chave não tem NEXT_PUBLIC_ e nunca pode ir pro navegador.
+let clienteDaEstacao: ReturnType<typeof clienteSecreto> | undefined;
+export function usarClienteDaEstacao(cliente: ReturnType<typeof clienteSecreto>) { clienteDaEstacao = cliente; }
+
 export function createAdminClient() {
+  if (clienteDaEstacao) return clienteDaEstacao;
   if (DEMO) return clienteDemo() as ReturnType<typeof clienteSecreto>;
   return clienteSecreto();
 }

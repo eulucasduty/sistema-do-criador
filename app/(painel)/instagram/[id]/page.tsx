@@ -12,7 +12,7 @@ const ETAPA: Record<string, string> = {
   abertura: "recebeu a 1ª DM",
   aguardando_seguir: "esperando seguir",
   entregue: "recebeu o material",
-  com_agente: "conversando com o agente",
+  com_agente: "recebeu o material",
 };
 
 type Um<T> = T | T[] | null;
@@ -27,7 +27,7 @@ export default async function PaginaAutomacao({ params, searchParams }: PageProp
   if (!a) notFound();
 
   const cabeca = { count: "exact" as const, head: true };
-  const [{ data: fluxos }, { count: comentarios }, { count: dms }, { count: entregues }, { count: cliques }, { data: agente }, { midias, erro: erroMidias }] =
+  const [{ data: fluxos }, { count: comentarios }, { count: dms }, { count: entregues }, { count: cliques }, { midias, erro: erroMidias }] =
     await Promise.all([
       supabase
         .from("ig_fluxo")
@@ -39,7 +39,6 @@ export default async function PaginaAutomacao({ params, searchParams }: PageProp
       supabase.from("ig_fluxo").select("id", cabeca).eq("automacao_id", id),
       supabase.from("ig_fluxo").select("id", cabeca).eq("automacao_id", id).in("etapa", ["entregue", "com_agente"]),
       supabase.from("clique").select("id", cabeca).eq("automacao_id", id),
-      supabase.from("agente").select("ativo").order("criado_em").limit(1).maybeSingle(),
       midiasParaEscolher(),
     ]);
 
@@ -85,7 +84,7 @@ export default async function PaginaAutomacao({ params, searchParams }: PageProp
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
         <section className="card p-4 lg:col-span-2">
-          <FormularioAutomacao a={a as AutomacaoForm} midias={midias} erroMidias={erroMidias} agenteLigado={Boolean(agente?.ativo)} />
+          <FormularioAutomacao a={a as AutomacaoForm} midias={midias} erroMidias={erroMidias} />
         </section>
         <div className="space-y-6">
           <section className="grid grid-cols-2 gap-2">

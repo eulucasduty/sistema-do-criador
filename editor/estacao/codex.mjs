@@ -201,3 +201,11 @@ export function rodarCodex(pasta, prompt, { modelo = null, esforco = process.env
     });
   });
 }
+
+export async function rodarCodexTexto({ sistema, prompt, esforco = "medium", minutos = 10 }) {
+  const pasta = fs.mkdtempSync(path.join(os.tmpdir(), "roteiro-codex-"));
+  try {
+    const r = await rodarCodex(pasta, `${sistema}\n\nEscreva somente o texto solicitado, sem usar ferramentas.\n\n${prompt}`, { esforco, minutos });
+    return { texto: r.resumo, uso: r.uso };
+  } finally { fs.rmSync(pasta, { recursive: true, force: true }); }
+}

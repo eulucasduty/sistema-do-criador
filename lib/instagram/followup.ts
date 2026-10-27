@@ -1,6 +1,6 @@
 import "server-only";
 import { createAdminClient, type Db } from "@/lib/supabase/admin";
-import { lerConfig, type FollowupAgente, type LembreteComentario } from "@/lib/config";
+import { lerConfig, type LembreteComentario } from "@/lib/config";
 import { digitandoIG, perfilDe, responderComentario } from "./api";
 import { enviarRegistrado } from "./enviar";
 
@@ -14,10 +14,6 @@ import { enviarRegistrado } from "./enviar";
 //    "fora do período permitido"). Então vai um lembrete em PÚBLICO,
 //    respondendo o comentário de novo 12 h depois ("@fulano chegou lá? te mandei na dm");
 //    a pessoa recebe a notificação. Uma vez por comentário (configuracao.lembrete_comentario).
-// 3. Conversa com o agente: a pessoa sumiu no meio e não clicou no link da oferta →
-//    um toque 23 h depois da última mensagem dela (configuracao.followup_agente). Depois
-//    da oferta, o toque pergunta se ela conseguiu abrir o link.
-// Respondeu? Os toques param e o agente assume pela rota normal.
 // {nome} (ou {{nome}}) vira o primeiro nome do perfil; sem nome, o @.
 
 type Toque = { horas: number; texto: string };
@@ -31,11 +27,6 @@ const MAX_POR_VOLTA = 10; // no máximo 10 por volta do relógio, com respiro en
 const dormir = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const um = <T,>(v: T | T[] | null | undefined): T | null => (Array.isArray(v) ? (v[0] ?? null) : (v ?? null));
 
-const FOLLOWUP_AGENTE_PADRAO: FollowupAgente = {
-  horas: 23,
-  antes_da_oferta: "{nome}?",
-  depois_da_oferta: "conseguiu abrir o link?",
-};
 
 /** "Maria Clara Souza" → "Maria". Nome que não parece nome (emoji, número, marca) fica vazio. */
 function primeiroNome(nome: string | null | undefined): string {
@@ -46,9 +37,9 @@ function primeiroNome(nome: string | null | undefined): string {
 
 export async function passoDoFollowup(): Promise<void> {
   const db = createAdminClient();
-  let enviados = await followupDaEntrega(db, 0);
-  enviados = await lembreteNoComentario(db, enviados);
-  await followupDoAgente(db, enviados);
+  const enviados = await followupDaEntrega(db, 0);
+  await lembreteNoComentario(db, enviados);
+
 }
 
 /** Ninguém de fora no teste, ninguém de verdade no modo simulado. */
@@ -230,57 +221,4 @@ async function lembreteNoComentario(db: Db, jaEnviados: number): Promise<number>
   return enviados;
 }
 
-// ── 3. quem sumiu no meio da conversa com o agente ─────────────────
-
-async function followupDoAgente(db: Db, jaEnviados: number): Promise<number> {
-  let enviados = jaEnviados;
-  if (enviados >= MAX_POR_VOLTA) return enviados;
-  const cfg = { ...FOLLOWUP_AGENTE_PADRAO, ...(await lerConfig<Partial<FollowupAgente>>("followup_agente", {})) };
-  const horas = Math.min(23.5, Math.max(1, Number(cfg.horas) || 23));
-  const agora = Date.now();
-
-  // Última mensagem dela há mais de `horas` e a janela ainda aberta (fecha em 24 h)
-  const { data: conversas } = await db
-    .from("conversa")
-    .select("id, status, janela_ate, contato:contato_id (id, instagram_id, instagram_usuario, primeiro_nome, nao_contatar, agente_pausado_ate, tags)")
-    .in("status", ["aberta", "encerrada"])
-    .is("aguardando_desde", null)
-    .gte("janela_ate", new Date(agora + MARGEM_MS).toISOString())
-    .lte("janela_ate", new Date(agora + JANELA_MS - horas * 3600e3).toISOString())
-    .limit(50);
-
-  for (const c of conversas ?? []) {
-    if (enviados >= MAX_POR_VOLTA) break;
-    const contato = um(c.contato) as Linha | null;
-    if (!podeMandar(contato) || contato.nao_contatar || contato.agente_pausado_ate) continue;
-
-    // Quem falou por último foi o agente (não a sequência, nem um toque já mandado)
-    const { data: ultima } = await db
-      .from("mensagem")
-      .select("direcao, metadados")
-      .eq("conversa_id", c.id)
-      .order("enviada_em", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    const meta = (ultima?.metadados ?? {}) as Record<string, unknown>;
-    if (ultima?.direcao !== "saida" || !meta.turno) continue;
-
-    // Chegou no fim do funil: recebeu a oferta e clicou no link
-    const tags: string[] = contato.tags ?? [];
-    const oferta = tags.includes("oferta_enviada");
-    if (oferta && tags.includes("clicou_oferta")) continue;
-    // Encerrada antes da oferta = ela disse que não queria conversa; depois da oferta, ainda
-    // não abriu o link, então o toque vale
-    if (c.status === "encerrada" && !oferta) continue;
-
-    const texto = oferta ? cfg.depois_da_oferta : cfg.antes_da_oferta;
-    if (!texto?.trim()) continue;
-    try {
-      await mandar(db, c.id, contato, preencher(texto, await nomeDe(contato)), { followup_agente: true, oferta });
-      enviados++;
-    } catch (e) {
-      console.warn("[followup agente]", contato.instagram_usuario, (e as Error).message);
-    }
-  }
-  return enviados;
-}
+// ── 3. quem sumiu no meio da conversa

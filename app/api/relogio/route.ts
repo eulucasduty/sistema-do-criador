@@ -20,7 +20,7 @@ async function tratar(req: Request) {
   if (!autorizado(req)) return Response.json({ erro: "não autorizado" }, { status: 401 });
   // No modo servidor o relógio já roda dentro do servidor: não bate duas vezes
   if (process.env.RELOGIO === "ligado") return Response.json({ ok: true, modo: "servidor" });
-  after(() => batida(50_000).catch((e) => console.error("[relogio]", (e as Error).message)));
+  after(() => batida().catch((e) => console.error("[relogio]", (e as Error).message)));
   return Response.json({ ok: true, modo: "cron" }, { status: 202 });
 }
 

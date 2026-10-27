@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { dataCurta } from "@/lib/formato";
-import { regrasEmTexto } from "@/lib/roteiro/anti-ia.mjs";
+import { regrasEmTexto } from "@/lib/roteiro/anti-ia";
 import { lerPadrao } from "@/lib/roteiro/padrao-viral";
 import { BotaoGerar } from "../../esteira/botoes";
 import { restaurarPadraoViral, salvarPadraoViral } from "../acoes";
@@ -14,16 +14,15 @@ export default async function PaginaPadraoViral({ searchParams }: PageProps<"/ro
   const exemplos = [...p.exemplos, { titulo: "", fonte: "", transcricao: "", por_que: "" }];
 
   return (
-    <div className="max-w-3xl space-y-5">
+    <div className="mx-auto max-w-3xl space-y-5">
       <Link href="/roteiros" className="text-xs text-suave hover:text-texto">
         ← Roteiros
       </Link>
       <header>
         <h1 className="titulo">Padrão viral</h1>
         <p className="mt-1 text-sm text-suave">
-          O guia que o roteirista segue: as regras (gancho, estrutura, ritmo, vocabulário, CTA) e exemplos de fala de verdade de vídeos que performaram. É
-          o exemplo real que tira a cara de IA: troque os exemplos ilustrativos pela transcrição de virais do seu nicho (a Esteira transcreve pra você, é
-          só copiar de lá). A sua voz vem da sua persona (Esteira → Minha persona). {p.fonte ? `Agora: ${p.fonte}.` : ""}
+          O guia que o roteirista segue: as regras (gancho, estrutura, ritmo, vocabulário, CTA) e exemplos de fala de verdade de vídeos que performaram. É o exemplo
+          real que tira a cara de IA. {p.fonte ? `Agora: ${p.fonte}.` : ""}
           {p.atualizado_em ? ` Editado ${dataCurta(p.atualizado_em)}.` : ""}
         </p>
       </header>
@@ -40,8 +39,7 @@ export default async function PaginaPadraoViral({ searchParams }: PageProps<"/ro
           <div>
             <h2 className="rotulo">Exemplos de fala real</h2>
             <p className="mt-1 text-xs text-apagado">
-              A transcrição de um vídeo que performou, uma ideia por linha. O roteirista copia o jeito, nunca as frases (a checagem barra trecho igual). Pra
-              tirar um exemplo, apague a transcrição.
+              A transcrição de um vídeo que performou, uma ideia por linha. O roteirista copia o jeito, nunca as frases. Pra tirar um exemplo, apaga a transcrição.
             </p>
           </div>
           {exemplos.map((e, i) => (
@@ -66,7 +64,7 @@ export default async function PaginaPadraoViral({ searchParams }: PageProps<"/ro
       </form>
 
       <details className="card p-4 text-sm">
-        <summary className="rotulo cursor-pointer">O que a checagem anti-IA barra (sempre)</summary>
+        <summary className="cursor-pointer rotulo">O que a checagem anti-IA barra (sempre)</summary>
         <p className="mt-2 text-xs text-apagado">
           Cada roteiro passa por essa checagem e por um leitor que procura frase com cara de IA. O que reprovar volta pra IA reescrever (até 2 vezes).
         </p>
@@ -74,7 +72,7 @@ export default async function PaginaPadraoViral({ searchParams }: PageProps<"/ro
       </details>
 
       <form action={restaurarPadraoViral}>
-        <button className="text-xs text-apagado hover:text-quente">Voltar pro padrão do sistema</button>
+        <button className="text-xs text-apagado hover:text-quente">Voltar pro padrão inicial (fase 1)</button>
       </form>
     </div>
   );

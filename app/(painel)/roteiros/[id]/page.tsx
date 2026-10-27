@@ -2,19 +2,16 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { dataCurta } from "@/lib/formato";
-import { configEditor, type BatidaEstacao } from "@/lib/editor";
-import { DURACOES, FINAIS_ROTEIRO, ORIGEM_ROTEIRO, STATUS_ROTEIRO, parado, pedacos, type BatidaRoteiros, type VersaoRoteiro } from "@/lib/roteiro/comum";
-import { textoTeleprompter } from "@/lib/roteiro/escritor.mjs";
+import { DURACOES, FINAIS_ROTEIRO, ORIGEM_ROTEIRO, STATUS_ROTEIRO, estacaoDeRoteirosLigada, parado, pedacos, type BatidaRoteiros } from "@/lib/roteiro/comum";
+import { textoTeleprompter, type VersaoRoteiro } from "@/lib/roteiro/escrever";
 import type { AnaliseReferencia, Transcricao } from "@/lib/roteiro/referencia";
 import { Copiar } from "../../copiar";
 import { AutoAtualizar } from "../../editor/atualizar";
 import { BotaoGerar } from "../../esteira/botoes";
-import { apagarRoteiro, novaVersao, tentarDeNovo } from "../acoes";
-import { EstacaoRoteiros, situacaoDaEstacao } from "../estacao";
+import { apagarRoteiro, gerarPelaApi, novaVersao, tentarDeNovo } from "../acoes";
+import { salvarRoteiroEditado } from "../../esteira/reels-acoes";
 
 export const dynamic = "force-dynamic";
-// "Tentar de novo" e "outra versão" podem ouvir a referência de novo (after): até 5 min na Vercel
-export const maxDuration = 300;
 
 const semAcento = (s: string) => s.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
 
@@ -47,26 +44,19 @@ function Parte({ nome, linhas, destaque = false }: { nome: string; linhas: strin
   );
 }
 
-/** Quanto custou a versão: no plano, nada (com a referência de quanto seria na API). */
-function custoDa(v: VersaoRoteiro): string {
-  if (typeof v.equivalente_api_usd === "number") return `sem custo${v.equivalente_api_usd ? ` (na API seria US$ ${v.equivalente_api_usd})` : ""}`;
-  return v.custo_usd ? `US$ ${v.custo_usd}` : "sem custo";
-}
-
 export default async function PaginaRoteiro({ params, searchParams }: PageProps<"/roteiros/[id]">) {
   const { id } = await params;
   const q = await searchParams;
   const supabase = await createClient();
-  const [{ data: r }, { data: automacoes }, { data: cfgs }] = await Promise.all([
-    supabase.from("roteiro").select("*").eq("id", id).maybeSingle(),
+  const [{ data: r }, { data: automacoes }, { data: cfg }] = await Promise.all([
+    supabase.from("roteiro").select("*, criador:criador_id (usuario, rede)").eq("id", id).maybeSingle(),
     supabase.from("ig_automacao").select("nome, palavras, ativa").eq("ativa", true),
-    supabase.from("configuracao").select("chave, valor").in("chave", ["estacao_roteiros", "estacao_edicao", "editor"]),
+    supabase.from("configuracao").select("valor").eq("chave", "estacao_roteiros").maybeSingle(),
   ]);
   if (!r) notFound();
-  const cfg = Object.fromEntries((cfgs ?? []).map((c) => [c.chave, c.valor])) as Record<string, unknown>;
-  const batida = (cfg.estacao_roteiros ?? null) as BatidaRoteiros | null;
-  const batidaEdicao = (cfg.estacao_edicao ?? null) as BatidaEstacao | null;
-  const estacao = situacaoDaEstacao(batida, batidaEdicao);
+  const estacao = cfg?.valor as BatidaRoteiros | null;
+  const ligada = estacaoDeRoteirosLigada(estacao);
+  const naEstacao = r.via !== "api";
   const versoes = (r.versoes ?? []) as VersaoRoteiro[];
   const n = Math.min(Math.max(0, Number(q.v ?? 0) || 0), Math.max(0, versoes.length - 1));
   const v = versoes[n] as VersaoRoteiro | undefined;
@@ -74,16 +64,15 @@ export default async function PaginaRoteiro({ params, searchParams }: PageProps<
   const transcricao = r.transcricao as Transcricao | null;
   const andando = !FINAIS_ROTEIRO.includes(r.status);
   const s = STATUS_ROTEIRO[r.status] ?? { nome: r.status, cor: "text-suave" };
-  // Esperando a estação não trava (ela pode estar desligada). Ouvindo a referência parado há 7 min
-  // travou; escrevendo, a estação pode levar mais (cada rodada da IA tem até 10 min)
-  const travado = andando && !["subindo", "aguardando_estacao"].includes(r.status) && parado(r.atualizado_em, r.status === "escrevendo" ? 25 : 7);
+  const travado = andando && !["subindo", "aguardando_estacao"].includes(r.status) && parado(r.atualizado_em);
   const automacao = v?.palavra_cta
-    ? (automacoes ?? []).find((a) => !((a.palavras ?? []) as string[]).length || ((a.palavras ?? []) as string[]).some((p) => semAcento(p) === semAcento(v.palavra_cta)))
+    ? (automacoes ?? []).find((a) => !(a.palavras ?? []).length || (a.palavras ?? []).some((p: string) => semAcento(p) === semAcento(v.palavra_cta)))
     : null;
   const c = v?.checagem;
+  const criador = (Array.isArray(r.criador) ? r.criador[0] : r.criador) as { usuario: string; rede: string } | null;
 
   return (
-    <div className="max-w-3xl space-y-5">
+    <div className="mx-auto max-w-3xl space-y-5">
       {andando && <AutoAtualizar segundos={4} />}
       <Link href="/roteiros" className="text-xs text-suave hover:text-texto">
         ← Roteiros
@@ -91,13 +80,22 @@ export default async function PaginaRoteiro({ params, searchParams }: PageProps<
 
       <header className="space-y-1">
         <p className="text-xs text-apagado">
-          {ORIGEM_ROTEIRO[r.origem]}
+          {criador ? `de @${criador.usuario}` : ORIGEM_ROTEIRO[r.origem]}
+          {r.origem === "monitor" && r.link ? (
+            <>
+              {" "}
+              ·{" "}
+              <a href={r.link} target="_blank" rel="noreferrer" className="underline">
+                ver o post original
+              </a>
+            </>
+          ) : null}
           {r.referencia_id ? (
             <>
               {" "}
               ·{" "}
               <Link href={`/esteira/${r.referencia_id}`} className="underline">
-                abrir na Esteira
+                abrir na esteira
               </Link>
             </>
           ) : null}{" "}
@@ -110,23 +108,36 @@ export default async function PaginaRoteiro({ params, searchParams }: PageProps<
       {andando || r.status === "erro" ? (
         <section className={`card space-y-3 p-4 ${r.status === "erro" ? "border-quente/60" : ""}`}>
           <div className="flex items-center justify-between gap-3">
-            <p className="text-sm">{r.status === "erro" ? <span className="text-quente">{r.erro ?? "deu erro"}</span> : <>{r.etapa ?? s.nome}…</>}</p>
+            <p className="text-sm">
+              {r.status === "erro" ? <span className="text-quente">{r.erro ?? "deu erro"}</span> : <>{r.etapa ?? s.nome}…</>}
+            </p>
             <span className={`chip shrink-0 ${s.cor}`}>{s.nome}</span>
           </div>
           {r.status === "aguardando_estacao" ? (
-            estacao === "ligada" ? (
+            ligada ? (
               <p className="text-xs text-apagado">
-                A estação no seu PC ({batida?.maquina}) {batida?.ocupada && batida.roteiro_id !== r.id ? "está terminando outro roteiro: este é o próximo" : "vai pegar em segundos"}.
-                Pode sair da página.
+                A estação no teu PC ({estacao?.maquina}) {estacao?.ocupada && estacao.roteiro_id !== r.id ? "está terminando outro roteiro: este é o próximo" : "vai pegar em segundos"}. O
+                Claude do teu plano escreve, sem custo de API. Pode sair da página.
               </p>
             ) : (
-              <EstacaoRoteiros roteiros={batida} edicao={batidaEdicao} config={configEditor(cfg.editor)} />
+              <div className="space-y-2">
+                <p className="text-xs text-morno">
+                  A estação está desligada. Abre o atalho &ldquo;Estacao de edicao (criador)&rdquo; da Área de Trabalho e ela escreve este roteiro sozinha, no teu
+                  plano do Claude. O pedido fica guardado na fila até lá.
+                </p>
+                <form action={gerarPelaApi}>
+                  <input type="hidden" name="id" value={r.id} />
+                  <BotaoGerar rotulo="Gerar agora pela API (uns US$ 0,15)" gerando="Mandando…" className="btn btn-sm btn-2" />
+                </form>
+              </div>
             )
           ) : andando && !travado ? (
             <p className="text-xs text-apagado">
-              {r.status === "escrevendo"
-                ? "A estação no seu PC está escrevendo (uns 2 a 5 minutos): a IA escreve, a checagem anti-IA confere e, se reprovar, ela reescreve."
-                : "Ouvindo a referência e tirando o assunto e a estrutura (uns 1 a 2 minutos). Depois a estação no seu PC escreve."}{" "}
+              {r.status === "escrevendo" && naEstacao
+                ? "A estação no teu PC está escrevendo (uns 2 a 5 minutos): o Claude escreve, a checagem anti-IA confere e, se reprovar, ele reescreve."
+                : r.status === "escrevendo"
+                  ? "Escrevendo pela API (uns 2 minutos)."
+                  : "Ouvindo a referência e tirando o assunto e a estrutura (menos de 1 minuto). Depois a estação no teu PC escreve."}{" "}
               Pode sair da página.
             </p>
           ) : null}
@@ -168,22 +179,62 @@ export default async function PaginaRoteiro({ params, searchParams }: PageProps<
           </div>
           {automacao === undefined && (
             <p className="rounded-lg bg-morno/10 px-3 py-2 text-xs text-morno">
-              A palavra {v.palavra_cta} ainda não tem automação ativa: crie em{" "}
+              A palavra {v.palavra_cta} ainda não tem automação ativa no Instagram: cria em{" "}
               <Link href="/instagram" className="underline">
-                Automações
+                Instagram
               </Link>{" "}
               antes de postar, senão ninguém recebe no direct.
             </p>
           )}
-          {c?.preencher.length ? <p className="rounded-lg bg-marca-fundo px-3 py-2 text-xs">Preencha antes de gravar: {c.preencher.join(" · ")}</p> : null}
+          {c?.preencher.length ? (
+            <p className="rounded-lg bg-marca-fundo px-3 py-2 text-xs">
+              Preenche antes de gravar: {c.preencher.join(" · ")}
+            </p>
+          ) : null}
 
           <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-            <Link href={`/teleprompter/${r.id}?v=${n}`} className="btn col-span-2 text-center sm:col-span-1">
-              Abrir teleprompter
+            <Link href={`/gravar/${r.id}?v=${n}`} className="btn col-span-2 text-center sm:col-span-1">
+              Iniciar vídeo
+            </Link>
+            <Link href={`/teleprompter/${r.id}?v=${n}`} className="btn btn-2 col-span-2 text-center sm:col-span-1">
+              Só o teleprompter
             </Link>
             <Copiar texto={textoTeleprompter(v)} rotulo="Copiar texto" className="btn btn-sm btn-2" />
             <Copiar texto={textoTeleprompter(v, true)} rotulo="Copiar com as partes" className="btn btn-sm btn-2" />
           </div>
+
+          <details id="editar" className="card p-4" open={q.editar === "1"}>
+            <summary className="rotulo cursor-pointer">Editar o roteiro</summary>
+            <form action={salvarRoteiroEditado} className="mt-3 space-y-3">
+              <input type="hidden" name="id" value={r.id} />
+              <input type="hidden" name="v" value={n} />
+              <input type="hidden" name="volta" value={`/roteiros/${r.id}`} />
+              <div className="grid gap-3 sm:grid-cols-[1fr_10rem]">
+                <label className="block">
+                  <span className="text-xs text-apagado">Título</span>
+                  <input name="titulo" defaultValue={v.titulo} className="campo mt-1" maxLength={120} />
+                </label>
+                <label className="block">
+                  <span className="text-xs text-apagado">Palavra do comenta</span>
+                  <input name="palavra" defaultValue={v.palavra_cta} className="campo mt-1 font-mono uppercase" maxLength={40} />
+                </label>
+              </div>
+              {(
+                [
+                  ["gancho", "Gancho", v.gancho, 3],
+                  ["corpo", "Corpo", v.corpo, 8],
+                  ["cta", "CTA", v.cta, 3],
+                ] as const
+              ).map(([nome, rotulo, ls, linhas]) => (
+                <label key={nome} className="block">
+                  <span className="text-xs text-apagado">{rotulo} (uma ideia por linha, como aparece no teleprompter)</span>
+                  <textarea name={nome} rows={Math.max(linhas, ls.length + 1)} defaultValue={ls.join("\n")} className="campo mt-1 text-sm" />
+                </label>
+              ))}
+              <BotaoGerar rotulo="Salvar como versão nova" gerando="Salvando…" className="btn btn-sm" />
+              <p className="text-xs text-apagado">A edição vira a versão mais nova (as outras ficam aqui em cima). O gravador e o teleprompter usam ela.</p>
+            </form>
+          </details>
 
           <div className="space-y-3">
             <Parte nome="GANCHO · 0 a 3 s" linhas={v.gancho} destaque />
@@ -214,7 +265,7 @@ export default async function PaginaRoteiro({ params, searchParams }: PageProps<
           </section>
 
           <details className="card p-4 text-sm">
-            <summary className="rotulo cursor-pointer">Checagem anti-IA</summary>
+            <summary className="cursor-pointer rotulo">Checagem anti-IA</summary>
             <div className="mt-3 space-y-3">
               {v.reescritas.length ? (
                 <div>
@@ -257,7 +308,12 @@ export default async function PaginaRoteiro({ params, searchParams }: PageProps<
                 </div>
               ) : null}
               <p className="text-xs text-apagado">
-                {v.modelo} · {custoDa(v)} · {dataCurta(v.gerado_em)}
+                {v.modelo.startsWith("claude-code")
+                  ? `${v.modelo} · sem custo de API${v.equivalente_api_usd ? ` (na API seria US$ ${v.equivalente_api_usd})` : ""}`
+                  : v.modelo.includes("/")
+                    ? `${v.modelo.split("/").pop()} pela API · US$ ${v.custo_usd}`
+                    : `${v.modelo} · sem IA`}{" "}
+                · {dataCurta(v.gerado_em)}
                 {v.direcao ? ` · direção: ${v.direcao}` : ""}
                 {v.de_onde_veio ? ` · ${v.de_onde_veio}` : ""}
               </p>
@@ -271,7 +327,7 @@ export default async function PaginaRoteiro({ params, searchParams }: PageProps<
 
       {analise ? (
         <details className="card p-4 text-sm">
-          <summary className="rotulo cursor-pointer">A referência: assunto e estrutura</summary>
+          <summary className="cursor-pointer rotulo">A referência: assunto e estrutura</summary>
           <div className="mt-3 space-y-2">
             <p>
               <span className="text-apagado">Assunto:</span> {analise.assunto}
@@ -294,7 +350,9 @@ export default async function PaginaRoteiro({ params, searchParams }: PageProps<
             </ol>
             {transcricao?.fala.length ? (
               <details className="pt-1">
-                <summary className="cursor-pointer text-xs text-marca">O que a IA ouviu ({transcricao.fonte}) · o roteiro não usa essas falas</summary>
+                <summary className="cursor-pointer text-xs text-marca">
+                  O que a IA ouviu ({transcricao.fonte}) · o roteiro não usa essas falas
+                </summary>
                 <ol className="mt-2 space-y-1 text-xs text-suave">
                   {transcricao.fala.map((f, i) => (
                     <li key={i} className="flex gap-2">
@@ -313,9 +371,15 @@ export default async function PaginaRoteiro({ params, searchParams }: PageProps<
         <form action={novaVersao} className="card space-y-3 p-4">
           <input type="hidden" name="id" value={r.id} />
           <h2 className="rotulo">Gerar outra versão</h2>
-          <input name="direcao" defaultValue={r.direcao ?? ""} placeholder="direção: ex. gancho mais polêmico · mais curto · fala pra quem tá começando" className="campo" />
+          <input name="direcao" defaultValue={r.direcao ?? ""} placeholder="direção: ex. gancho mais polêmico · mais curto · fala pra dono de negócio" className="campo" />
           <div className="grid grid-cols-[1fr_auto] gap-2">
-            <input name="palavra" defaultValue={r.palavra_cta ?? v?.palavra_cta ?? ""} placeholder="PALAVRA do comenta" className="campo uppercase" autoCapitalize="characters" />
+            <input
+              name="palavra"
+              defaultValue={r.palavra_cta ?? v?.palavra_cta ?? ""}
+              placeholder="PALAVRA do comenta"
+              className="campo uppercase"
+              autoCapitalize="characters"
+            />
             <select name="duracao" defaultValue={String(r.duracao_alvo)} className="campo">
               {DURACOES.map((d) => (
                 <option key={d.valor} value={d.valor}>

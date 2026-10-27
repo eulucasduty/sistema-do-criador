@@ -14,7 +14,10 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Oficinas do editor de vídeo: cópias do kit e composições geradas, só no PC da estação
     "editor/oficina/**",
+    "editor/kit/motion-exemplos/**",
     "carrosseis/oficina/**",
+    "node_modules-incompleto/**",
+    ".npm-cache/**",
     // HyperFrames e GSAP que a estação instala sozinha
     "editor/ferramentas/**",
     // O estúdio de motion (Remotion) é um projeto à parte, com cache gerado; os exemplos são só referência pra IA

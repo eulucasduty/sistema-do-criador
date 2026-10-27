@@ -11,7 +11,7 @@ const POR_PAGINA = 50;
 const FILTROS = [
   { valor: "", rotulo: "Todos" },
   { valor: "precisa", rotulo: "Precisa de você" },
-  { valor: "pausado", rotulo: "Agente pausado" },
+  { valor: "pausado", rotulo: "Automações pausadas" },
   { valor: "nao-contatar", rotulo: "Não contatar" },
 ];
 
@@ -233,7 +233,7 @@ export default async function PaginaLeads({ searchParams }: PageProps<"/contatos
                       ) : c.nao_contatar ? (
                         <span className="text-quente">não contatar</span>
                       ) : pausado(c.agente_pausado_ate) ? (
-                        <span className="text-morno">agente pausado</span>
+                        <span className="text-morno">automações pausadas</span>
                       ) : (
                         <span className="text-apagado">—</span>
                       )}

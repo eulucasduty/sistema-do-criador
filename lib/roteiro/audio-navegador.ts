@@ -1,5 +1,5 @@
-// Roda no NAVEGADOR: tira só o áudio de um vídeo grande (mais de 45 MB, o limite do Storage) pra
-// transcrever. Sem ffmpeg e sem gastar o servidor: o próprio navegador decodifica o áudio e regrava em
+// Roda no NAVEGADOR: tira só o áudio de um vídeo grande (mais de 45 MB, o limite do storage) pra
+// transcrever. Sem ffmpeg e sem gastar a VPS: o próprio navegador decodifica o áudio e regrava em
 // WAV 16 kHz mono (~1,9 MB por minuto). Vídeo de referência longo: só os primeiros 10 minutos.
 
 export const MAX_SEGUNDOS_AUDIO = 600;
@@ -37,7 +37,7 @@ export async function extrairAudio(video: File): Promise<{ arquivo: File; segund
   try {
     decodificado = await ctx.decodeAudioData(await video.arrayBuffer());
   } catch {
-    throw new Error("o navegador não conseguiu ler o áudio desse vídeo: exporte em MP4 menor que 45 MB ou use o link do Instagram");
+    throw new Error("o navegador não conseguiu ler o áudio desse vídeo: exporta em MP4 menor que 45 MB ou usa o link");
   } finally {
     ctx.close().catch(() => {});
   }

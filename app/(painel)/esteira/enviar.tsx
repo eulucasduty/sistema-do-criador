@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BarraEnvio, mb, subirArquivo, type Andamento } from "../editor/envio";
-import { completarReferencia, linksDeEnvio, novaReferenciaPorArquivo } from "./acoes";
-import { MAX_MB, MAX_PRINTS, TIPOS_PRINT, ehTipoDeSlide } from "./regras";
+import { completarReferencia, linksDeEnvio, novaReferenciaPorArquivo } from "../referencias/acoes";
+import { MAX_MB, MAX_PRINTS, TIPOS_PRINT } from "./regras";
 
 // Envio de arquivo da Esteira: vídeo do reel (1) ou os slides do carrossel (até 20, na ordem,
 // fotos e vídeos misturados). Vai do navegador direto pro bucket (link assinado); o servidor só

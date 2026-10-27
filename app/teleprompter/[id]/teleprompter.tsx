@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
-// Teleprompter na tela, pensado pro celular e pro tablet: texto grande, faixa de leitura,
+// Teleprompter na tela, pensado pro celular e pro tablet do criador: texto grande, faixa de leitura,
 // rolagem sozinha calibrada pela duração estimada do roteiro (na velocidade 1,0x termina no tempo
 // estimado), espelhar (pra vidro de teleprompter), tela sempre acesa. Toque no texto pausa e continua.
 
@@ -45,9 +45,7 @@ function Tela({ id, versao, partes, segundos }: { id: string; versao: number; pa
   const [progresso, setProgresso] = useState(0);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(CHAVE, JSON.stringify(pref));
-    } catch {}
+    localStorage.setItem(CHAVE, JSON.stringify(pref));
   }, [pref]);
   const mudar = (campos: Partial<Preferencias>) => setPref((p) => ({ ...p, ...campos }));
 

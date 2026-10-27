@@ -2,10 +2,7 @@ import "server-only";
 import { urlDoApp } from "@/lib/app";
 import { chaveOpenRouter } from "@/lib/segredos";
 
-// Chamadas diretas à OpenRouter pro que não é o agente em si: transcrever áudio,
-// descrever imagem, a Esteira (carrossel, roteiro, persona). O agente conversa pelo
-// LangGraph (lib/agente/grafo.ts).
-
+// Análise de mídia e escrita de conteúdo pela OpenRouter.
 export const OPENROUTER_URL = "https://openrouter.ai/api/v1";
 export const MODELO_PADRAO = process.env.AI_MODEL || "google/gemini-3.8-flash";
 
@@ -21,9 +18,8 @@ type Parte =
   | { type: "image_url"; image_url: { url: string } }
   | { type: "input_audio"; input_audio: { data: string; format: string } };
 
-type Mensagem = { role: "system" | "user" | "assistant"; content: string | Parte[] };
+export type Mensagem = { role: "system" | "user" | "assistant"; content: string | Parte[] };
 
-/** Uma chamada crua (várias mensagens): os roteiros usam pra ouvir o áudio de uma referência. */
 export async function completar(opcoes: {
   modelo?: string;
   mensagens: Mensagem[];
@@ -31,7 +27,7 @@ export async function completar(opcoes: {
   temperatura?: number;
   json?: boolean;
   timeoutMs?: number;
-}): Promise<{ texto: string; uso: Uso }> {
+}): Promise<{ texto: string; uso: Uso; fim?: string | null }> {
   const chave = await chaveOpenRouter();
   if (!chave) throw new Error("falta a chave da OpenRouter (Início → passo 2)");
   const r = await fetch(`${OPENROUTER_URL}/chat/completions`, {
@@ -40,7 +36,7 @@ export async function completar(opcoes: {
       Authorization: `Bearer ${chave}`,
       "Content-Type": "application/json",
       "HTTP-Referer": urlDoApp(),
-      "X-Title": "Creator System",
+      "X-Title": "Creaty",
     },
     body: JSON.stringify({
       model: opcoes.modelo || MODELO_PADRAO,
@@ -57,6 +53,7 @@ export async function completar(opcoes: {
   const texto = String(j.choices?.[0]?.message?.content ?? "").trim();
   return {
     texto,
+    fim: j.choices?.[0]?.finish_reason ?? null,
     uso: {
       tokensEntrada: j.usage?.prompt_tokens ?? 0,
       tokensSaida: j.usage?.completion_tokens ?? 0,

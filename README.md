@@ -1,119 +1,140 @@
-# Creator System
+# Creaty
 
-O sistema de produção de conteúdo pra criador do Instagram, rodando nas **suas** contas:
+Seu estúdio de conteúdo: da referência ao post, nas suas contas e com a sua identidade. Código aberto sob a [licença MIT](LICENSE).
 
-- **Esteira de referências**: cole o link de um reel ou carrossel que bombou (ou suba o vídeo/os prints). A IA assiste, transcreve e explica por que funcionou.
-- **Roteiros pra teleprompter**: sobre um tema ou a partir de um vídeo que viralizou (o arquivo, o link do Instagram ou um reel da Esteira). Na sua voz (a IA assiste os seus últimos reels e monta a sua persona), no padrão dos vídeos que viralizam, sem copiar frase de ninguém e com uma checagem anti-IA que reescreve o que soa como robô. Sai em gancho, corpo e CTA, uma ideia por linha, com um teleprompter que roda na tela do celular. Quem escreve é a estação no seu computador, com a mesma IA do editor.
-- **Cópia de carrossel**: o carrossel da referência (de qualquer idioma) em português, slide por slide, com as cores, as fotos e a composição do original, a headline da capa que você quiser e a sua foto + o seu @ em todos. Sai em PNG 1080×1350 (slide em vídeo sai em MP4), com a legenda. Quem faz é a estação no seu computador, com a mesma IA do editor.
-- **Editor de vídeo com IA** (o principal): você sobe o vídeo cru + prints e gravações de tela, escolhe um dos **36 estilos de edição** (do clássico com legenda acendendo e as quatro variações dele, aos virais de legenda gigante, tela dividida, 3D, documentário, texto atrás de você, telejornal) e ele volta editado, com legenda, **motion animado de verdade** (vídeos curtos com personagens, câmera e impacto, feitos em Remotion), cards que se mexem a cena inteira, efeitos sonoros e o seu CTA. Roda no seu computador com a IA que você já assina (Claude ou ChatGPT) ou pela OpenRouter.
-- **Postar com 1 clique**: quando o vídeo fica pronto, a estação escreve a legenda na sua voz (com o "comenta X" do CTA). Você muda o que quiser e um botão posta como Reel na sua conta, pela API oficial. Ele ainda avisa se alguma automação responde a palavra do CTA.
-- **Materiais**: o que você entrega no "comenta X" vira uma página no celular (passo a passo, prompts com botão de copiar, links, templates), em `/m/<palavra>`, com o seu @, a sua foto e as cores da sua marca. A estação monta o rascunho a partir do que você falou no vídeo; você revisa e publica, e quem comenta recebe o link na DM.
-- **Automações do Instagram** (o "ManyChat" grátis): comentou a palavra → resposta pública + material na DM, com portão de seguidor, sequência de mensagens com botão, lembretes e follow-ups.
-- **Agente de IA no direct** (opcional): conversa com quem respondeu a automação, tira dúvida e oferece o seu link.
+O **guia dentro do sistema** fica em **Guia de instalação e primeiros passos**, no menu lateral (`/guia`). O Início acompanha o estado das conexões e da instalação.
 
-Tudo fica no seu nome: o banco é seu, a hospedagem é sua, o app da Meta é seu. Ninguém mais tem acesso.
+![Interface do Creaty com dados fictícios de demonstração](docs/preview.png)
 
----
+## Funcionalidades
 
-## Do que você precisa (tudo grátis pra criar)
+- Referências por link, vídeo ou prints; análise do formato e versões na sua voz.
+- Roteiros por tema, arquivo ou referência, com revisão, histórico e padrão viral personalizável.
+- Monitoramento de criadores do Instagram e YouTube, com limites configuráveis. Começa desligado.
+- Teleprompter e gravação de takes pelo navegador, com cortes, velocidade, ajustes e música.
+- Editor de vídeo com estilos, estação local, revisão e aprovação.
+- Carrosséis completos, com sua foto e assinatura, produzidos por estação local.
+- Publicação de reels e carrosséis pela API do Instagram, com agenda em horário de Brasília.
+- Páginas de materiais para CTAs: prompts, links, templates e passos.
+- Automações de comentário → DM, com botão, verificação de seguidor e entrega do material.
 
-| Conta | Pra quê |
+WhatsApp, disparos e agentes de atendimento da operação interna ficam fora desta distribuição. As CLIs usadas pelas estações produzem conteúdo; não atendem leads no direct.
+
+## Requisitos
+
+Node.js **22.18+**, npm, um projeto Supabase exclusivo para a instalação e hospedagem Next.js (Vercel ou VPS). A análise de mídia usa uma chave OpenRouter. As integrações exigem Instagram profissional e seu próprio app Meta.
+
+Para produzir localmente, veja [editor/INSTALAR.md](editor/INSTALAR.md): FFmpeg, Whisper, modelo de transcrição e CLI de IA instalada e autenticada. Custos, limites e recursos disponíveis dependem dos provedores e dos seus planos.
+
+## Instalação local
+
+Na pasta da sua cópia do repositório, rode `npm ci`. Copie `.env.example` para `.env.local` e preencha:
+
+```dotenv
+NEXT_PUBLIC_SUPABASE_URL=https://SEU-PROJETO.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=SUA-CHAVE-PUBLICA
+SUPABASE_SECRET_KEY=SUA-CHAVE-SECRETA
+```
+
+Rode `npm run dev` e abra `http://localhost:3000`. No primeiro acesso, o login oferece o **SQL completo de instalação**. Execute no SQL Editor do Supabase, volte e crie a conta do dono. A chave secreta comprova que você controla a instalação: nunca publique essa chave nem use um prefixo `NEXT_PUBLIC_` para ela.
+
+As tabelas ficam em `public`, com RLS e autorização em `criador_privado`. Use um banco exclusivo para o Creaty.
+
+Alternativa: configure `DATABASE_URL` com a conexão Postgres do Supabase e rode `npm run migrar`. Continue usando o mesmo método nas atualizações: o migrador registra os arquivos aplicados; SQL executado manualmente não cria esse histórico.
+
+## Vercel
+
+1. Faça um fork e importe o repositório como projeto Next.js.
+2. Configure as três variáveis do Supabase e faça o deploy.
+3. Abra a instalação, aplique o SQL e crie a conta do dono.
+4. No Início, configure IA, perfil e Instagram.
+5. Ative `pg_cron` e `pg_net` no Supabase e use **Ligar relógio** no Início.
+
+Mudou variáveis na hospedagem? Faça outro deploy. Confira se o plano atende ao seu uso e aos tempos de execução. As estações de produção rodam no computador, fora da Vercel.
+
+## Docker / VPS
+
+```sh
+docker build -t creaty --build-arg NEXT_PUBLIC_SUPABASE_URL=https://SEU-PROJETO.supabase.co --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=SUA-CHAVE-PUBLICA .
+docker run --env-file .env.local -p 3000:3000 creaty
+```
+
+Acrescente `APP_URL=https://seu-endereco` e `RELOGIO=ligado` ao ambiente do servidor. Use HTTPS e uma réplica para o relógio interno. `/api/health` é o healthcheck. Chaves secretas nunca entram nos argumentos de build.
+
+O download de alguns links depende de `yt-dlp` instalado no servidor (`YTDLP_BIN`). Sem ele, envie o arquivo pelo navegador. O Docker inclui o baixador. A disponibilidade da mídia também depende da rede de origem.
+
+## Instagram e conexões
+
+Siga o **Início** e **Conexões** para configurar seu app Meta, token, segredo e webhook. Confira as permissões para comentários, mensagens e publicação de conteúdo conforme o login escolhido. O app precisa estar apto a atender as contas da instalação.
+
+Para importar referências e monitorar perfis de terceiros, conecte também o Facebook à conta profissional. Algumas contas, músicas e mídias não são liberadas pela API: use o envio por arquivo.
+
+## Estações no computador
+
+Veja [editor/INSTALAR.md](editor/INSTALAR.md) e prepare também o navegador dos carrosséis:
+
+```sh
+npx playwright install chromium
+npm run estacao -- --preparar
+```
+
+Abra **três terminais**, na pasta do projeto:
+
+| Comando | Função |
 | --- | --- |
-| [Supabase](https://supabase.com) | onde ficam os seus dados |
-| [GitHub](https://github.com) | a sua cópia do sistema |
-| [Vercel](https://vercel.com) | deixar o sistema no ar |
-| [OpenRouter](https://openrouter.ai) | a IA que assiste e escreve (você paga só o que usar; US$ 5 duram bastante) |
-| [Meta for Developers](https://developers.facebook.com) | o seu app pro Instagram |
+| `npm run estacao` | Edição de vídeo, takes e render |
+| `npm run roteiro:estacao` | Roteiros, legendas e materiais |
+| `npm run carrossel:estacao` | Produção e render dos carrosséis |
 
-E pro editor de vídeo e os roteiros: um computador (Windows ou Mac) e uma assinatura do **Claude** (Pro/Max) **ou** do **ChatGPT** (Plus/Pro). Não tem nenhuma das duas? Dá pra usar a OpenRouter, pagando por vídeo.
+A primeira estação pergunta endereço do sistema, e-mail e senha. As outras reutilizam a sessão do dono e a RLS; não é necessário fornecer a chave secreta ao computador.
 
-O Instagram precisa ser **conta profissional** (criador ou empresa).
+No Editor, escolha quem edita. A escrita local aceita Claude ou Codex; o motor OpenRouter do editor é independente. O botão explícito **Gerar pela API** gera roteiros sem esperar a estação. Deixe as estações ligadas durante a produção; arquivos já agendados são publicados pelo servidor.
 
----
+## Primeiro conteúdo
 
-## Instalação (uns 20 minutos)
+1. Preencha **Meu perfil** com nome, @, nicho, público, tom e cores.
+2. Adicione uma **Referência** ou crie um **Roteiro**. Personalize **Roteiros → Padrão viral**.
+3. Grave pelo navegador ou use o teleprompter com seu gravador habitual.
+4. Na **Esteira**, escolha a edição, revise e aprove a publicação.
+5. Para carrosséis, envie todos os slides, confira a ordem, produza e revise antes de agendar.
+6. Revise o material do CTA em **Materiais** e confira os posts na **Agenda**.
 
-### 1. Supabase
+## Atualização
 
-1. Entre em [supabase.com](https://supabase.com) → **New project**. Nome: `sistema`. Crie uma senha qualquer (guarde). Região: **South America (São Paulo)**. Clique em **Create**.
-2. Espere uns 2 minutos o projeto ficar pronto.
-3. Vá em **Project Settings → API Keys** e deixe essa aba aberta: você vai copiar 3 coisas daqui no passo 3.
-   - **Project URL** (fica em Project Settings → Data API; começa com `https://` e termina com `.supabase.co`)
-   - **Publishable key** (`sb_publishable_...`)
-   - **Secret key** (`sb_secret_...`, clique em Reveal) → é segredo, não mostre pra ninguém
+Faça backup do banco, atualize sua cópia e rode `npm ci`. Aplique as migrações novas em ordem e refaça o deploy. Para quem já tinha a versão inicial, esta atualização usa `supabase/migrations/002_producao.sql`. Não reaplique migrações antigas pelo migrador se elas foram executadas manualmente sem registrar o histórico.
 
-### 2. GitHub
+Atualize também as estações no computador. Oficinas e resultados ficam fora do Git: preserve-os se precisar ajustar produções anteriores.
 
-1. Crie a conta em [github.com](https://github.com) (se não tiver).
-2. Nesta página, clique em **Fork** (no topo, à direita) → **Create fork**. Pronto: essa é a sua cópia.
+## Demonstração e verificações
 
-### 3. Vercel
+```sh
+npm run demo                  # localhost:3100, dados fictícios, sem persistência
+npm run typecheck
+npm run lint
+npm run build
+npm run reels:testar
+npm run automacoes:testar
+npm run carrossel:verificar
+```
 
-1. Entre em [vercel.com](https://vercel.com) com o GitHub.
-2. **Add New → Project** → ache o `sistema-do-criador` → **Import**.
-3. Abra **Environment Variables** e adicione as 3 (nome à esquerda, valor à direita):
-
-   | Nome | Valor |
-   | --- | --- |
-   | `NEXT_PUBLIC_SUPABASE_URL` | a Project URL |
-   | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | a Publishable key |
-   | `SUPABASE_SECRET_KEY` | a Secret key |
-
-4. Clique em **Deploy** e espere uns 3 minutos. No fim, clique na imagem do site pra abrir o seu sistema (`https://sistema-do-criador-xxxx.vercel.app`). Guarde esse endereço.
-
-### 4. Abrir o sistema
-
-1. Na primeira vez, o sistema pede pra criar as tabelas: clique em **Copiar o SQL**, abra o link do SQL Editor que ele mostra, cole e clique em **Run**. Volte e recarregue.
-2. Crie a sua conta: nome, e-mail, senha e a **Secret key** do Supabase (a mesma da Vercel). A chave prova que o sistema é seu: quem só achar o seu endereço não consegue virar dono.
-
-### 5. O resto é dentro do sistema
-
-O **Início** te guia, com o status de cada passo ao vivo:
-
-1. Chave da IA (colar a chave da OpenRouter)
-2. Seu perfil
-3. Instagram: o seu app na Meta (o passo mais longo, uns 20 min)
-4. O relógio (um clique)
-5. A estação no seu computador (um comando): edita os vídeos, escreve os roteiros e faz as cópias de carrossel
-6. A sua primeira automação
-
----
-
-## Quanto custa pra rodar
-
-- **Supabase, Vercel, GitHub e Meta**: grátis no uso de um criador. (O plano grátis da Vercel é pra uso pessoal; se o seu uso crescer, tem o Pro, ou dá pra rodar em servidor próprio com o `Dockerfile`.)
-- **OpenRouter**: centavos por referência analisada e por roteiro; o agente do direct custa frações de centavo por resposta.
-- **Editor de vídeo e roteiros**: zero de API se você usa a sua assinatura do Claude ou do ChatGPT. Pela OpenRouter, paga por vídeo (e uns centavos por roteiro).
-
-## Atualizar
-
-Quando sair versão nova: abra a sua cópia no GitHub e clique em **Sync fork → Update branch**. A Vercel atualiza sozinha. A estação do computador se atualiza rodando o instalador de novo.
+Os testes de render precisam de Chromium do Playwright e FFmpeg no PATH. Não usam contas reais nem publicam no Instagram.
 
 Se a versão nova trouxer tabela nova no banco (um arquivo novo em `supabase/migrations`, como `004_carrossel.sql`), o **Início** avisa e mostra o SQL pra copiar: cole no **SQL Editor** do Supabase e clique em **Run** (1 minuto; pode rodar de novo sem medo, não estraga nada). Quem roda o sistema pelo terminal pode usar `npm run migrar`.
 
 ## Problemas comuns
 
-- **"Falta um passo da instalação"**: a tela diz qual variável falta. Depois de mudar variável na Vercel, vá em **Deployments → ⋯ → Redeploy**.
-- **O webhook não verifica na Meta**: copie de novo o token de verificação que o Início mostra (passo 4) e confira a URL de callback.
-- **Comentário de outra pessoa não chega**: o app da Meta ainda está em modo Desenvolvimento. Publique (modo Ao vivo).
-- **O relógio não liga**: no Supabase, **Database → Extensions**, ligue `pg_cron` e `pg_net` e clique em ligar de novo.
-- **"O token do Instagram não tem a permissão de publicar"** (no Postar no Instagram): no app da Meta, **Casos de uso → Instagram → Personalizar → Permissões e recursos**, adicione `instagram_business_content_publish`, gere o token de novo e troque em **Conexões → Instagram**.
-- **A legenda ou o material não sai da fila**: quem escreve é a estação no seu computador. Abra o atalho **Estação de edição**.
-- **Reel sem vídeo na Esteira**: conta pessoal e reel com música licenciada a Meta não libera. Suba o arquivo.
-- **Cópia de carrossel parada em "esperando a estação"**: a estação do seu computador está desligada. Abra o atalho **Estação de edição**; o pedido sai sozinho.
+| Problema | Confira |
+| --- | --- |
+| Banco vazio ou área nova não abre | SQL / migração `002_producao.sql` |
+| Pedido parado | Estação correspondente e autenticação da CLI |
+| Referência ou monitor sem avançar | Chave da IA, Facebook e relógio |
+| Link não baixa | Mídia disponível e `yt-dlp`; envie o arquivo como alternativa |
+| Post não sai | Erro na Agenda, relógio e permissões de publicação |
+| Publicação interrompida | Confira no Instagram antes de retomar para evitar duplicação |
+| Webhook não verifica | URL pública, token e segredo no Início |
 
-## Servidor próprio (opcional)
+## Desenvolvimento
 
-Prefere VPS? O `Dockerfile` está pronto. Use as mesmas 3 variáveis, mais `APP_URL` (o endereço https) e `RELOGIO=ligado` (o relógio roda dentro do servidor e dispensa o pg_cron). Uma réplica só.
+Next.js, React, TypeScript, Tailwind e Supabase. Leia [CLAUDE.md](CLAUDE.md) e [AGENTS.md](AGENTS.md). Evolua o banco com migrações novas. Não distribua `.env.local`, sessões, contatos ou arquivos pessoais.
 
-## Ver o painel sem instalar nada
-
-No seu computador, com o Node instalado: `npm install` e depois `npm run demo`. Abre em http://localhost:3100 com dados de exemplo (nada é salvo).
-
-## Pra quem mexe no código
-
-Next.js 16 (App Router), Supabase (RLS em tudo), LangGraph + OpenRouter no agente, Gemini pra ver e ouvir vídeo, HyperFrames no editor. A pasta `editor/` é a oficina do editor de vídeo (roda no seu computador). O `CLAUDE.md` explica a estrutura pra você customizar com o Claude Code ou o Codex.
-
----
-
-Criado por **Lucas Duty** ([@eulucasduty](https://instagram.com/eulucasduty)). Licença MIT: use, adapte e compartilhe.
+Criado por **Lucas Duty**. [Licença MIT](LICENSE).

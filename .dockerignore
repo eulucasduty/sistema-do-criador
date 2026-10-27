@@ -1,4 +1,10 @@
 node_modules
+node_modules-incompleto
+.npm-cache
+carrosseis/oficina
+carrosseis/moldes
+editor/oficina
+editor/ferramentas
 .next
 .git
 .env*

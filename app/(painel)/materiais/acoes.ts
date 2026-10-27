@@ -4,11 +4,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { exigirEquipe } from "@/lib/supabase/server";
-import { ENTREGAS_PADRAO, salvarConfig } from "@/lib/config";
+import { salvarConfig } from "@/lib/config";
 import { normalizarBlocos, slugDe, urlSegura } from "@/lib/entregas/blocos";
 
-// Materiais (as entregas dos CTAs): o rascunho é escrito pela estação no seu PC
-// (editor/estacao/escrita.mjs); você revisa aqui e publica em /m/<endereço>.
+// As entregas dos CTAs (Materiais): o rascunho é escrito pela estação (fila em
+// scripts/estacao-roteiros.ts), o criador revisa aqui e publica em /m/<slug>.
 
 const limpo = (s: unknown, max: number) => String(s ?? "").replace(/\r\n/g, "\n").trim().slice(0, max);
 const voltar = (caminho: string, erro?: string): never => {
@@ -23,12 +23,12 @@ async function slugLivre(db: ReturnType<typeof createAdminClient>, base: string,
   for (let k = 2; k < 60; k++) {
     const { data } = await db.from("entrega").select("id").eq("slug", slug).maybeSingle();
     if (!data || data.id === menosId) return slug;
-    slug = `${raiz.slice(0, 36)}-${k}`;
+    slug = `${raiz}-${k}`.slice(0, 40);
   }
-  return `${raiz.slice(0, 30)}-${Date.now().toString(36)}`;
+  return `${raiz}-${Date.now().toString(36)}`.slice(0, 40);
 }
 
-/** Novo material: vai pra fila da estação, que monta o rascunho. */
+/** Nova entrega: vai pra fila da estação, que monta o rascunho. */
 export async function criarEntrega(form: FormData) {
   await exigirEquipe();
   const palavra = limpo(form.get("palavra"), 40);
@@ -41,31 +41,14 @@ export async function criarEntrega(form: FormData) {
   const slug = await slugLivre(db, palavra || titulo);
   const { data, error } = await db
     .from("entrega")
-    .insert({ slug, palavra: palavra || null, titulo, pedido: pedido || null, edicao_id: edicaoId, status: "aguardando_estacao", etapa: "na fila da estação: a IA monta o material" })
+    .insert({ slug, palavra: palavra || null, titulo, pedido: pedido || null, edicao_id: edicaoId, status: "aguardando_estacao", etapa: "na fila da estação: o Claude monta o material" })
     .select("id")
     .single();
   if (error || !data) voltar("/materiais", `não criou: ${error?.message}`);
   voltar(`/materiais/${data!.id}`);
 }
 
-/** Material escrito à mão, sem a estação (começa com um bloco de texto). */
-export async function criarEntregaEmBranco(form: FormData) {
-  await exigirEquipe();
-  const palavra = limpo(form.get("palavra"), 40);
-  const titulo = limpo(form.get("titulo"), 120);
-  if (!palavra && !titulo) voltar("/materiais", "dê a palavra do comentário ou um título");
-  const db = createAdminClient();
-  const slug = await slugLivre(db, palavra || titulo);
-  const { data, error } = await db
-    .from("entrega")
-    .insert({ slug, palavra: palavra || null, titulo: titulo || palavra, status: "rascunho", blocos: [{ tipo: "texto", texto: "" }] })
-    .select("id")
-    .single();
-  if (error || !data) voltar("/materiais", `não criou: ${error?.message}`);
-  voltar(`/materiais/${data!.id}`);
-}
-
-/** Guarda o que você mexeu (título, palavra, endereço, blocos) e publica ou tira do ar. */
+/** Guarda o que ele mexeu (título, palavra, endereço, blocos). */
 export async function salvarEntrega(form: FormData) {
   await exigirEquipe();
   const id = limpo(form.get("id"), 60);
@@ -77,9 +60,8 @@ export async function salvarEntrega(form: FormData) {
   } catch {
     voltar(caminho, "os blocos vieram quebrados: recarregue a página");
   }
-  const publicar = String(form.get("publicar") ?? "");
-  if (publicar === "1" && !blocos.length) voltar(caminho, "o material está vazio: ponha pelo menos um bloco antes de publicar");
-  const slug = await slugLivre(db, limpo(form.get("slug"), 40) || limpo(form.get("palavra"), 40) || limpo(form.get("titulo"), 120), id);
+  const slugPedido = limpo(form.get("slug"), 40);
+  const slug = await slugLivre(db, slugPedido || limpo(form.get("palavra"), 40) || limpo(form.get("titulo"), 120), id);
   const { error } = await db
     .from("entrega")
     .update({
@@ -89,8 +71,8 @@ export async function salvarEntrega(form: FormData) {
       slug,
       na_dm: form.get("na_dm") === "on",
       blocos,
-      ...(publicar === "1" ? { publicada: true, publicada_em: new Date().toISOString(), status: "pronta" } : {}),
-      ...(publicar === "0" ? { publicada: false } : {}),
+      ...(String(form.get("publicar") ?? "") === "1" ? { publicada: true, publicada_em: new Date().toISOString() } : {}),
+      ...(String(form.get("publicar") ?? "") === "0" ? { publicada: false } : {}),
     })
     .eq("id", id)
     .in("status", ["pronta", "rascunho", "erro"]);
@@ -102,12 +84,15 @@ export async function ajustarEntrega(form: FormData) {
   await exigirEquipe();
   const id = limpo(form.get("id"), 60);
   const ajuste = limpo(form.get("ajuste"), 4000);
-  const { error } = await createAdminClient()
+  const pedido = form.has("pedido") ? limpo(form.get("pedido"), 12000) : undefined;
+  const db = createAdminClient();
+  const { error } = await db
     .from("entrega")
     .update({
       status: "aguardando_estacao",
       ajuste: ajuste || null,
-      etapa: ajuste ? "na fila da estação: a IA ajusta o material" : "na fila da estação: a IA monta o material de novo",
+      ...(pedido !== undefined ? { pedido: pedido || null } : {}),
+      etapa: ajuste ? "na fila da estação: o Claude ajusta o material" : "na fila da estação: o Claude monta o material de novo",
       erro: null,
     })
     .eq("id", id)
@@ -122,16 +107,14 @@ export async function apagarEntrega(form: FormData) {
   voltar("/materiais");
 }
 
-/** A mensagem da DM e o convite que vai depois do material (na DM e no fim da página). */
+/** O convite da comunidade: vai na DM depois do link do material e no fim da página. */
 export async function salvarConvite(form: FormData) {
   await exigirEquipe();
   const link = urlSegura(form.get("convite_link"));
   if (String(form.get("convite_link") ?? "").trim() && !link) voltar("/materiais", "o link do convite precisa começar com https://");
   await salvarConfig("entregas", {
-    dm_texto: limpo(form.get("dm_texto"), 600) || ENTREGAS_PADRAO.dm_texto,
-    dm_botao: limpo(form.get("dm_botao"), 20) || ENTREGAS_PADRAO.dm_botao,
     convite_texto: limpo(form.get("convite_texto"), 600),
-    convite_botao: limpo(form.get("convite_botao"), 20) || ENTREGAS_PADRAO.convite_botao,
+    convite_botao: limpo(form.get("convite_botao"), 40) || "entrar na comunidade",
     convite_link: link,
   });
   voltar("/materiais");

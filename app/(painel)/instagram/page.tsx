@@ -4,7 +4,7 @@ import { haQuanto } from "@/lib/formato";
 import { instagramConfigurado } from "@/lib/instagram/api";
 import type { LembreteComentario } from "@/lib/config";
 import { alternarAutomacao, salvarLembrete } from "./acoes";
-import { FormAcao } from "../agente/form-acao";
+import { FormAcao } from "../form-acao";
 
 export const dynamic = "force-dynamic";
 
@@ -22,13 +22,12 @@ const pct = (a: number, b: number) => `${Math.round((a / b) * 100)}%`;
 export default async function PaginaAutomacoes({ searchParams }: PageProps<"/instagram">) {
   const q = await searchParams;
   const supabase = await createClient();
-  const [{ data: automacoes }, { data: comentarios }, { data: agente }, { data: lembreteSalvo }, conectado] = await Promise.all([
+  const [{ data: automacoes }, { data: comentarios }, { data: lembreteSalvo }, conectado] = await Promise.all([
     supabase
       .from("ig_automacao")
       .select("id, nome, ativa, modo, palavras, todas_as_midias, midias, exigir_seguir, criado_em")
       .order("criado_em", { ascending: false }),
     supabase.from("ig_comentario").select("id, usuario, texto, status, erro, criado_em, automacao_id, contato_id").order("criado_em", { ascending: false }).limit(25),
-    supabase.from("agente").select("ativo").order("criado_em").limit(1).maybeSingle(),
     supabase.from("configuracao").select("valor").eq("chave", "lembrete_comentario").maybeSingle(),
     instagramConfigurado().catch(() => false),
   ]);
@@ -49,7 +48,6 @@ export default async function PaginaAutomacoes({ searchParams }: PageProps<"/ins
     }),
   );
   const nomeDa = new Map((automacoes ?? []).map((a) => [a.id, a.nome]));
-  const agenteLigado = Boolean(agente?.ativo);
 
   return (
     <div className="max-w-6xl space-y-8">
@@ -58,7 +56,7 @@ export default async function PaginaAutomacoes({ searchParams }: PageProps<"/ins
           <h1 className="titulo">Automações</h1>
           <p className="mt-1 text-sm text-suave">
             O seu ManyChat grátis: a pessoa comenta a palavra no post → resposta pública + DM com botão → toca no botão e recebe o material. Sem IA e
-            sem custo. Se quiser que a conversa continue depois, ligue o <Link href="/agente" className="text-marca underline">agente</Link>.
+            sem custo.
           </p>
         </div>
         <Link href="/instagram/nova" className="btn btn-sm">
@@ -109,7 +107,6 @@ export default async function PaginaAutomacoes({ searchParams }: PageProps<"/ins
                   {a.palavras.length ? `palavra: ${a.palavras.join(", ")}` : "qualquer comentário"} ·{" "}
                   {a.todas_as_midias ? "todos os posts" : `${a.midias.length} ${a.midias.length === 1 ? "post" : "posts"}`}
                   {a.exigir_seguir && " · só pra quem segue"}
-                  {a.modo === "agente" && (agenteLigado ? " · o agente continua" : <span className="text-morno"> · modo agente (desligado)</span>)}
                 </p>
                 <div className="mt-3 grid grid-cols-4 gap-2 text-center">
                   {[

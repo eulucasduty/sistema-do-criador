@@ -1,14 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { extrairAudio } from "@/lib/roteiro/audio-navegador";
 import { DURACAO_PADRAO, DURACOES } from "@/lib/roteiro/comum";
-import { mb, subirParte } from "../editor/envio";
+import { subirParte } from "../editor/envio";
 import { confirmarEnvio, criarRoteiro, type NovoRoteiro } from "./acoes";
 
 const MAX_ARQUIVO = 45 * 1024 * 1024;
+const mb = (b: number) => `${(b / 1048576).toFixed(b > 10 * 1048576 ? 0 : 1)} MB`;
 
 type Modo = "tema" | "video";
 
@@ -25,11 +25,8 @@ function Pilula({ ativo, children, ...props }: React.ButtonHTMLAttributes<HTMLBu
   );
 }
 
-/**
- * O formulário de novo roteiro: sobre um tema, ou a partir de um vídeo de referência (arquivo ou
- * link do Instagram). `palavras`: as palavras das suas automações ativas (sugestão do comenta).
- */
-export function NovoRoteiroForm({ palavras = [] }: { palavras?: string[] }) {
+/** O formulário de novo roteiro: sobre um tema, ou a partir de um vídeo de referência (arquivo ou link). */
+export function NovoRoteiroForm() {
   const router = useRouter();
   const [modo, setModo] = useState<Modo>("tema");
   const [fonte, setFonte] = useState<"arquivo" | "link">("arquivo");
@@ -48,23 +45,23 @@ export function NovoRoteiroForm({ palavras = [] }: { palavras?: string[] }) {
     const base = { tema, direcao, palavra, duracao };
     try {
       if (modo === "tema") {
-        if (tema.trim().length < 3) return setErro("Escreva sobre o que é o vídeo.");
+        if (tema.trim().length < 3) return setErro("Escreve sobre o que é o vídeo.");
         setEnvio({ texto: "Mandando pro roteirista…" });
         const r = await criarRoteiro({ ...base, modo: "tema" });
         if ("erro" in r) throw new Error(r.erro);
         return router.push(`/roteiros/${r.id}`);
       }
       if (fonte === "link") {
-        if (!link.trim()) return setErro("Cole o link do reel.");
+        if (!link.trim()) return setErro("Cola o link do vídeo.");
         setEnvio({ texto: "Mandando pro roteirista…" });
         const r = await criarRoteiro({ ...base, modo: "link", link });
         if ("erro" in r) throw new Error(r.erro);
         return router.push(`/roteiros/${r.id}`);
       }
-      if (!arquivo) return setErro("Escolha o vídeo.");
+      if (!arquivo) return setErro("Escolhe o vídeo.");
       let subir = arquivo;
       if (arquivo.size > MAX_ARQUIVO) {
-        // Grande demais pro Storage: o navegador tira só o áudio (a fala é o que importa pro roteiro)
+        // Grande demais pro storage: o navegador tira só o áudio (a fala é o que importa pro roteiro)
         setEnvio({ texto: "Vídeo grande: tirando só o áudio aqui no navegador…" });
         const audio = await extrairAudio(arquivo);
         if (audio.arquivo.size > MAX_ARQUIVO) throw new Error("Mesmo só o áudio passou de 45 MB.");
@@ -111,7 +108,7 @@ export function NovoRoteiroForm({ palavras = [] }: { palavras?: string[] }) {
               Arquivo
             </Pilula>
             <Pilula ativo={fonte === "link"} onClick={() => setFonte("link")} disabled={ocupado}>
-              Link do Instagram
+              Link
             </Pilula>
           </div>
           {fonte === "arquivo" ? (
@@ -121,12 +118,12 @@ export function NovoRoteiroForm({ palavras = [] }: { palavras?: string[] }) {
               <span className="mt-1 block text-xs text-apagado">
                 {arquivo
                   ? `${arquivo.name} · ${mb(arquivo.size)}${arquivo.size > MAX_ARQUIVO ? " · grande: vai só o áudio" : ""}`
-                  : "O vídeo que viralizou, salvo no celular ou no PC (de qualquer rede). A IA ouve, entende o assunto e a estrutura e escreve um roteiro seu, sem as falas do outro criador."}
+                  : "O vídeo que viralizou, salvo no celular ou no PC. A IA ouve, entende o assunto e a estrutura e escreve um roteiro teu, sem as falas do outro criador."}
               </span>
             </label>
           ) : (
             <label className="block">
-              <span className="rotulo">Link do reel</span>
+              <span className="rotulo">Link do vídeo</span>
               <input
                 className="campo mt-1"
                 type="url"
@@ -137,12 +134,7 @@ export function NovoRoteiroForm({ palavras = [] }: { palavras?: string[] }) {
                 disabled={ocupado}
               />
               <span className="mt-1 block text-xs text-apagado">
-                Precisa do Facebook conectado (Conexões) e o reel tem que ser de conta de criador ou empresa. Não deu? Baixe o vídeo e suba o arquivo. Já
-                está na{" "}
-                <Link href="/esteira" className="text-marca underline">
-                  Esteira
-                </Link>
-                ? Abra o reel lá e clique em Criar roteiro.
+                Instagram (conta de criador ou empresa), TikTok ou YouTube. Se o site pedir login, baixa o vídeo e manda o arquivo.
               </span>
             </label>
           )}
@@ -150,13 +142,13 @@ export function NovoRoteiroForm({ palavras = [] }: { palavras?: string[] }) {
       )}
 
       <label className="block">
-        <span className="rotulo">{modo === "tema" ? "Sobre o que é o vídeo" : "Seu foco (opcional)"}</span>
+        <span className="rotulo">{modo === "tema" ? "Sobre o que é o vídeo" : "Teu foco (opcional)"}</span>
         <textarea
           className="campo mt-1"
           rows={3}
           value={tema}
           onChange={(e) => setTema(e.target.value)}
-          placeholder={modo === "tema" ? "ex.: 3 erros de quem tá começando · o app que eu uso pra organizar a semana" : "ex.: puxa pro meu nicho · fala pra quem tá começando"}
+          placeholder={modo === "tema" ? "ex.: como começar uma rotina de treino · organizar o orçamento do mês" : "ex.: adapte para iniciantes · mostre um passo a passo"}
           disabled={ocupado}
           required={modo === "tema"}
         />
@@ -180,23 +172,17 @@ export function NovoRoteiroForm({ palavras = [] }: { palavras?: string[] }) {
             className="campo mt-1 uppercase"
             value={palavra}
             onChange={(e) => setPalavra(e.target.value.toUpperCase().replace(/[^\p{L}\p{N}]/gu, "").slice(0, 24))}
-            placeholder="ex.: GUIA"
+            placeholder="ex.: AGENTE"
             autoCapitalize="characters"
-            list="palavras-automacao"
             disabled={ocupado}
           />
-          <datalist id="palavras-automacao">
-            {palavras.map((p) => (
-              <option key={p} value={p.toUpperCase()} />
-            ))}
-          </datalist>
         </label>
         <label className="block">
           <span className="rotulo">Direção (opcional)</span>
-          <input className="campo mt-1" value={direcao} onChange={(e) => setDirecao(e.target.value)} placeholder="ex.: mais polêmico · termina puxando pro meu material" disabled={ocupado} />
+          <input className="campo mt-1" value={direcao} onChange={(e) => setDirecao(e.target.value)} placeholder="ex.: mais polêmico · termina puxando pro grupo" disabled={ocupado} />
         </label>
       </div>
-      <p className="-mt-2 text-xs text-apagado">Sem palavra, a IA escolhe uma ligada ao tema. Lembre de ter a automação dela no Instagram.</p>
+      <p className="-mt-2 text-xs text-apagado">Sem palavra, a IA escolhe uma ligada ao tema. Lembra de ter a automação dela no Instagram.</p>
 
       {erro && <p className="rounded-lg bg-quente/10 px-3 py-2 text-sm text-quente">{erro}</p>}
       {envio ? (

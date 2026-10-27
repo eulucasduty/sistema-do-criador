@@ -5,15 +5,16 @@ import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { exigirEquipe } from "@/lib/supabase/server";
-import { duracaoValida, semTabela } from "@/lib/roteiro/comum";
-import { palavraLimpa } from "@/lib/roteiro/escritor.mjs";
+import { DURACAO_PADRAO, DURACOES } from "@/lib/roteiro/comum";
+import { palavraLimpa } from "@/lib/roteiro/escrever";
 import { linkValido } from "@/lib/roteiro/link";
-import { lerPadrao, PADRAO_INICIAL, restaurarPadrao, salvarPadrao, type ExemploViral } from "@/lib/roteiro/padrao-viral";
-import { BUCKET, processarRoteiro } from "@/lib/roteiro/processar";
+import { lerPadrao, salvarPadrao, type ExemploViral } from "@/lib/roteiro/padrao-viral";
+import { agendarRoteiro, BUCKET } from "@/lib/roteiro/processar";
+import { salvarConfig } from "@/lib/config";
 
-// Roteiros pra teleprompter. O vídeo de referência vai do navegador direto pro Storage (link
-// assinado, como na Esteira); maior que 45 MB, o navegador manda só o áudio. A transcrição e a
-// análise rodam depois da resposta (after) e quem escreve é a estação no PC do criador.
+// Roteiros pra teleprompter. O vídeo de referência vai do navegador direto pro storage (link
+// assinado, como no editor de vídeo); maior que 45 MB, o navegador manda só o áudio. O resto roda
+// em segundo plano (lib/roteiro/processar.ts) e a página acompanha.
 
 export type NovoRoteiro = {
   modo: "tema" | "arquivo" | "link";
@@ -27,14 +28,12 @@ export type NovoRoteiro = {
 
 const MAX_ARQUIVO = 45 * 1024 * 1024;
 const limpo = (s: unknown, max = 2000) => String(s ?? "").trim().slice(0, max);
+const duracaoValida = (d: unknown) => (DURACOES.some((x) => x.valor === Number(d)) ? Number(d) : DURACAO_PADRAO);
 const EXTENSAO: Record<string, string> = { "video/mp4": "mp4", "video/quicktime": "mov", "video/webm": "webm", "audio/wav": "wav", "audio/mpeg": "mp3", "audio/mp4": "m4a" };
-const SEM_BANCO = "o banco ainda não tem os roteiros: rode o SQL da atualização (o Início mostra)";
-const processarDepois = (id: string) => after(() => processarRoteiro(id).catch((e) => console.error("[roteiro]", id, (e as Error).message)));
-const erroDoBanco = (e: { code?: string; message?: string } | null) => (semTabela(e) ? SEM_BANCO : `não consegui criar: ${e?.message ?? "erro"}`);
 
 /**
- * Cria o roteiro. Tema já vai pra estação; link entra na fila do servidor; arquivo volta com o link
- * pra subir o vídeo. Devolve {erro} em vez de lançar: em produção o Next esconde a mensagem.
+ * Cria o roteiro. Tema e link já entram na fila; arquivo volta com o link pra subir o vídeo.
+ * Devolve {erro} em vez de lançar: em produção o Next esconde a mensagem de erro de Server Action.
  */
 export async function criarRoteiro(p: NovoRoteiro): Promise<{ id: string; envio?: string } | { erro: string }> {
   try {
@@ -50,25 +49,26 @@ export async function criarRoteiro(p: NovoRoteiro): Promise<{ id: string; envio?
     const db = createAdminClient();
 
     if (p.modo === "tema") {
-      if (tema.length < 3) return { erro: "Escreva sobre o que é o vídeo." };
-      const { data, error } = await db.from("roteiro").insert({ ...base, origem: "tema", status: "aguardando_estacao", etapa: "esperando a estação" }).select("id").single();
-      if (error || !data) return { erro: erroDoBanco(error) };
+      if (tema.length < 3) return { erro: "Escreve sobre o que é o vídeo." };
+      const { data, error } = await db.from("roteiro").insert({ ...base, origem: "tema", status: "na_fila", etapa: "na fila" }).select("id").single();
+      if (error || !data) return { erro: `não consegui criar: ${error?.message}` };
+      after(() => agendarRoteiro(data.id));
       revalidatePath("/roteiros");
       return { id: data.id };
     }
 
     if (p.modo === "link") {
-      const link = limpo(p.link, 1000).split("?")[0];
-      if (!linkValido(link)) return { erro: "Cole o link de um reel do Instagram (instagram.com/reel/…). Vídeo de outro lugar: baixe e suba o arquivo." };
+      const link = limpo(p.link, 1000);
+      if (!linkValido(link)) return { erro: "Cola o link de um vídeo do Instagram, TikTok ou YouTube." };
       const { data, error } = await db.from("roteiro").insert({ ...base, origem: "link", link, status: "na_fila", etapa: "na fila" }).select("id").single();
-      if (error || !data) return { erro: erroDoBanco(error) };
-      processarDepois(data.id);
+      if (error || !data) return { erro: `não consegui criar: ${error?.message}` };
+      after(() => agendarRoteiro(data.id));
       revalidatePath("/roteiros");
       return { id: data.id };
     }
 
     const a = p.arquivo;
-    if (!a || !(a.tamanho > 0)) return { erro: "Escolha o vídeo." };
+    if (!a || !(a.tamanho > 0)) return { erro: "Escolhe o vídeo." };
     if (a.tamanho > MAX_ARQUIVO) return { erro: "O arquivo passou de 45 MB." };
     const tipo = limpo(a.tipo, 80) || "video/mp4";
     if (!/^(video|audio)\//.test(tipo)) return { erro: "Esse arquivo não é vídeo." };
@@ -77,7 +77,7 @@ export async function criarRoteiro(p: NovoRoteiro): Promise<{ id: string; envio?
       .insert({ ...base, origem: "arquivo", status: "subindo", etapa: "subindo o vídeo", arquivo_tipo: tipo, arquivo_nome: limpo(a.nome, 200) })
       .select("id")
       .single();
-    if (error || !data) return { erro: erroDoBanco(error) };
+    if (error || !data) return { erro: `não consegui criar: ${error?.message}` };
     const caminho = `roteiro/${data.id}/referencia.${EXTENSAO[tipo] ?? (tipo.startsWith("audio") ? "wav" : "mp4")}`;
     const { data: envio, error: e } = await db.storage.from(BUCKET).createSignedUploadUrl(caminho, { upsert: true });
     if (e || !envio) return { erro: `link de envio: ${e?.message}` };
@@ -88,11 +88,12 @@ export async function criarRoteiro(p: NovoRoteiro): Promise<{ id: string; envio?
   }
 }
 
-/** O vídeo subiu: entra na fila (o servidor ouve e analisa; depois a estação escreve). */
+/** O vídeo subiu: entra na fila. */
 export async function confirmarEnvio(id: string): Promise<void> {
   await exigirEquipe();
-  const { data } = await createAdminClient().from("roteiro").update({ status: "na_fila", etapa: "na fila" }).eq("id", limpo(id, 60)).eq("status", "subindo").select("id");
-  if (data?.length) processarDepois(data[0].id);
+  const db = createAdminClient();
+  const { data } = await db.from("roteiro").update({ status: "na_fila", etapa: "na fila" }).eq("id", id).eq("status", "subindo").select("id");
+  if (data?.length) after(() => agendarRoteiro(id));
   revalidatePath("/roteiros");
 }
 
@@ -100,11 +101,13 @@ export async function confirmarEnvio(id: string): Promise<void> {
 export async function novaVersao(formData: FormData) {
   await exigirEquipe();
   const id = limpo(formData.get("id"), 60);
-  const { data } = await createAdminClient()
+  const db = createAdminClient();
+  const { data } = await db
     .from("roteiro")
     .update({
       status: "na_fila",
       etapa: "na fila",
+      via: "estacao",
       erro: null,
       direcao: limpo(formData.get("direcao"), 2000) || null,
       palavra_cta: palavraLimpa(String(formData.get("palavra") ?? "")) || null,
@@ -113,7 +116,7 @@ export async function novaVersao(formData: FormData) {
     .eq("id", id)
     .in("status", ["pronto", "erro"])
     .select("id");
-  if (data?.length) processarDepois(id);
+  if (data?.length) after(() => agendarRoteiro(id));
   revalidatePath(`/roteiros/${id}`);
   redirect(`/roteiros/${id}`);
 }
@@ -122,13 +125,31 @@ export async function novaVersao(formData: FormData) {
 export async function tentarDeNovo(formData: FormData) {
   await exigirEquipe();
   const id = limpo(formData.get("id"), 60);
-  const { data } = await createAdminClient()
+  const db = createAdminClient();
+  // "Tentar de novo" volta pra estação: a API só entra pelo botão dela
+  const { data } = await db
     .from("roteiro")
-    .update({ status: "na_fila", etapa: "na fila", erro: null, processando_desde: null })
+    .update({ status: "na_fila", etapa: "na fila", via: "estacao", erro: null, processando_desde: null })
     .eq("id", id)
     .in("status", ["erro", "na_fila", "transcrevendo", "escrevendo"])
     .select("id");
-  if (data?.length) processarDepois(id);
+  if (data?.length) after(() => agendarRoteiro(id));
+  revalidatePath(`/roteiros/${id}`);
+  redirect(`/roteiros/${id}`);
+}
+
+/** Reserva manual: a estação está desligada e o criador quer o roteiro agora (escreve pela API, ~US$ 0,15). */
+export async function gerarPelaApi(formData: FormData) {
+  await exigirEquipe();
+  const id = limpo(formData.get("id"), 60);
+  const db = createAdminClient();
+  const { data } = await db
+    .from("roteiro")
+    .update({ status: "na_fila", via: "api", etapa: "vai escrever pela API (pedido manual)" })
+    .eq("id", id)
+    .eq("status", "aguardando_estacao")
+    .select("id");
+  if (data?.length) after(() => agendarRoteiro(id));
   revalidatePath(`/roteiros/${id}`);
   redirect(`/roteiros/${id}`);
 }
@@ -144,11 +165,12 @@ export async function apagarRoteiro(formData: FormData) {
   redirect("/roteiros");
 }
 
-/** Botão "Criar roteiro" de um reel da Esteira: roteiro pra teleprompter a partir dele. */
+/** Botão da esteira: roteiro pra teleprompter a partir de um reel que a esteira já transcreveu. */
 export async function roteiroDaEsteira(formData: FormData) {
   const { usuarioId } = await exigirEquipe();
   const referencia = limpo(formData.get("id"), 60);
-  const { data, error } = await createAdminClient()
+  const db = createAdminClient();
+  const { data, error } = await db
     .from("roteiro")
     .insert({
       origem: "esteira",
@@ -162,10 +184,9 @@ export async function roteiroDaEsteira(formData: FormData) {
     })
     .select("id")
     .single();
-  if (error || !data) redirect(`/esteira/${referencia}?erro=${encodeURIComponent(`roteiro: ${erroDoBanco(error)}`.slice(0, 200))}`);
-  processarDepois(data.id);
+  if (error || !data) redirect(`/esteira/${referencia}?erro=${encodeURIComponent(`roteiro: ${error?.message ?? "erro"}`)}`);
+  after(() => agendarRoteiro(data.id));
   revalidatePath("/roteiros");
-  revalidatePath(`/esteira/${referencia}`);
   redirect(`/roteiros/${data.id}`);
 }
 
@@ -191,16 +212,16 @@ export async function salvarPadraoViral(formData: FormData) {
       .map((s) => s.trim())
       .filter((s) => s.length > 1)
       .slice(0, 200),
-    fonte: atual.fonte === PADRAO_INICIAL.fonte ? "o seu padrão (editado no painel)" : atual.fonte,
+    fonte: atual.fonte,
   });
   revalidatePath("/roteiros/padrao");
   redirect("/roteiros/padrao?salvo=1");
 }
 
-/** Volta o guia pro padrão do sistema. */
+/** Volta o guia pro da fase 1 (o que está no código). */
 export async function restaurarPadraoViral() {
   await exigirEquipe();
-  await restaurarPadrao();
+  await salvarConfig("padrao_viral", null);
   revalidatePath("/roteiros/padrao");
   redirect("/roteiros/padrao?salvo=1");
 }
